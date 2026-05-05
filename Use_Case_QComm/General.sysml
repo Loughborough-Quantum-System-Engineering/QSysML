@@ -65,45 +65,80 @@ package QSysML {
         }
         part def receiver {
             doc /* A receiver is the whole physical side or subsystem that accepts the incoming signal. */
-            part def decoder :> receiver {
-                doc /* A decoder is the part that interprets or extracts the encoded state from the received signal. */
-                part def singlePhotonDetector {
-                    doc /* In QKD, the incoming optical pulse is very weak, often at the single-photon level. The SPD converts that optical event into an electrical signal that the electronics can record. */
-                }
-            }
         }
-        part def sender {
-            part def Source {
-                doc /* this is the source of weak coherent pulse or sigle photon emitter */
-                part def singlePhotonGenerator;
-                part def weakCoherentSource;
-            }
-            part def encoder {
-                doc /* A qubit is a two-level quantum state, and the “encoding” tells you which physical degree of freedom carries those two basis states.  */
-                part def polarisationEncoding;
-                part def Time_binEncoding;
-                part def PhaseEncoding;
-            }
-            part def transmitter {
-                doc /* Transmitter usually means the physical hardware block. what hardware performs the sending */
-            }
+        part def decoder :> receiver {
+            doc /* A decoder is the part that interprets or extracts the encoded state from the received signal. */
+        }
+        part def singlePhotonDetector :> decoder {
+            doc /* In QKD, the incoming optical pulse is very weak, often at the single-photon level. The SPD converts that optical event into an electrical signal that the electronics can record. */
+        }
+        part def sender;
+        part def Source :> sender {
+            doc /* this is the source of weak coherent pulse or sigle photon emitter */
+        }
+        part def singlePhotonGenerator :> Source {
+            doc /* This could be Quantum dot single-photon source, NV-centre source, Heralded single-photon source, Spontaneous parametric down-conversion source */
+            attribute wavelength;
+            attribute repetitionRate;
+            attribute emissionProbability;
+            attribute singlePhotonPurity;
+            attribute photonNumberPerPulse = 1;
+        }
+        part def encoder :> sender {
+            doc /* A qubit is a two-level quantum state, and the “encoding” tells you which physical degree of freedom carries those two basis states.  */
+        }
+        part def transmitter :> sender {
+            doc /* Transmitter usually means the physical hardware block. what hardware performs the sending */
         }
         part def BeamSplitter {
             doc
             /* Splitting one optical pulse into two paths, Recombining paths to create interference (creating phase difference),
              * separating measurement bases probabilistically, Setting intensity ratios in decoy-state QKD or modulator designs to control how much power */
         }
-        item def Qubits;
-        attribute def QState;
+        item def Qubits {
+            doc /* There are many kinds of qubits such as electrons, photons, quantum dots, Josephson junctions etc. P */
+        }
+        enum def carrierType {
+            Photons;
+            Electrons;
+            quantumDots;
+            Ions;
+        }
+        attribute def encodingMethod;
+        enum def encodingMethod {
+            Polarisation;
+            TimeBin;
+            phase;
+            orbital_angular_momentum;
+            frequency;
+            path_spatial_mode;
+        }
+        enum def polarisationStates {
+            Horizontal = 0;
+            Vertical = 90;
+            Diagonal = 45;
+            AntiDiagonal = -45;
+        }
+        attribute def preprationBasis;
+        enum def preprationBasis {
+            Random;
+            Superposition;
+        }
+        attribute def QuantumState;
+        enum def QuantumState {
+            pureState;
+            mixedState;
+            entangleState;
+        }
         item def Bits;
         connection def channel {
             end transmitter;
             end receiver;
         }
         use case def QuantumOperations {
-            action def EntanglementGeneration;
-            action def EntanglementSwapping;
-            action def EntanglementPurification;
+            action EntanglementGeneration;
+            action EntanglementSwapping;
+            action EntanglementPurification;
         }
     }
 }
