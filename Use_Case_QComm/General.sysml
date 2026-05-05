@@ -94,6 +94,7 @@ package QSysML {
              * separating measurement bases probabilistically, Setting intensity ratios in decoy-state QKD or modulator designs to control how much power */
         }
         item def Qubits;
+        attribute def QState;
         item def Bits;
         connection def channel {
             end transmitter;
