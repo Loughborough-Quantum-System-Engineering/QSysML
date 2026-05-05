@@ -14,7 +14,7 @@ package QKD_BB84_Physical_Experiment {
             part Alice : sender {
                 action sendQubits;
                 port QC {
-                    out item Polarisedphotons : Qubits;
+                    out item PhysicalQubit : Qubits;
                     in item item1;
                 }
                 port CC {
@@ -24,14 +24,14 @@ package QKD_BB84_Physical_Experiment {
             part Bob : receiver {
                 action detectQubits;
                 port QC {
-                    in item Polarisedphotons : Qubits;
+                    in item PhysicalQubit : Qubits;
                     out item item1;
                 }
                 port CC {
                     out item photons : Bits;
                 }
             }
-            item Polarisedphotons : Qubits {
+            item PhysicalQubit : Qubits {
                 attribute Stability : ScalarValues::Real, duration;
                 attribute SKR : ScalarValues::Real;
                 attribute QBER : ScalarValues::Real;
@@ -44,7 +44,7 @@ package QKD_BB84_Physical_Experiment {
                 exhibit state detected;
             }
             connection QChannel : channel connect BlackView::BB84_Physical_Black::Alice.QC to BlackView::BB84_Physical_Black::Bob.QC {
-                flow BlackView::BB84_Physical_Black::Alice.QC.Polarisedphotons to BlackView::BB84_Physical_Black::Bob.QC.Polarisedphotons;
+                flow BlackView::BB84_Physical_Black::Alice.QC.PhysicalQubit to BlackView::BB84_Physical_Black::Bob.QC.PhysicalQubit;
                 attribute attenuation : Real;
                 attribute distance : Real;
                 exhibit state idle;
@@ -95,7 +95,7 @@ package QKD_BB84_Physical_Experiment {
                 first recordDetectionEvents then done;
             }
             perform generateKey;
-            part LaserDiode :> Alice : Source::weakCoherentSource {
+            part LaserDiode :> Alice : Source {
                 doc /* The paper explicitly states that the LD generates phase-randomized pulses at 50 MHz with 200 ps pulse width. */
                 attribute frequency : Real, Hz;
                 attribute pulseWidth : Real, s;
@@ -115,7 +115,7 @@ package QKD_BB84_Physical_Experiment {
                     doc /* first what is the intensity of the pulse should be, then decide which polarization qubit state it should carry. */
                 }
             }
-            part Sagnac_Polarisation :> Alice : encoder::polarisationEncoding {
+            part Sagnac_Polarisation :> Alice : encoder {
                 doc
                 /* Sagnac POL :A polarization encoding modulator is a device that manipulates the polarization state of light 
                  * to encode information or enhance the interaction between light and matter. The paper says it is the polarization modulator,
