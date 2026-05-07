@@ -1,9 +1,6 @@
 package logicalBlackBox {
-    public import logicalLayerAction::**;
     public import physicalBlackBox::**;
-    attribute def gate;
-    part def logicalControlUnit;
-    attribute def quantumAlgorithm;
+    public import QuantumComputing::logicalLayerDefinitions::*;
     part logicalLayer {
         part logicalQPU {
             attribute instruction;

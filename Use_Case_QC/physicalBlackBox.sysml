@@ -1,30 +1,8 @@
 package physicalBlackBox {
-    public import physicalLayerAction::**;
+    public import QuantumComputing::actions::*;
+    public import QuantumComputing::physicalLayerDefinitions::*;
     public import ISQ::*;
     public import SI::*;
-    part def physicalControlUnit;
-    part def logicalControlUnit;
-    port def errorCorrectionPortIn {
-        in result;
-    }
-    port def errorCorrectionPortOut {
-        out parameter;
-    }
-    port def controlUnitPortIn {
-        in parameter;
-    }
-    port def controlUnitPortOut {
-        out microwavePulse;
-    }
-    port def readOutPort {
-        inout result;
-    }
-    port def cryogenicPortIn {
-        in microwavePulse;
-    }
-    port def cryogenicPortOut {
-        out result;
-    }
     part physicalLayer {
         part quantumErrorCorrection {
             attribute algorithm;
