@@ -1,5 +1,7 @@
 package QuantumComputing {
     package physicalLayerDefinitions {
+        part def classicalControlSystem;
+        part def classicalRTeadoutSystem;
         part def physicalControlUnit;
         part def fieldProgrammableGateArrays;
         part def digitalToAnalogConverter;
@@ -7,6 +9,10 @@ package QuantumComputing {
         part def lowPassbandFilter;
         part def microwaveSource;
         part def iqMixer;
+        part def awgFPGA;
+        part def powerSource;
+        part def localOscillator;
+        part def dilutionRefrigerator;
         port def errorCorrectionPortIn {
             in result;
         }
@@ -28,6 +34,7 @@ package QuantumComputing {
         port def cryogenicPortOut {
             out result;
         }
+        part def QPU;
     }
     package logicalLayerDefinitions {
         attribute def gate;
