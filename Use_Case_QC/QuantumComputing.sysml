@@ -34,11 +34,46 @@ package QuantumComputing {
         port def cryogenicPortOut {
             out result;
         }
-        part def QPU;
+        item def signal;
+        item def digitalData :> signal;
+        item def microwaveSignal :> signal;
+        item def opticalSignal :> signal;
+        item def sfqPulse :> signal;
+        item def dcBias :> signal;
+        item def magneticField :> signal;
+        port def digitalPort {
+            out item digitalData;
+        }
+        port def microwavePort {
+            out item microwaveSignal;
+        }
+        port def opticalPort {
+            out item opticalSignal;
+        }
+        port def sfqPort {
+            out item sfqPulse;
+        }
+        port def dcBiasPort {
+            out item dcBias;
+        }
+        port def magneticFieldPort {
+            out item magneticField;
+        }
+        enum def qubitTechnology {
+            superconducting;
+            trappedIon;
+            neutralAtom;
+            photonic;
+            spinQubit;
+            quantumDot;
+        }
+        part def QPU {
+            attribute technology : qubitTechnology;
+        }
     }
     package logicalLayerDefinitions {
         attribute def gate;
-        part def logicalControlUnit;
+        part def logicalControlUnit; 
         attribute def quantumAlgorithm;
     }
     package actions {

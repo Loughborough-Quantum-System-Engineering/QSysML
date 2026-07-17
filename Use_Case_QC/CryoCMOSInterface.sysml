@@ -3,10 +3,22 @@ package CryoCMOSInterface {
     public import ISQ::*;
     public import SI::*;
     part cryoCMOSControlSystem : classicalControlSystem {
-        part controlPowerSource : powerSource;
-        part preLoadedData;
+        part controlPowerSource : powerSource {
+            port powerOut : dcBiasPort;
+        }
+        part preLoadedData {
+            port sequenceOut : digitalPort;
+        }
+        port powerOut : dcBiasPort;
+        port sequenceOut : digitalPort;
+        flow controlPowerSource.powerOut to powerOut;
+        flow preLoadedData.sequenceOut to sequenceOut;
     }
     part dilutionRefrigeratorEnv : dilutionRefrigerator {
+        port controlPowerIn : ~dcBiasPort;
+        port sequenceIn : ~digitalPort;
+        port readoutPowerIn : ~dcBiasPort;
+        port resultOut : digitalPort;
         part firstLayer {
             attribute temp : ThermodynamicTemperatureUnit = 300 [K];
         }
@@ -24,12 +36,41 @@ package CryoCMOSInterface {
         }
         part sixthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.01 [K];
-            part qpu : QPU;
-            part cryoCMOSProcessor;
+            part cryoCMOSProcessor {
+                port controlPowerIn : ~dcBiasPort;
+                port readoutPowerIn : ~dcBiasPort;
+                port sequenceIn : ~digitalPort;
+                port driveOut : microwavePort;
+                port readoutIn : ~microwavePort;
+                port resultOut : digitalPort;
+            }
+            part qpu : QPU {
+                attribute redefines technology = qubitTechnology::superconducting;
+                port driveIn : ~microwavePort;
+                port readoutOut : microwavePort;
+            }
+            flow cryoCMOSProcessor.driveOut to qpu.driveIn;
+            flow qpu.readoutOut to cryoCMOSProcessor.readoutIn;
         }
+        flow controlPowerIn to sixthLayer.cryoCMOSProcessor.controlPowerIn;
+        flow sequenceIn to sixthLayer.cryoCMOSProcessor.sequenceIn;
+        flow readoutPowerIn to sixthLayer.cryoCMOSProcessor.readoutPowerIn;
+        flow sixthLayer.cryoCMOSProcessor.resultOut to resultOut;
     }
     part cryoCMOSReadoutSystem : classicalReadoutSystem {
-        part readoutPowerSource : powerSource;
-        part postProcessingElectronics;
+        part readoutPowerSource : powerSource {
+            port powerOut : dcBiasPort;
+        }
+        part postProcessingElectronics {
+            port resultIn : ~digitalPort;
+        }
+        port powerOut : dcBiasPort;
+        port resultIn : ~digitalPort;
+        flow readoutPowerSource.powerOut to powerOut;
+        flow resultIn to postProcessingElectronics.resultIn;
     }
+    flow cryoCMOSControlSystem.powerOut to dilutionRefrigeratorEnv.controlPowerIn;
+    flow cryoCMOSControlSystem.sequenceOut to dilutionRefrigeratorEnv.sequenceIn;
+    flow cryoCMOSReadoutSystem.powerOut to dilutionRefrigeratorEnv.readoutPowerIn;
+    flow dilutionRefrigeratorEnv.resultOut to cryoCMOSReadoutSystem.resultIn;
 }
