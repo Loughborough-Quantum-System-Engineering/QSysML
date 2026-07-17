@@ -8,21 +8,27 @@ package CryoCMOSInterface {
     }
     part dilutionRefrigeratorEnv : dilutionRefrigerator {
         part firstLayer {
-            attribute temp : ThermodynamicTemperatureUnit = 50 [K];
+            attribute temp : ThermodynamicTemperatureUnit = 300 [K];
         }
         part secondLayer {
-            attribute temp : ThermodynamicTemperatureUnit = 4 [K];
+            attribute temp : ThermodynamicTemperatureUnit = 50 [K];
         }
         part thirdLayer {
-            attribute temp : ThermodynamicTemperatureUnit = 0.8 [K];
+            attribute temp : ThermodynamicTemperatureUnit = 4 [K];
         }
         part fourthLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 0.8 [K];
+        }
+        part fifthLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 0.1 [K];
+        }
+        part sixthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.01 [K];
             part qpu : QPU;
             part cryoCMOSProcessor;
         }
     }
-    part cryoCMOSReadoutSystem : classicalRTeadoutSystem {
+    part cryoCMOSReadoutSystem : classicalReadoutSystem {
         part readoutPowerSource : powerSource;
         part postProcessingElectronics;
     }

@@ -14,16 +14,22 @@ package OpticalInterface {
     }
     part dilutionRefrigeratorEnv : dilutionRefrigerator {
         part firstLayer {
-            attribute temp : ThermodynamicTemperatureUnit = 50 [K];
+            attribute temp : ThermodynamicTemperatureUnit = 300 [K];
         }
         part secondLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 50 [K];
+        }
+        part thirdLayer {
             attribute temp : ThermodynamicTemperatureUnit = 4 [K];
             part biasFilter;
         }
-        part thirdLayer {
+        part fourthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.8 [K];
         }
-        part fourthLayer {
+        part fifthLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 0.1 [K];
+        }
+        part sixthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.01 [K];
             part qpu : QPU;
             part controlPhotodiode;
@@ -31,7 +37,7 @@ package OpticalInterface {
             part readoutElectroOpticalModulator;
         }
     }
-    part opticalReadoutSystem : classicalRTeadoutSystem {
+    part opticalReadoutSystem : classicalReadoutSystem {
         part computerFpga;
         part adc : analogToDigitalConverter;
         part readoutIqMixer : iqMixer;

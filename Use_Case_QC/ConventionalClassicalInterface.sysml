@@ -5,27 +5,33 @@ package ConventionalClassicalInterface {
     part conventionalControlSystem : classicalControlSystem {
         part controlAWGFPGA : awgFPGA;
         part dac : digitalToAnalogConverter;
-        part powerSource : powerSource;
+        part qubitBias : powerSource;
         part controlIqMixer : iqMixer;
         part controlLocalOscillator : localOscillator;
         part controlFilter;
     }
     part dilutionRefrigeratorEnv : dilutionRefrigerator {
         part firstLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 300 [K];
+        }
+        part secondLayer {
             attribute temp : ThermodynamicTemperatureUnit = 50 [K];
             part waveguide;
         }
-        part secondLayer {
+        part thirdLayer {
             attribute temp : ThermodynamicTemperatureUnit = 4 [K];
             part waveguide;
             part controlFilter;
             part lowNoiseAmplifier;
         }
-        part thirdLayer {
+        part fourthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.8 [K];
             part waveguide;
         }
-        part fourthLayer {
+        part fifthLayer {
+            attribute temp : ThermodynamicTemperatureUnit = 0.1 [K];
+        }
+        part sixthLayer {
             attribute temp : ThermodynamicTemperatureUnit = 0.01 [K];
             part qpu : QPU;
             part cavity;
@@ -33,7 +39,7 @@ package ConventionalClassicalInterface {
             part josephsonParametricAmplifier;
         }
     }
-    part conventionalReadoutSystem : classicalRTeadoutSystem {
+    part conventionalReadoutSystem : classicalReadoutSystem {
         part readoutFilter;
         part lowNoiseAmplifier;
         part readoutIqMixer1 : iqMixer;

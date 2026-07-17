@@ -1,7 +1,7 @@
 package QuantumComputing {
     package physicalLayerDefinitions {
         part def classicalControlSystem;
-        part def classicalRTeadoutSystem;
+        part def classicalReadoutSystem;
         part def physicalControlUnit;
         part def fieldProgrammableGateArrays;
         part def digitalToAnalogConverter;
