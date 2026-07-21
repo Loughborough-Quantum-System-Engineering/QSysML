@@ -1,5 +1,6 @@
 package WirelessInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
+    public import SuperconductingCommon::*;
     public import ISQ::*;
     public import SI::*;
     part wirelessControlSystem : classicalControlSystem {

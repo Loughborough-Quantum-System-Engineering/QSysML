@@ -1,5 +1,7 @@
 package CryoCMOSInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
+    public import CommonInstruments::*;
+    public import SuperconductingCommon::*;
     public import ISQ::*;
     public import SI::*;
     part cryoCMOSControlSystem : classicalControlSystem {

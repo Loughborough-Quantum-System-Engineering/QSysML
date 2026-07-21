@@ -1,18 +1,47 @@
 package QuantumComputing {
     package physicalLayerDefinitions {
-        part def classicalControlSystem;
-        part def classicalReadoutSystem;
-        part def physicalControlUnit;
-        part def fieldProgrammableGateArrays;
-        part def digitalToAnalogConverter;
-        part def analogToDigitalConverter;
-        part def lowPassbandFilter;
-        part def microwaveSource;
-        part def iqMixer;
-        part def awgFPGA;
-        part def powerSource;
-        part def localOscillator;
-        part def dilutionRefrigerator;
+        // ── Subsystem roles ──────────────────────────────────────────
+        abstract part def classicalInterfaceSystem;
+        part def classicalControlSystem :> classicalInterfaceSystem;
+        part def classicalReadoutSystem :> classicalInterfaceSystem;
+        part def interconnectSystem :> classicalInterfaceSystem;
+
+        // ── Functional component roles ───────────────────────────────
+        abstract part def signalSource;
+        abstract part def transducer;          // converts signal across domains
+        abstract part def amplifier;           // boosts signal, same domain
+        abstract part def signalConditioner;   // passive same-domain shaping
+        abstract part def transmissionMedium;  // carries signal between locations
+        abstract part def classicalProcessor;  // digital computation / control
+        abstract part def qubitEnvironment;    // physical enclosure holding the QPU
+
+        // ── Signal vocabulary ────────────────────────────────────────
+        item def signal;
+        item def digitalData :> signal;
+        item def microwaveSignal :> signal;    // RF through mm-wave / THz
+        item def opticalSignal :> signal;
+        item def dcBias :> signal;
+
+        // ── Port definitions (conjugate style; payload typed) ─────────
+        port def digitalPort { out item payload : digitalData; }
+        port def microwavePort { out item payload : microwaveSignal; }
+        port def opticalPort { out item payload : opticalSignal; }
+        port def dcBiasPort { out item payload : dcBias; }
+
+        // ── Qubit technology + QPU ───────────────────────────────────
+        enum def qubitTechnology {
+            superconducting;
+            trappedIon;
+            neutralAtom;
+            photonic;
+            spinQubit;
+            quantumDot;
+        }
+        part def QPU {
+            attribute technology : qubitTechnology;
+        }
+
+        // ── Legacy black-box ports (used by physicalBlackBox / logicalBlackBox) ──
         port def errorCorrectionPortIn {
             in result;
         }
@@ -34,46 +63,10 @@ package QuantumComputing {
         port def cryogenicPortOut {
             out result;
         }
-        item def signal;
-        item def digitalData :> signal;
-        item def microwaveSignal :> signal;
-        item def opticalSignal :> signal;
-        item def sfqPulse :> signal;
-        item def dcBias :> signal;
-        item def magneticField :> signal;
-        port def digitalPort {
-            out item digitalData;
-        }
-        port def microwavePort {
-            out item microwaveSignal;
-        }
-        port def opticalPort {
-            out item opticalSignal;
-        }
-        port def sfqPort {
-            out item sfqPulse;
-        }
-        port def dcBiasPort {
-            out item dcBias;
-        }
-        port def magneticFieldPort {
-            out item magneticField;
-        }
-        enum def qubitTechnology {
-            superconducting;
-            trappedIon;
-            neutralAtom;
-            photonic;
-            spinQubit;
-            quantumDot;
-        }
-        part def QPU {
-            attribute technology : qubitTechnology;
-        }
     }
     package logicalLayerDefinitions {
         attribute def gate;
-        part def logicalControlUnit; 
+        part def logicalControlUnit;
         attribute def quantumAlgorithm;
     }
     package actions {

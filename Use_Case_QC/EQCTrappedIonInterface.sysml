@@ -1,5 +1,6 @@
 package EQCTrappedIonInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
+    public import CommonInstruments::*;
     public import ISQ::*;
     public import SI::*;
     part eqcControlSystem : classicalControlSystem {
