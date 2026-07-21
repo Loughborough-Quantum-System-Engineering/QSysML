@@ -1,3 +1,14 @@
+// reference
+// @article{brennan2025classical,
+//  title={Classical interfaces for controlling cryogenic quantum computing technologies},
+//  author={Brennan, Jack C and Barbosa, Jo{\~a}o and Li, Chong and Ahmad, Meraj and Imroze, Fiheon and Rose, Calum and Karar, Wridhdhisom and Stanley, Manoj and Heidari, Hadi and Ridler, Nick M and others},
+//  journal={APL Quantum},
+// volume={2},
+//  number={4},
+//  year={2025},
+//  publisher={AIP Publishing}
+// }
+
 package ConventionalClassicalInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
     public import CommonInstruments::*;

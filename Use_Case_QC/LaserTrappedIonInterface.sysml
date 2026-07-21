@@ -1,3 +1,15 @@
+// reference
+// @article{monroe2013scaling,
+//   title={Scaling the ion trap quantum processor},
+//   author={Monroe, Christopher and Kim, Jungsang},
+//   journal={Science},
+//   volume={339},
+//   number={6124},
+//   pages={1164--1169},
+//   year={2013},
+//   publisher={American Association for the Advancement of Science}
+// }
+
 package LaserTrappedIonInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
     public import ISQ::*;

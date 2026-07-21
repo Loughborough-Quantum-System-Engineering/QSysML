@@ -1,3 +1,11 @@
+// reference
+// @article{tripier2026fault,
+//   title={Fault-tolerant quantum computing with trapped ions: The walking cat architecture},
+//   author={Tripier, Felix and Chung, Woo Chang and Young, Jacob and Alam, Safwan and Bjork, Bryce and Brodutch, Aharon and Buessen, Finn Lasse and Coble, Nolan J and Dellaert, Thomas and Maslov, Dmitri and others},
+//   journal={arXiv preprint arXiv:2604.19481},
+//   year={2026}
+// }
+
 package EQCTrappedIonInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
     public import CommonInstruments::*;

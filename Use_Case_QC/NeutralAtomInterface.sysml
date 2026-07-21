@@ -1,3 +1,11 @@
+// reference 
+// @article{guo2026atomflow,
+//   title={AtomFlow: An End-to-End FPGA-Based Control Architecture for Neutral Atom Quantum Computers},
+//   author={Guo, Xiaorang and Winklmann, Jonas and Chea, Vengkeat and Schulz, Martin},
+//   journal={arXiv preprint arXiv:2607.11490},
+//   year={2026}
+// }
+
 package NeutralAtomInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
     public import ISQ::*;

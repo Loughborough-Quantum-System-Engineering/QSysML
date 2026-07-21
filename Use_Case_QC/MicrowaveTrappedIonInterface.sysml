@@ -1,3 +1,15 @@
+// reference
+// @article{lekitsch2017blueprint,
+//  title={Blueprint for a microwave trapped ion quantum computer},
+//  author={Lekitsch, Bjoern and Weidt, Sebastian and Fowler, Austin G and M{\o}lmer, Klaus and Devitt, Simon J and Wunderlich, Christof and Hensinger, Winfried K},
+//  journal={Science Advances},
+//  volume={3},
+//  number={2},
+//  pages={e1601540},
+//  year={2017},
+//  publisher={American Association for the Advancement of Science}
+// }
+
 package MicrowaveTrappedIonInterface {
     public import QuantumComputing::physicalLayerDefinitions::*;
     public import CommonInstruments::*;
