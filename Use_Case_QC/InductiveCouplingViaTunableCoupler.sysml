@@ -16,10 +16,8 @@ package InductiveCouplingViaTunableCoupler {
         attribute onOffRatio;                               // dimensionless
         port a : Terminal;
         port b : Terminal;
-        connect couplerJunction.a to a;
-        connect couplerJunction.b to b;
-        connect couplerInductor.a to a;
-        connect couplerInductor.b to b;
+        connect (couplerJunction.a, couplerInductor.a, a);
+        connect (couplerJunction.b, couplerInductor.b, b);
     }
 
     part def InductiveCouplingViaTunableCoupler {
@@ -32,11 +30,9 @@ package InductiveCouplingViaTunableCoupler {
         // qubit1 <-M_1C-> coupler <-M_2C-> qubit2
         connect mutualInductance1.a1 to qubit1.nodeA;
         connect mutualInductance1.b1 to qubit1.nodeB;
-        connect mutualInductance1.a2 to coupler.a;
-        connect mutualInductance1.b2 to coupler.b;
-        connect mutualInductance2.a1 to coupler.a;
-        connect mutualInductance2.b1 to coupler.b;
         connect mutualInductance2.a2 to qubit2.nodeA;
         connect mutualInductance2.b2 to qubit2.nodeB;
+        connect (mutualInductance1.a2, mutualInductance2.a1, coupler.a);
+        connect (mutualInductance1.b2, mutualInductance2.b1, coupler.b);
     }
 }

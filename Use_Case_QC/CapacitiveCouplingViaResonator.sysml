@@ -16,8 +16,7 @@ package CapacitiveCouplingViaResonator {
         part couplingCapacitor1 : Capacitor;                // C_g1
         part couplingCapacitor2 : Capacitor;                // C_g2
         connect qubit1.nodeA to couplingCapacitor1.a;
-        connect couplingCapacitor1.b to busResonator.a;
         connect qubit2.nodeA to couplingCapacitor2.a;
-        connect couplingCapacitor2.b to busResonator.a;
+        connect (couplingCapacitor1.b, couplingCapacitor2.b, busResonator.a);
     }
 }

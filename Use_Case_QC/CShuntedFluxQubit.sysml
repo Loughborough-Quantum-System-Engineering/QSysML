@@ -15,10 +15,8 @@ package CShuntedFluxQubit {
         attribute junctionAreaRatio;                        // gamma
         attribute persistentCurrent : ElectricCurrentValue; // [nA]
         attribute sweetSpotFrequency : FrequencyValue;      // [GHz]
-        connect smallJunction.a to nodeA;
-        connect smallJunction.b to nodeB;
-        connect firstLargeJunction.a to nodeA;
-        connect firstLargeJunction.b to secondLargeJunction.a;
-        connect secondLargeJunction.b to nodeB;
+        connect (smallJunction.a, shuntCapacitor.a, firstLargeJunction.a, nodeA);
+        connect (smallJunction.b, shuntCapacitor.b, secondLargeJunction.b, nodeB);
+        connect firstLargeJunction.b to secondLargeJunction.a;   // internal loop node
     }
 }

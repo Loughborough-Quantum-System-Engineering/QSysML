@@ -8,8 +8,8 @@ package Transmon {
 
     part def Transmon :> SuperconductiveQubit {
         part junction : JosephsonJunction;
-        // single junction in parallel with the (inherited) shunt capacitor
-        connect junction.a to shuntCapacitor.a;
-        connect junction.b to shuntCapacitor.b;
+        // single junction in parallel with the shunt capacitor
+        connect (junction.a, shuntCapacitor.a, nodeA);   // island node
+        connect (junction.b, shuntCapacitor.b, nodeB);   // ground node
     }
 }

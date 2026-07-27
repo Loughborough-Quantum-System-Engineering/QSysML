@@ -13,9 +13,7 @@ package CShuntedFluxonium {
         attribute externalFlux;                             // Phi_ext / Phi_0
         attribute plasmonFrequency : FrequencyValue;        // [GHz]
         attribute fluxonFrequency : FrequencyValue;         // [GHz]
-        connect smallJunction.a to nodeA;
-        connect smallJunction.b to nodeB;
-        connect junctionArray.a to nodeA;
-        connect junctionArray.b to nodeB;
+        connect (smallJunction.a, junctionArray.a, shuntCapacitor.a, nodeA);
+        connect (smallJunction.b, junctionArray.b, shuntCapacitor.b, nodeB);
     }
 }

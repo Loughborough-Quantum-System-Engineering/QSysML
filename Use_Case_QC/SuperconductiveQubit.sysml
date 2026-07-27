@@ -66,10 +66,8 @@ package SuperconductiveQubit {
         attribute effectiveJosephsonEnergy : FrequencyValue;// E_J'/h [GHz]
         port a : Terminal;
         port b : Terminal;
-        connect firstJunction.a to a;
-        connect firstJunction.b to b;
-        connect secondJunction.a to a;
-        connect secondJunction.b to b;
+        connect (firstJunction.a, secondJunction.a, a);
+        connect (firstJunction.b, secondJunction.b, b);
     }
 
     // N junctions in series -> superinductance (chain a -> ... -> b).
@@ -89,10 +87,8 @@ package SuperconductiveQubit {
         attribute qualityFactor;                            // dimensionless
         port a : Terminal;
         port b : Terminal;
-        connect inductor.a to a;
-        connect inductor.b to b;
-        connect capacitor.a to a;
-        connect capacitor.b to b;
+        connect (inductor.a, capacitor.a, a);
+        connect (inductor.b, capacitor.b, b);
     }
 
     // Magnetic (mutual-inductance) coupling between two inductive branches.
@@ -144,9 +140,7 @@ package SuperconductiveQubit {
         port nodeA : Terminal;
         port nodeB : Terminal;
 
-        // capacitive shunt across the two nodes
+        // capacitive shunt; each modality wires it into its node topology
         part shuntCapacitor : Capacitor;
-        connect shuntCapacitor.a to nodeA;
-        connect shuntCapacitor.b to nodeB;
     }
 }

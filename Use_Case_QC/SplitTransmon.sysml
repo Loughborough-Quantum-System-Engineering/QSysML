@@ -13,8 +13,8 @@ package SplitTransmon {
         attribute fluxTuningRange : FrequencyValue;         // [GHz]
         attribute sweetSpotFrequency : FrequencyValue;      // [GHz]
         attribute fluxSensitivity;                          // d f_01 / d Phi_ext
-        connect squid.a to nodeA;
-        connect squid.b to nodeB;
+        connect (squid.a, shuntCapacitor.a, nodeA);
+        connect (squid.b, shuntCapacitor.b, nodeB);
     }
 
     part def AsymmetricTransmon :> SplitTransmon {
