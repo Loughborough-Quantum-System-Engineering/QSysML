@@ -1,7 +1,7 @@
 package QKD_Kit {
     public import QSysML::**;
-    part def transmitterModule {
-        part LaserDiode [2] {
+    part def transmitterModule :> sender {
+        part LaserDiode [2] : Source {
             attribute power : PowerUnit = 1;
             attribute class : LaserClasse;
             attribute wavelength : EmissivityAtASpecifiedWavelengthValue = 635;
@@ -15,12 +15,12 @@ package QKD_Kit {
         port CC_A;
         perform action generatePolarisedLight : encodeLight;
     }
-    part def receiverModule {
+    part def receiverModule :> receiver {
         part wavePlate2 {
             attribute Angle : engravedAngles;
             perform action selectMeasurementBasis;
         }
-        part beamSplitterCube {
+        part beamSplitterCube : BeamSplitter {
             attribute direction : receiverDirections;
             perform action 'transmit/reflect IncidentLight';
         }
@@ -36,7 +36,7 @@ package QKD_Kit {
         port CC_B;
         perform action detectLight : processDetection;
     }
-    part def interceptModule;
+    part def interceptModule :> Eve;
     action def encodeLight {
         action generateLight;
         action polariseLight {
