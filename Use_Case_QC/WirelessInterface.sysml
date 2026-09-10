@@ -56,89 +56,10 @@ package WirelessInterface {
     // Action definitions
     // =====================================================================
 
-    action def GenerateTone {
-        doc
-        /*
-         * Generate the microwave or terahertz tone that addresses the qubit.
-         * All bulky and energy-hungry but mature control and digital
-         * electronics remain at room temperature, which is what allows the
-         * cryostat to be made smaller.
-         *
-         * Wireless links can accommodate thousands or more channels, with
-         * microwave tones spaced a few MHz apart subject to the qubit
-         * technology, so qubit upscaling is no longer limited by the size of
-         * the refrigerator.
-         *
-         * Source: p.9 right column paragraph 2; p.9 right column advantages
-         * 1 and 2; GHz/THz source in Fig. 8.
-         */
-        out item tone : microwaveSignal;
-        attribute channelSpacing;                   // a few MHz [p.9 RC adv 2]
-        attribute carrierFrequency : FrequencyValue;
-    }
 
-    action def RadiateBeam {
-        doc
-        /*
-         * Convert a guided signal into a free-space beam. New cryogenic
-         * compatible microwave free space components are required for this,
-         * for example antennas and lenses.
-         *
-         * The transceivers on the mK stage do not contain additional active
-         * devices but passives, such as antennas and matching circuits.
-         * Since those passives can be realised by superconductors with
-         * negligible ohmic loss at that stage, no extra power is required
-         * apart from what the qubits themselves need.
-         *
-         * Source: p.10 right column paragraph 2; p.10 left column
-         * advantage 4; antenna in the Fig. 8 legend.
-         */
-        in item feed : microwaveSignal;
-        out item beam : microwaveSignal;
-    }
 
-    action def ReceiveBeam {
-        doc
-        /*
-         * Convert a free-space beam back into a guided signal.
-         *
-         * Source: antenna in the Fig. 8 legend, p.11.
-         */
-        in item beam : microwaveSignal;
-        out item feed : microwaveSignal;
-    }
 
-    action def FocusBeam {
-        doc
-        /*
-         * Collimate or focus the free-space beam so that it stays aligned
-         * across the gap between temperature stages. Fig. 8 places a lens
-         * pair at each of the 50 K, 4 K, 800 mK and 100 mK stages, one for
-         * the downlink and one for the uplink.
-         *
-         * Wireless links do not need a transmission medium; the vacuum
-         * inside the refrigerator makes signals propagate 33% faster than
-         * they do in coaxial cables, so latency between the room-temperature
-         * electronics and the qubits is reduced by at least 33%, which is
-         * crucial for high fidelity in multi-qubit technologies.
-         *
-         * Source: p.10 left column advantage 3; lens in the Fig. 8 legend.
-         */
-        in item incomingBeam : microwaveSignal;
-        out item focusedBeam : microwaveSignal;
-    }
 
-    action def GuideToQubit {
-        doc
-        /*
-         * Carry the signal between the cryogenic antenna and the qubit over
-         * a short guided section at the base stage.
-         *
-         * Source: waveguide in the Fig. 8 legend, p.11.
-         */
-        in item feed : microwaveSignal;
-        out item guided : microwaveSignal;
-    }
 
     action def ManipulateQubitState {
         doc
@@ -153,17 +74,6 @@ package WirelessInterface {
         out item qubitResponse : microwaveSignal;
     }
 
-    action def AnalyseSignal {
-        doc
-        /*
-         * Recover the qubit state from the returning uplink signal at room
-         * temperature.
-         *
-         * Source: signal analyser in Fig. 8, p.11.
-         */
-        in item receivedSignal : microwaveSignal;
-        out attribute qubitState;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -196,25 +106,25 @@ package WirelessInterface {
         out attribute measuredQubitState;
 
         // ---- downlink (control) ----
-        action generateTone : GenerateTone;                        // [Fig.8]
+        action generateTone : GenerateMicrowaveDrive;                        // [Fig.8]
         action radiateDownlink : RadiateBeam;                      // [Fig.8]
         action focusDownlink50K : FocusBeam;                       // [Fig.8]
         action focusDownlink4K : FocusBeam;                        // [Fig.8]
         action focusDownlink800mK : FocusBeam;                     // [Fig.8]
         action focusDownlink100mK : FocusBeam;                     // [Fig.8]
         action receiveDownlink : ReceiveBeam;                      // [Fig.8]
-        action guideDownlinkToQubit : GuideToQubit;                // [Fig.8]
+        action guideDownlinkToQubit : RouteSignal;                // [Fig.8]
         action manipulateQubitState : ManipulateQubitState;        // [Fig.8]
 
         // ---- uplink (readout) ----
-        action guideUplinkFromQubit : GuideToQubit;                // [Fig.8]
+        action guideUplinkFromQubit : RouteSignal;                // [Fig.8]
         action radiateUplink : RadiateBeam;                        // [Fig.8]
         action focusUplink100mK : FocusBeam;                       // [Fig.8]
         action focusUplink800mK : FocusBeam;                       // [Fig.8]
         action focusUplink4K : FocusBeam;                          // [Fig.8]
         action focusUplink50K : FocusBeam;                         // [Fig.8]
         action receiveUplink : ReceiveBeam;                        // [Fig.8]
-        action analyseSignal : AnalyseSignal;                      // [Fig.8]
+        action analyseSignal : AnalyseMeasurement;                      // [Fig.8]
 
         // ---- ordering ----
         first start then generateTone;
@@ -238,23 +148,23 @@ package WirelessInterface {
         first analyseSignal then done;
 
         // ---- item chain ----
-        flow from generateTone.tone to radiateDownlink.feed;
+        flow from generateTone.drive to radiateDownlink.feed;
         flow from radiateDownlink.beam to focusDownlink50K.incomingBeam;
         flow from focusDownlink50K.focusedBeam to focusDownlink4K.incomingBeam;
         flow from focusDownlink4K.focusedBeam to focusDownlink800mK.incomingBeam;
         flow from focusDownlink800mK.focusedBeam to focusDownlink100mK.incomingBeam;
         flow from focusDownlink100mK.focusedBeam to receiveDownlink.beam;
-        flow from receiveDownlink.feed to guideDownlinkToQubit.feed;
-        flow from guideDownlinkToQubit.guided to manipulateQubitState.driveSignal;
+        flow from receiveDownlink.feed to guideDownlinkToQubit.input;
+        flow from guideDownlinkToQubit.output to manipulateQubitState.driveSignal;
 
-        flow from manipulateQubitState.qubitResponse to guideUplinkFromQubit.feed;
-        flow from guideUplinkFromQubit.guided to radiateUplink.feed;
+        flow from manipulateQubitState.qubitResponse to guideUplinkFromQubit.input;
+        flow from guideUplinkFromQubit.output to radiateUplink.feed;
         flow from radiateUplink.beam to focusUplink100mK.incomingBeam;
         flow from focusUplink100mK.focusedBeam to focusUplink800mK.incomingBeam;
         flow from focusUplink800mK.focusedBeam to focusUplink4K.incomingBeam;
         flow from focusUplink4K.focusedBeam to focusUplink50K.incomingBeam;
         flow from focusUplink50K.focusedBeam to receiveUplink.beam;
-        flow from receiveUplink.feed to analyseSignal.receivedSignal;
+        flow from receiveUplink.feed to analyseSignal.measurement;
 
         bind measuredQubitState = analyseSignal.qubitState;
     }
@@ -286,7 +196,7 @@ package WirelessInterface {
                 in item item1;
             }
             perform wirelessOperation.generateTone;
-            flow from generateTone.tone to toneOut.item1;
+            flow from generateTone.drive to toneOut.item1;
         }
         part roomTempTransmitAntenna {
             doc
@@ -472,8 +382,8 @@ package WirelessInterface {
                     in item item1;
                 }
                 perform wirelessOperation.guideDownlinkToQubit;
-                flow from feedIn.item1 to guideDownlinkToQubit.feed;
-                flow from guideDownlinkToQubit.guided to guidedOut.item1;
+                flow from feedIn.item1 to guideDownlinkToQubit.input;
+                flow from guideDownlinkToQubit.output to guidedOut.item1;
             }
             part qpu : QPU {
                 doc
@@ -509,8 +419,8 @@ package WirelessInterface {
                     in item item1;
                 }
                 perform wirelessOperation.guideUplinkFromQubit;
-                flow from feedIn.item1 to guideUplinkFromQubit.feed;
-                flow from guideUplinkFromQubit.guided to guidedOut.item1;
+                flow from feedIn.item1 to guideUplinkFromQubit.input;
+                flow from guideUplinkFromQubit.output to guidedOut.item1;
             }
             part cryogenicTransmitAntenna {
                 doc
@@ -575,7 +485,7 @@ package WirelessInterface {
                 out item item1;
             }
             perform wirelessOperation.analyseSignal;               // [Fig.8]
-            flow from signalIn.item1 to analyseSignal.receivedSignal;
+            flow from signalIn.item1 to analyseSignal.measurement;
         }
         port uplinkBeamIn : ~microwavePort;
         flow from uplinkBeamIn to roomTempReceiveAntenna.beamIn;

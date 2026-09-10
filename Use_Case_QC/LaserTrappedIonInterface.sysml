@@ -43,6 +43,7 @@ package LaserTrappedIonInterface {
      */
 
     public import QuantumComputing::physicalLayerDefinitions::*;
+    public import CommonInstruments::*;
     public import AtomicCommon::*;
     public import ISQ::*;
     public import SI::*;
@@ -51,92 +52,11 @@ package LaserTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-    action def GenerateAddressingBeam {
-        doc
-        /*
-         * Produce the laser beam that drives gate operations on individual
-         * ions. Gates are implemented by applying qubit-state-dependent
-         * optical dipole forces, which modulate the Coulomb interaction and
-         * so couple the internal states through the collective motion of the
-         * crystal.
-         *
-         * Source: p.1165, right column; p.1166, left column.
-         */
-        out item beam : opticalSignal;
-        attribute wavelength = 369.5E-9 [m];        // 369.5 nm [Fig.3C]
-    }
 
-    action def SteerBeam {
-        doc
-        /*
-         * Direct the control beam onto a chosen ion. Individual addressing of
-         * single atoms in an array can be done by steering the control beam
-         * using either electro-optic or acousto-optic deflectors, which suit
-         * small arrays. For larger atomic arrays fast scanning mirrors are an
-         * attractive solution, and micro-electromechanical systems technology
-         * enables micromirror-based optical systems capable of independently
-         * steering multiple beams over the same atomic array.
-         *
-         * A control beam bouncing off two mirrors tilting in orthogonal
-         * directions can be steered over a two-dimensional space at the
-         * target ions.
-         *
-         * Source: p.1167, left column; Fig. 3C.
-         */
-        in item beam : opticalSignal;
-        out item steeredBeam : opticalSignal;
-        attribute steeringRange = 20.0E-6 [m];      // ~20 um  [Fig.3C]
-    }
 
-    action def ProjectBeam {
-        doc
-        /*
-         * Focus the steered beam onto the ion site.
-         *
-         * Source: Fig. 3C, p.1167.
-         */
-        in item steeredBeam : opticalSignal;
-        out item focusedBeam : opticalSignal;
-        attribute beamDiameter = 3.0E-6 [m];        // ~3 um   [Fig.3C]
-    }
 
-    action def GenerateCoolingBeam {
-        doc
-        /*
-         * Produce the Doppler cooling light that confines the ions near the
-         * bottom of the trap. Laser radiation tuned below resonance cools the
-         * ions, and more sophisticated forms of laser cooling can bring them
-         * to nearly at rest.
-         *
-         * Source: p.1164, right column; p.1165, left column.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def GeneratePhotoionisationBeam {
-        doc
-        /*
-         * Produce the light that ionizes the neutral atomic flux inside the
-         * trapping volume. Ions are typically loaded into traps by creating a
-         * neutral atomic flux of the desired species and ionizing them once
-         * in the trapping volume.
-         *
-         * Source: p.1164, right column.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def GenerateRfTrapDrive {
-        doc
-        /*
-         * Generate the radio-frequency drive of the Paul trap. Nearby
-         * electrodes hold static and dynamic electrical potentials that lead
-         * to an effective harmonic confinement of the ions.
-         *
-         * Source: p.1164, right column.
-         */
-        out item rfDrive : microwaveSignal;
-    }
 
     action def TrapAndCoolIons {
         doc
@@ -169,156 +89,15 @@ package LaserTrappedIonInterface {
         attribute gateSpeed;                        // 10 to 100 kHz [p.1165 RC]
     }
 
-    action def ExciteCommunicationQubit {
-        doc
-        /*
-         * Drive a designated communication qubit to an excited state with
-         * near unit probability using a fast laser pulse, so that at most one
-         * photon emerges following the appropriate radiative selection rules.
-         * The photon carries the qubit state in its own photonic degrees of
-         * freedom, such as polarization or optical frequency.
-         *
-         * Source: p.1166, left and right columns; Fig. 2E.
-         */
-        in item excitationPulse : opticalSignal;
-        out item communicationPhoton : opticalSignal;
-        attribute excitationProbability;            // p_e ~ 1 [p.1166 RC]
-    }
 
-    action def CollectPhoton {
-        doc
-        /*
-         * Collect the emitted photon into a single optical mode. The light
-         * collection fraction is a principal limit on the entanglement rate,
-         * and continual efforts to improve collection involve beam control
-         * components including mirrors, high numerical aperture lenses and
-         * optical cavities.
-         *
-         * Source: p.1167, right column; p.1168, right column.
-         */
-        in item emittedPhoton : opticalSignal;
-        out item collectedPhoton : opticalSignal;
-        attribute collectionFraction;               // F ~ 1 to 10 % [p.1167 RC]
-    }
 
-    action def ConvertWavelength {
-        doc
-        /*
-         * Translate the photon wavelength for better transmission. The
-         * photons adequate for carrying quantum information from ion qubits
-         * tend to have wavelengths in the ultraviolet or in the visible part
-         * of the spectrum, which is far from ideal for long-distance
-         * transmission, so quantum frequency converters translate the
-         * wavelength to the telecommunication band.
-         *
-         * Source: p.1168, right column; Fig. 4C.
-         */
-        in item visiblePhoton : opticalSignal;
-        in item pumpBeam : opticalSignal;
-        out item telecomPhoton : opticalSignal;
-    }
 
-    action def GeneratePumpBeam {
-        doc
-        /*
-         * Produce the pump light for the nonlinear wavelength converter.
-         *
-         * Source: Fig. 4C, p.1168.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def RoutePhoton {
-        doc
-        /*
-         * Route the photon between registers through a reconfigurable
-         * photonic network supported by an optical crossconnect switch. When
-         * a large number of elementary logic units are connected in this way,
-         * a scalable quantum computer can be constructed, allowing
-         * entanglement between any pair of registers with operations running
-         * in parallel and distance-independent logic gates.
-         *
-         * Source: p.1168, left column; Fig. 4A.
-         */
-        in item incomingPhoton : opticalSignal;
-        out item routedPhoton : opticalSignal;
-    }
 
-    action def InterferePhotons {
-        doc
-        /*
-         * Mode-match the photons from two communication qubits on a 50:50
-         * beamsplitter, so that if they are indistinguishable in polarization
-         * and colour they always leave along the same path.
-         *
-         * Source: p.1166, right column; Fig. 2F.
-         */
-        in item photon : opticalSignal;
-        out item outputA : opticalSignal;
-        out item outputB : opticalSignal;
-    }
 
-    action def HeraldEntanglement {
-        doc
-        /*
-         * Herald the entanglement of the two memories by the joint
-         * coincidence detection of photons at the output detectors.
-         * Simultaneous detection at the two outputs means the photons were
-         * different colours, but because there is no knowledge of which ion
-         * emitted which, the coincidence detection heralds entanglement of
-         * the trapped ion qubits.
-         *
-         * The mean connection rate is the repetition rate of the
-         * initialization and excitation process multiplied by the success
-         * probability, giving typical connection rates of 1 to 1000 Hz.
-         *
-         * Source: p.1166, right column; p.1167, right column; Fig. 2F.
-         */
-        in item photonA : opticalSignal;
-        in item photonB : opticalSignal;
-        out item herald : digitalData;
-        attribute connectionRate;                   // 1 to 1000 Hz [p.1167 RC]
-        attribute detectorEfficiency;               // eta_D ~ 20 % [p.1167 RC]
-    }
 
-    action def GenerateReadoutExcitation {
-        doc
-        /*
-         * Produce the resonant light used for state detection. When a laser
-         * resonant with a cycling optical transition is applied, an ion in
-         * one qubit state fluoresces strongly while an ion in the other stays
-         * dark because the laser is far from its resonance.
-         *
-         * Source: p.1165, left column; Fig. 1C.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def ImageFluorescence {
-        doc
-        /*
-         * Collect the fluorescence emitted during state detection onto the
-         * imaging system. The collection of even a small fraction of this
-         * fluorescence allows detection of the atomic qubit state with
-         * near-perfect efficiency.
-         *
-         * Source: p.1165, left column.
-         */
-        in item fluorescence : opticalSignal;
-        out item image : opticalSignal;
-    }
 
-    action def DetectQubitState {
-        doc
-        /*
-         * Determine the qubit state from the collected fluorescence, imaged
-         * onto a photon-counting detector.
-         *
-         * Source: p.1165, left column; Fig. 1C.
-         */
-        in item image : opticalSignal;
-        out attribute qubitState;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -349,30 +128,30 @@ package LaserTrappedIonInterface {
         out attribute entanglementHerald;
 
         // ---- trapping and preparation ----
-        action generateRfTrapDrive : GenerateRfTrapDrive;          // [p.1164 RC]
-        action generatePhotoionisationBeam : GeneratePhotoionisationBeam; // [p.1164 RC]
-        action generateCoolingBeam : GenerateCoolingBeam;          // [p.1165 LC]
+        action generateRfTrapDrive : GenerateTrapDrive;          // [p.1164 RC]
+        action generatePhotoionisationBeam : GenerateLaserBeam; // [p.1164 RC]
+        action generateCoolingBeam : GenerateLaserBeam;          // [p.1165 LC]
         action trapAndCoolIons : TrapAndCoolIons;                  // [p.1164 RC]
 
         // ---- gate chain ----
-        action generateAddressingBeam : GenerateAddressingBeam;    // [p.1165 RC]
+        action generateAddressingBeam : GenerateLaserBeam;    // [p.1165 RC]
         action steerBeam : SteerBeam;                              // [p.1167 LC]
-        action projectBeam : ProjectBeam;                          // [Fig.3C]
+        action projectBeam : FocusBeam;                          // [Fig.3C]
         action performGateOperation : PerformGateOperation;        // [p.1165 RC]
 
         // ---- photonic interconnect ----
         action exciteCommunicationQubit : ExciteCommunicationQubit;// [p.1166 RC]
-        action collectPhoton : CollectPhoton;                      // [p.1167 RC]
-        action generatePumpBeam : GeneratePumpBeam;                // [Fig.4C]
+        action collectPhoton : CollectLight;                      // [p.1167 RC]
+        action generatePumpBeam : GenerateLaserBeam;                // [Fig.4C]
         action convertWavelength : ConvertWavelength;              // [p.1168 RC]
-        action routePhoton : RoutePhoton;                          // [p.1168 LC]
-        action interferePhotons : InterferePhotons;                // [p.1166 RC]
+        action routePhoton : RouteSignal;                          // [p.1168 LC]
+        action interferePhotons : SplitBeam;                // [p.1166 RC]
         action heraldEntanglement : HeraldEntanglement;            // [p.1166 RC]
 
         // ---- readout ----
-        action generateReadoutExcitation : GenerateReadoutExcitation; // [p.1165 LC]
-        action imageFluorescence : ImageFluorescence;              // [p.1165 LC]
-        action detectQubitState : DetectQubitState;                // [p.1165 LC]
+        action generateReadoutExcitation : GenerateLaserBeam; // [p.1165 LC]
+        action imageFluorescence : CollectLight;              // [p.1165 LC]
+        action detectQubitState : AnalyseMeasurement;                // [p.1165 LC]
 
         // ---- control nodes ----
         fork initiate;
@@ -419,21 +198,21 @@ package LaserTrappedIonInterface {
         flow from generatePhotoionisationBeam.beam to trapAndCoolIons.ionisationBeam;
 
         flow from generateAddressingBeam.beam to steerBeam.beam;
-        flow from steerBeam.steeredBeam to projectBeam.steeredBeam;
+        flow from steerBeam.steeredBeam to projectBeam.incomingBeam;
         flow from projectBeam.focusedBeam to performGateOperation.focusedBeam;
 
         flow from generateAddressingBeam.beam to exciteCommunicationQubit.excitationPulse;
-        flow from exciteCommunicationQubit.communicationPhoton to collectPhoton.emittedPhoton;
-        flow from collectPhoton.collectedPhoton to convertWavelength.visiblePhoton;
+        flow from exciteCommunicationQubit.communicationPhoton to collectPhoton.emittedLight;
+        flow from collectPhoton.collectedLight to convertWavelength.inputPhoton;
         flow from generatePumpBeam.beam to convertWavelength.pumpBeam;
-        flow from convertWavelength.telecomPhoton to routePhoton.incomingPhoton;
-        flow from routePhoton.routedPhoton to interferePhotons.photon;
+        flow from convertWavelength.outputPhoton to routePhoton.input;
+        flow from routePhoton.output to interferePhotons.input;
         flow from interferePhotons.outputA to heraldEntanglement.photonA;
         flow from interferePhotons.outputB to heraldEntanglement.photonB;
 
-        flow from performGateOperation.memoryState to imageFluorescence.fluorescence;
-        flow from generateReadoutExcitation.beam to imageFluorescence.fluorescence;
-        flow from imageFluorescence.image to detectQubitState.image;
+        flow from performGateOperation.memoryState to imageFluorescence.emittedLight;
+        flow from generateReadoutExcitation.beam to imageFluorescence.emittedLight;
+        flow from imageFluorescence.collectedLight to detectQubitState.measurement;
 
         bind measuredQubitState = detectQubitState.qubitState;
         bind entanglementHerald = heraldEntanglement.herald;
@@ -504,7 +283,7 @@ package LaserTrappedIonInterface {
                 in item item1;
             }
             perform laserOperation.projectBeam;                    // [Fig.3C]
-            flow from beamIn.item1 to projectBeam.steeredBeam;
+            flow from beamIn.item1 to projectBeam.incomingBeam;
             flow from projectBeam.focusedBeam to beamOut.item1;
         }
         part dopplerCoolingLaser {
@@ -637,8 +416,8 @@ package LaserTrappedIonInterface {
                     in item item1;
                 }
                 perform laserOperation.collectPhoton;
-                flow from photonIn.item1 to collectPhoton.emittedPhoton;
-                flow from collectPhoton.collectedPhoton to photonOut.item1;
+                flow from photonIn.item1 to collectPhoton.emittedLight;
+                flow from collectPhoton.collectedLight to photonOut.item1;
             }
             port addressingBeamIn : ~opticalPort;
             port coolingBeamIn : ~opticalPort;
@@ -709,9 +488,9 @@ package LaserTrappedIonInterface {
                 in item item1;
             }
             perform laserOperation.convertWavelength;
-            flow from photonIn.item1 to convertWavelength.visiblePhoton;
+            flow from photonIn.item1 to convertWavelength.inputPhoton;
             flow from pumpIn.item1 to convertWavelength.pumpBeam;
-            flow from convertWavelength.telecomPhoton to telecomPhotonOut.item1;
+            flow from convertWavelength.outputPhoton to telecomPhotonOut.item1;
         }
         part opticalCrossconnectSwitch {
             doc
@@ -728,8 +507,8 @@ package LaserTrappedIonInterface {
                 in item item1;
             }
             perform laserOperation.routePhoton;
-            flow from photonIn.item1 to routePhoton.incomingPhoton;
-            flow from routePhoton.routedPhoton to photonOut.item1;
+            flow from photonIn.item1 to routePhoton.input;
+            flow from routePhoton.output to photonOut.item1;
         }
         part beamSplitter {
             doc
@@ -749,7 +528,7 @@ package LaserTrappedIonInterface {
                 in item item1;
             }
             perform laserOperation.interferePhotons;
-            flow from photonIn.item1 to interferePhotons.photon;
+            flow from photonIn.item1 to interferePhotons.input;
             flow from interferePhotons.outputA to photonOutA.item1;
             flow from interferePhotons.outputB to photonOutB.item1;
         }
@@ -812,15 +591,15 @@ package LaserTrappedIonInterface {
                 in item item1;
             }
             perform laserOperation.imageFluorescence;              // [p.1165 LC]
-            flow from photonIn.item1 to imageFluorescence.fluorescence;
-            flow from imageFluorescence.image to photonOut.item1;
+            flow from photonIn.item1 to imageFluorescence.emittedLight;
+            flow from imageFluorescence.collectedLight to photonOut.item1;
         }
         part photonCountingImager {
             port photonIn : ~opticalPort {
                 out item item1;
             }
             perform laserOperation.detectQubitState;               // [p.1165 LC]
-            flow from photonIn.item1 to detectQubitState.image;
+            flow from photonIn.item1 to detectQubitState.measurement;
         }
         port readoutExcitationOut : opticalPort;
         port fluorescenceIn : ~opticalPort;

@@ -61,249 +61,19 @@ package MicrowaveTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-    action def GenerateGlobalMicrowaveField {
-        doc
-        /*
-         * Generate the microwave frequencies for the global radiation
-         * fields. These are produced by commercial frequency generators.
-         *
-         * Only a fixed number of gate radiation fields are needed,
-         * independent of the number of ions, which is what removes the need
-         * for thousands or millions of individually controllable fields.
-         *
-         * Source: p.4, right column, paragraph 1; p.4, left column,
-         * paragraph 2.
-         */
-        out item tone : microwaveSignal;
-    }
 
-    action def AmplifyMicrowave {
-        doc
-        /*
-         * Supply the microwave signal with sufficient amplitude to drive the
-         * emitters inside the system.
-         *
-         * Source: p.4, right column, paragraph 1.
-         */
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
-    }
 
-    action def RadiateGlobalField {
-        doc
-        /*
-         * Radiate a global long-wavelength field into the vacuum chamber.
-         * Only a handful of global microwave fields are required, originating
-         * from emitters placed periodically within the vacuum chambers, to
-         * implement the required quantum logic on arbitrarily many ions.
-         *
-         * Source: p.4, left column, paragraph 2.
-         */
-        in item feed : microwaveSignal;
-        out item globalField : microwaveSignal;
-    }
 
-    action def GenerateRfTrapDrive {
-        doc
-        /*
-         * Generate the radio-frequency drive that forms the trapping
-         * pseudopotential. All resonators are attached to the same frequency
-         * source.
-         *
-         * Source: p.5, right column, paragraph 1; Fig. 1C caption, p.3.
-         */
-        out item rfDrive : microwaveSignal;
-        attribute driveFrequency = 25.0E6 [Hz];     // 25 MHz  [Fig.1C caption]
-        attribute driveVoltage = 200.0 [V];         // 200 V   [Fig.1C caption]
-    }
 
-    action def ResonateRfDrive {
-        doc
-        /*
-         * Raise the rf drive to the voltage required at the trap electrodes
-         * using a compact helical resonator. Connecting 6 by 6 junctions into
-         * one electrical submodule keeps the capacitance below 80 pF, and a
-         * quality factor above 200 is achievable with a resonator around
-         * 15 mm in diameter. The resonant circuits are tuned into resonance
-         * with the frequency source using tuning capacitors.
-         *
-         * Source: p.5, right column, paragraph 1.
-         */
-        in item rfIn : microwaveSignal;
-        out item rfOut : microwaveSignal;
-        attribute qualityFactor;                    // > 200   [p.5 RC para 1]
-        attribute submoduleCapacitance;             // < 80 pF [p.5 RC para 1]
-    }
 
-    action def IssueControlCommand {
-        doc
-        /*
-         * Issue the digital commands that drive the in-vacuum converters and
-         * the detection system. An additional wafer layer houses an
-         * electronic control unit for this purpose.
-         *
-         * Source: p.5, right column, paragraph 1.
-         */
-        out item command : digitalData;
-    }
 
-    action def GenerateLaserBeam {
-        doc
-        /*
-         * Produce one of the laser beams required by the architecture. Laser
-         * light is needed only for state preparation and detection,
-         * photoionization, and sympathetic cooling. The beams have much less
-         * stringent requirements than those used for laser-driven gates: they
-         * need not be intense or phase-stable, and the mode profile need only
-         * overlap the ion enough to scatter sufficient photons. Sympathetic
-         * cooling beams can even be delivered as sheets.
-         *
-         * Source: p.2, right column, paragraph 3.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def SteerLaserBeam {
-        doc
-        /*
-         * Steer the global laser beams so that they address only the
-         * intended zones. The beams are steered parallel to and between the
-         * gate zone arms, which are separated by 2.5 mm, so that only ions in
-         * the readout zones are illuminated. The required accuracy is readily
-         * achieved with in-vacuum optics.
-         *
-         * State readout is performed many times during error-corrected
-         * logical qubit operations, so keeping the illumination off the gate
-         * zones is what preserves the state of the physical qubits that are
-         * not being measured.
-         *
-         * Source: p.5, left column, paragraph 2.
-         */
-        in item beams : opticalSignal;
-        out item steeredBeams : opticalSignal;
-        attribute gateZoneArmSeparation = 2.5E-3 [m];   // 2.5 mm [p.5 LC para 2]
-    }
 
-    action def ConvertToAnalogDrive {
-        doc
-        /*
-         * Convert the digital command stream into the analog currents and
-         * voltages applied inside the vacuum system. The on-chip control
-         * electronics is based on digital-to-analog converters that control
-         * the currents applied to the very low inductance coils, with 16-bit
-         * precision and an update rate above 1 MHz.
-         *
-         * Each electrical submodule features 1224 static voltage electrodes
-         * and 108 individual local gradient current wires; the converters are
-         * fabricated on separate silicon substrates attached to the ion trap
-         * substrate using through-silicon via and wafer-stacking technology.
-         *
-         * Source: p.4, right column, paragraph 1; p.5, right column,
-         * paragraph 1.
-         */
-        in item command : digitalData;
-        out item coilCurrent : dcBias;
-        out item electrodeVoltage : dcBias;
-        attribute precision;                        // 16 bit   [p.4 RC para 1]
-        attribute updateRate = 1.0E6 [Hz];          // > 1 MHz  [p.4 RC para 1]
-        attribute staticVoltageElectrodeCount;      // 1224     [p.5 RC para 1]
-        attribute gradientWireCount;                // 108      [p.5 RC para 1]
-    }
 
-    action def FilterElectrodeVoltage {
-        doc
-        /*
-         * Filter the electrode voltage line inside the vacuum system.
-         * Resistor-capacitor filters are combined with the converters and the
-         * through-silicon via structures on the stacked wafer layers.
-         *
-         * Source: p.5, right column, paragraph 1.
-         */
-        in item unfiltered : dcBias;
-        out item filtered : dcBias;
-    }
 
-    action def GenerateFieldGradient {
-        doc
-        /*
-         * Generate the large static magnetic field gradient used for fast,
-         * high-fidelity microwave gates, using current-carrying wires
-         * embedded in the silicon substrate.
-         *
-         * During shuttling operations the gradient can be turned off,
-         * removing the requirement to shuttle ions through large magnetic
-         * fields. The gradient wires have an impedance on the order of
-         * 10 microhenry, which allows ramp-up and ramp-down times on the
-         * order of 5 microseconds.
-         *
-         * Source: p.4, left column, paragraph 1; p.4, right column,
-         * paragraph 3; Fig. 2A.
-         */
-        in item current : dcBias;
-        out item gradient : magneticField;
-        attribute gradientStrength;                 // 150 T/m at the ion [p.4 LC para 1]
-        attribute wireCurrent = 10.0 [A];           // ~10 A   [p.4 LC para 1]
-        attribute ionHeight = 100.0E-6 [m];         // 100 um  [p.4 LC para 1]
-        attribute wireInductance = 10.0E-6 [H];     // ~10 uH  [p.4 RC para 3]
-        attribute rampTime = 5.0E-6 [s];            // ~5 us   [p.4 RC para 3]
-    }
 
-    action def AdjustLocalMagneticField {
-        doc
-        /*
-         * Shift the qubit frequency in and out of resonance with the global
-         * radiation fields, using local B-field coils placed underneath each
-         * gate zone. The architecture already carries these local offset
-         * coils to adjust the field in each gate zone and to compensate slow
-         * variations of the global magnetic field, so they are also used for
-         * the resonance shift rather than shuttling the ion along the
-         * gradient.
-         *
-         * Source: p.4, left column, paragraphs 3 and 4; p.4, right column,
-         * paragraph 1; Fig. 2A.
-         */
-        in item current : dcBias;
-        out item offsetField : magneticField;
-        attribute coilInductance = 25.0E-9 [H];     // ~25 nH  [p.4 RC para 1]
-    }
 
-    action def ApplyElectrodeVoltage {
-        doc
-        /*
-         * Place the ion precisely within the static magnetic field gradient
-         * during gate operations, using highly stable and precise voltages
-         * applied to the appropriate electrodes in the gate zones. For
-         * shuttling operations these voltages are overridden by the fast
-         * control system through a summing amplification circuit.
-         *
-         * Source: p.4, right column, paragraph 2.
-         */
-        in item voltage : dcBias;
-        out item electrodePotential : dcBias;
-        attribute voltageStability = 50.0E-6 [V];   // better than 50 uV [p.4 RC para 2]
-    }
 
-    action def ShuttleIon {
-        doc
-        /*
-         * Transport an ion between the loading, gate and readout zones of the
-         * X-junction. High-fidelity shuttling through junctions requires a
-         * highly optimized electrode geometry, combined with static voltage
-         * electrodes designed for fast and efficient shuttling and
-         * separation.
-         *
-         * Decoherence that would be caused by transferring ions through the
-         * strong magnetic field gradients is avoided by globally turning off
-         * the gradient fields during shuttling.
-         *
-         * Source: p.3, left column, paragraphs 1 and 2; p.2, right column,
-         * paragraph 3; Fig. 1A.
-         */
-        in item electrodePotential : dcBias;
-        attribute cycleTime = 235.0E-6 [s];         // ~235 us [p.3 LC para 1]
-        attribute rfBarrier;                        // ~0.15 meV [p.3 LC para 1]
-        attribute trapDepth;                        // ~80 meV   [p.3 LC para 1]
-    }
 
     action def PerformQuantumGate {
         doc
@@ -326,36 +96,7 @@ package MicrowaveTrappedIonInterface {
         out item fluorescence : opticalSignal;
     }
 
-    action def LoadIon {
-        doc
-        /*
-         * Load an ion into the trap, or replace a lost one. Backside loading
-         * zones require a global ionization laser beam in combination with an
-         * atomic flux originating from the back of the substrate, the flux
-         * being generated by an atomic oven passing through slots fabricated
-         * into the silicon substrate.
-         *
-         * When an ion is lost from a position within a module, a new ion is
-         * trapped and all ions between the lost position and the loading zone
-         * are shifted by one position, requiring only single-shuttling
-         * sequences.
-         *
-         * Source: p.3, right column, paragraph 2; p.4, left column,
-         * paragraph 1.
-         */
-        in item ionisationBeam : opticalSignal;
-    }
 
-    action def CoolIon {
-        doc
-        /*
-         * Sympathetically cool the qubit ion using a second ion species, so
-         * that the internal states of the qubit are not affected.
-         *
-         * Source: p.2, right column, paragraph 3.
-         */
-        in item coolingBeam : opticalSignal;
-    }
 
     action def PrepareState {
         doc
@@ -367,72 +108,9 @@ package MicrowaveTrappedIonInterface {
         in item statePrepBeam : opticalSignal;
     }
 
-    action def TransmitFluorescence {
-        doc
-        /*
-         * Pass the light emitted by an ion in the readout zone through the
-         * segmented electrodes to the detector below. The centre segmented
-         * electrodes in the readout zone are made of indium tin oxide rather
-         * than gold, which is ultraviolet transparent at about 80%
-         * transmission and so lets the emitted light through.
-         *
-         * Source: p.4, right column, paragraph 4; Fig. 2B.
-         */
-        in item emittedLight : opticalSignal;
-        out item transmittedLight : opticalSignal;
-        attribute uvTransmission;                   // ~80 %   [p.4 RC para 4]
-    }
 
-    action def CountPhotons {
-        doc
-        /*
-         * Count the transmitted photons on a photodetector fabricated onto
-         * the silicon substrate and separated from the electrodes by a highly
-         * UV-transparent dielectric layer. Via wall structures prevent
-         * optical cross-talk from neighbouring readout zones. Commercial
-         * silicon-based multi-pixel photon counters reach quantum
-         * efficiencies around 30%, and when cooled to 77 K show a dark count
-         * rate reduced to the order of 1 Hz.
-         *
-         * Source: p.4, right column, paragraph 4; Fig. 2B.
-         */
-        in item transmittedLight : opticalSignal;
-        out item photonCount : digitalData;
-        attribute quantumEfficiency;                // ~30 %   [p.4 RC para 4]
-        attribute darkCountRate = 1.0 [Hz];         // ~1 Hz at 77 K [p.4 RC para 4]
-    }
 
-    action def DetermineQubitState {
-        doc
-        /*
-         * Determine the qubit state from the photon count. The total photon
-         * detection efficiency of the setup is on the order of 2%, taking an
-         * 80% transmission through the ITO and dielectric layer and a
-         * collection efficiency of about 10%. A state readout fidelity on the
-         * order of 99.9% for a 25 microsecond detection window can be
-         * expected.
-         *
-         * Source: p.4, right column, paragraph 5; p.5, left column,
-         * paragraph 1.
-         */
-        in item photonCount : digitalData;
-        out item result : digitalData;
-        attribute detectionEfficiency;              // ~2 %    [p.5 LC para 1]
-        attribute collectionEfficiency;             // ~10 %   [p.5 LC para 1]
-        attribute readoutFidelity;                  // ~99.9 % [p.5 LC para 1]
-        attribute detectionWindow = 25.0E-6 [s];    // 25 us   [p.5 LC para 1]
-    }
 
-    action def AnalyseResult {
-        doc
-        /*
-         * Analyse the readout result outside the vacuum system.
-         *
-         * Source: p.5, right column, paragraph 1.
-         */
-        in item result : digitalData;
-        out attribute qubitState;
-    }
 
     action def RemoveHeat {
         doc
@@ -451,6 +129,34 @@ package MicrowaveTrappedIonInterface {
          */
         attribute heatOutputPerModule = 1.0E3 [W];  // ~1000 W [p.5 LC para 3]
         attribute powerDensity;                     // 0.12 W/mm2 [p.5 LC para 3]
+    }
+
+    action def ApplyElectrodeVoltage :> ConditionSignal {
+        doc
+        /* Summing amplification circuit applying the highly stable electrode
+         * potentials, overridden by the fast control system during shuttling.
+         * Kept local because the library SupplyBias is a pure source, whereas
+         * this stage conditions an incoming voltage.
+         *
+         * Source: p.4, right column, paragraph 2.
+         */
+        in item electrodeIn : dcBias;
+        out item electrodePotential : dcBias;
+        attribute voltageStability;
+    }
+    action def ConvertToAnalogDrive :> ConvertSignal {
+        doc
+        /* In-vacuum converters producing both the coil currents and the
+         * electrode voltages. Kept local because it has two distinct analog
+         * outputs, unlike the single-output library converter.
+         *
+         * Source: p.4 right column paragraph 1; p.5 right column paragraph 1.
+         */
+        in item command : digitalData;
+        out item coilCurrent : dcBias;
+        out item electrodeVoltage : dcBias;
+        attribute precision;
+        attribute updateRate : FrequencyValue;
     }
 
     // =====================================================================
@@ -485,22 +191,22 @@ package MicrowaveTrappedIonInterface {
         out attribute measuredQubitState;
 
         // ---- room-temperature generation ----
-        action generateGlobalMicrowaveField : GenerateGlobalMicrowaveField;  // [p.4 RC para 1]
-        action amplifyMicrowave : AmplifyMicrowave;                // [p.4 RC para 1]
-        action radiateGlobalField : RadiateGlobalField;            // [p.4 LC para 2]
-        action generateRfTrapDrive : GenerateRfTrapDrive;          // [p.5 RC para 1]
-        action resonateRfDrive : ResonateRfDrive;                  // [p.5 RC para 1]
-        action issueControlCommand : IssueControlCommand;          // [p.5 RC para 1]
+        action generateGlobalMicrowaveField : GenerateMicrowaveDrive;  // [p.4 RC para 1]
+        action amplifyMicrowave : Amplify;                // [p.4 RC para 1]
+        action radiateGlobalField : RadiateBeam;            // [p.4 LC para 2]
+        action generateRfTrapDrive : GenerateTrapDrive;          // [p.5 RC para 1]
+        action resonateRfDrive : Resonate;                  // [p.5 RC para 1]
+        action issueControlCommand : IssueCommand;          // [p.5 RC para 1]
         action generateIonisationBeam : GenerateLaserBeam;         // [p.2 RC para 3]
         action generateCoolingBeam : GenerateLaserBeam;            // [p.2 RC para 3]
         action generateStatePrepBeam : GenerateLaserBeam;          // [p.2 RC para 3]
         action generateSympatheticBeam : GenerateLaserBeam;        // [p.2 RC para 3]
-        action steerLaserBeam : SteerLaserBeam;                    // [p.5 LC para 2]
+        action steerLaserBeam : SteerBeam;                    // [p.5 LC para 2]
         action generateReadoutExcitation : GenerateLaserBeam;      // [p.5 LC para 2]
 
         // ---- in-vacuum electronics ----
         action convertToAnalogDrive : ConvertToAnalogDrive;        // [p.4 RC para 1]
-        action filterElectrodeVoltage : FilterElectrodeVoltage;    // [p.5 RC para 1]
+        action filterElectrodeVoltage : FilterSignal;    // [p.5 RC para 1]
         action generateFieldGradient : GenerateFieldGradient;      // [p.4 LC para 1]
         action adjustLocalMagneticField : AdjustLocalMagneticField;// [p.4 LC para 4]
         action applyElectrodeVoltage : ApplyElectrodeVoltage;      // [p.4 RC para 2]
@@ -508,17 +214,17 @@ package MicrowaveTrappedIonInterface {
 
         // ---- ion operations ----
         action loadIon : LoadIon;                                  // [p.3 RC para 2]
-        action coolIon : CoolIon;                                  // [p.2 RC para 3]
+        action coolIon : CoolAtom;                                  // [p.2 RC para 3]
         action prepareState : PrepareState;                        // [p.2 RC para 3]
-        action shuttleToGateZone : ShuttleIon;                     // [p.3 LC para 1]
+        action shuttleToGateZone : TransportIon;                     // [p.3 LC para 1]
         action performQuantumGate : PerformQuantumGate;            // [p.4 RC para 1]
-        action shuttleToReadoutZone : ShuttleIon;                  // [p.3 LC para 1]
+        action shuttleToReadoutZone : TransportIon;                  // [p.3 LC para 1]
 
         // ---- readout ----
-        action transmitFluorescence : TransmitFluorescence;        // [p.4 RC para 4]
-        action countPhotons : CountPhotons;                        // [p.4 RC para 4]
-        action determineQubitState : DetermineQubitState;          // [p.5 LC para 1]
-        action analyseResult : AnalyseResult;                      // [p.5 RC para 1]
+        action transmitFluorescence : CollectLight;        // [p.4 RC para 4]
+        action countPhotons : DetectPhotons;                        // [p.4 RC para 4]
+        action determineQubitState : EvaluateMeasurement;          // [p.5 LC para 1]
+        action analyseResult : AnalyseMeasurement;                      // [p.5 RC para 1]
 
         // ---- control nodes ----
         fork initiate;
@@ -576,15 +282,15 @@ package MicrowaveTrappedIonInterface {
         first analyseResult then done;
 
         // ---- item chain ----
-        flow from generateGlobalMicrowaveField.tone to amplifyMicrowave.weakSignal;
+        flow from generateGlobalMicrowaveField.drive to amplifyMicrowave.weakSignal;
         flow from amplifyMicrowave.amplifiedSignal to radiateGlobalField.feed;
-        flow from radiateGlobalField.globalField to performQuantumGate.globalField;
-        flow from generateRfTrapDrive.rfDrive to resonateRfDrive.rfIn;
-        flow from resonateRfDrive.rfOut to performQuantumGate.trapDrive;
+        flow from radiateGlobalField.beam to performQuantumGate.globalField;
+        flow from generateRfTrapDrive.rfDrive to resonateRfDrive.input;
+        flow from resonateRfDrive.output to performQuantumGate.trapDrive;
 
         flow from issueControlCommand.command to convertToAnalogDrive.command;
         flow from convertToAnalogDrive.electrodeVoltage to filterElectrodeVoltage.unfiltered;
-        flow from filterElectrodeVoltage.filtered to applyElectrodeVoltage.voltage;
+        flow from filterElectrodeVoltage.filtered to applyElectrodeVoltage.electrodeIn;
         flow from convertToAnalogDrive.coilCurrent to generateFieldGradient.current;
         flow from convertToAnalogDrive.coilCurrent to adjustLocalMagneticField.current;
         flow from generateFieldGradient.gradient to performQuantumGate.gradient;
@@ -593,17 +299,17 @@ package MicrowaveTrappedIonInterface {
         flow from applyElectrodeVoltage.electrodePotential to shuttleToGateZone.electrodePotential;
         flow from applyElectrodeVoltage.electrodePotential to shuttleToReadoutZone.electrodePotential;
 
-        flow from generateIonisationBeam.beam to steerLaserBeam.beams;
-        flow from steerLaserBeam.steeredBeams to loadIon.ionisationBeam;
+        flow from generateIonisationBeam.beam to steerLaserBeam.beam;
+        flow from steerLaserBeam.steeredBeam to loadIon.ionisationBeam;
         flow from generateCoolingBeam.beam to coolIon.coolingBeam;
         flow from generateSympatheticBeam.beam to coolIon.coolingBeam;
         flow from generateStatePrepBeam.beam to prepareState.statePrepBeam;
 
         flow from performQuantumGate.fluorescence to transmitFluorescence.emittedLight;
-        flow from generateReadoutExcitation.beam to steerLaserBeam.beams;
-        flow from transmitFluorescence.transmittedLight to countPhotons.transmittedLight;
-        flow from countPhotons.photonCount to determineQubitState.photonCount;
-        flow from determineQubitState.result to analyseResult.result;
+        flow from generateReadoutExcitation.beam to steerLaserBeam.beam;
+        flow from transmitFluorescence.collectedLight to countPhotons.light;
+        flow from countPhotons.count to determineQubitState.measurement;
+        flow from determineQubitState.result to analyseResult.measurement;
 
         bind measuredQubitState = analyseResult.qubitState;
     }
@@ -638,7 +344,7 @@ package MicrowaveTrappedIonInterface {
                 in item item1;
             }
             perform microwaveOperation.generateGlobalMicrowaveField;
-            flow from generateGlobalMicrowaveField.tone to toneOut.item1;
+            flow from generateGlobalMicrowaveField.drive to toneOut.item1;
         }
         part microwaveAmplifier {
             port ampIn : ~microwavePort {
@@ -667,7 +373,7 @@ package MicrowaveTrappedIonInterface {
             }
             perform microwaveOperation.radiateGlobalField;
             flow from feedIn.item1 to radiateGlobalField.feed;
-            flow from radiateGlobalField.globalField to globalFieldOut.item1;
+            flow from radiateGlobalField.beam to globalFieldOut.item1;
         }
         part rfFrequencySource {
             port rfOut : microwavePort {
@@ -693,8 +399,8 @@ package MicrowaveTrappedIonInterface {
                 in item item1;
             }
             perform microwaveOperation.resonateRfDrive;
-            flow from rfIn.item1 to resonateRfDrive.rfIn;
-            flow from resonateRfDrive.rfOut to rfOut.item1;
+            flow from rfIn.item1 to resonateRfDrive.input;
+            flow from resonateRfDrive.output to rfOut.item1;
         }
         part digitalController {
             doc
@@ -766,8 +472,8 @@ package MicrowaveTrappedIonInterface {
                     in item item1;
                 }
                 perform microwaveOperation.steerLaserBeam;
-                flow from photoionisationIn.item1 to steerLaserBeam.beams;
-                flow from steerLaserBeam.steeredBeams to sheetOut.item1;
+                flow from photoionisationIn.item1 to steerLaserBeam.beam;
+                flow from steerLaserBeam.steeredBeam to sheetOut.item1;
             }
             port laserSheetOut : opticalPort;
             flow from photoionisationLaser.beamOut to inVacuumBeamSteeringOptics.photoionisationIn;
@@ -783,8 +489,8 @@ package MicrowaveTrappedIonInterface {
         flow from globalFrequencyGenerator.toneOut to microwaveAmplifier.ampIn;
         flow from microwaveAmplifier.ampOut to radiationEmitter.feedIn;
         flow from radiationEmitter.globalFieldOut to globalMicrowaveOut;
-        flow from rfFrequencySource.rfOut to helicalResonator.rfIn;
-        flow from helicalResonator.rfOut to rfTrapDriveOut;
+        flow from rfFrequencySource.output to helicalResonator.input;
+        flow from helicalResonator.output to rfTrapDriveOut;
         flow from globalLaserSystem.laserSheetOut to laserSheetOut;
         flow from digitalController.controlOut to digitalControlOut;
     }
@@ -951,7 +657,7 @@ package MicrowaveTrappedIonInterface {
                 }
                 perform microwaveOperation.transmitFluorescence;
                 flow from photonIn.item1 to transmitFluorescence.emittedLight;
-                flow from transmitFluorescence.transmittedLight to photonOut.item1;
+                flow from transmitFluorescence.collectedLight to photonOut.item1;
             }
             part embeddedPhotonCounter {
                 doc
@@ -971,8 +677,8 @@ package MicrowaveTrappedIonInterface {
                     in item item1;
                 }
                 perform microwaveOperation.countPhotons;
-                flow from photonIn.item1 to countPhotons.transmittedLight;
-                flow from countPhotons.photonCount to countOut.item1;
+                flow from photonIn.item1 to countPhotons.light;
+                flow from countPhotons.count to countOut.item1;
             }
             part electronicsLayer {
                 doc
@@ -1029,7 +735,7 @@ package MicrowaveTrappedIonInterface {
                         in item item1;
                     }
                     perform microwaveOperation.applyElectrodeVoltage;
-                    flow from voltageIn.item1 to applyElectrodeVoltage.voltage;
+                    flow from voltageIn.item1 to applyElectrodeVoltage.electrodeIn;
                     flow from applyElectrodeVoltage.electrodePotential to potentialOut.item1;
                 }
                 part throughSiliconVia;
@@ -1058,7 +764,7 @@ package MicrowaveTrappedIonInterface {
                     in item item1;
                 }
                 perform microwaveOperation.determineQubitState;
-                flow from countIn.item1 to determineQubitState.photonCount;
+                flow from countIn.item1 to determineQubitState.measurement;
                 flow from determineQubitState.result to resultOut.item1;
             }
             part microchannelCooler {
@@ -1137,7 +843,7 @@ package MicrowaveTrappedIonInterface {
             }
             port resultOut : digitalPort;
             perform microwaveOperation.analyseResult;              // [p.5 RC para 1]
-            flow from countIn.item1 to analyseResult.result;
+            flow from countIn.item1 to analyseResult.measurement;
         }
         part readoutControlUnit {
             port resultIn : ~digitalPort;

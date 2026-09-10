@@ -70,118 +70,13 @@ package SingleFluxQuantumInterface {
     // Action definitions
     // =====================================================================
 
-    action def GenerateEnvelope {
-        doc
-        /*
-         * Produce the low-frequency baseband envelope of the microwave tone
-         * that triggers the SFQ converter. Fig. 5 shows the same arbitrary
-         * waveform generator and converter front end as the conventional
-         * architecture.
-         *
-         * Source: Fig. 5, p.8.
-         */
-        out item envelope : digitalData;
-    }
 
-    action def ConvertDigitalToAnalog {
-        doc
-        /*
-         * Convert the digital waveform description into an analog signal.
-         *
-         * Source: DAC in Fig. 5, p.8.
-         */
-        in item digitalInput : digitalData;
-        out item analogOutput : microwaveSignal;
-    }
 
-    action def GenerateCarrier {
-        doc
-        /*
-         * Produce the high-frequency carrier tone.
-         *
-         * Source: local oscillator in the Fig. 5 legend, p.8.
-         */
-        out item carrier : microwaveSignal;
-    }
 
-    action def Upconvert {
-        doc
-        /*
-         * Mix the baseband signal with the carrier to produce the external
-         * microwave tone used to trigger the DC-SFQ converter.
-         *
-         * Source: p.7, left column, paragraph 3; IQ mixer in the Fig. 5
-         * legend, p.8.
-         */
-        in item baseband : microwaveSignal;
-        in item carrier : microwaveSignal;
-        out item waveform : microwaveSignal;
-    }
 
-    action def FilterSignal {
-        doc
-        /*
-         * Band-limit a signal. Typed against the general signal item so that
-         * one definition serves the microwave trigger line and the two bias
-         * lines.
-         *
-         * Source: filter in the Fig. 5 legend, p.8.
-         */
-        in item unfiltered : signal;
-        out item filtered : signal;
-    }
 
-    action def AttenuateThermalNoise {
-        doc
-        /*
-         * Suppress thermal noise on the line entering the refrigerator.
-         * Fig. 5 places an attenuator stage on the trigger line at each of
-         * the 50 K, 4 K and 800 mK plates.
-         *
-         * Source: attenuator in the Fig. 5 legend, p.8.
-         */
-        in item unattenuated : microwaveSignal;
-        out item attenuated : microwaveSignal;
-    }
 
-    action def ProvideBias {
-        doc
-        /*
-         * Supply a bias current to an SFQ logic chip. Fig. 5 shows two
-         * separate power sources, labelled dc-SFQ bias for the control chip
-         * and SFQ-dc bias for the readout chip.
-         *
-         * Source: power source in the Fig. 5 legend, p.8.
-         */
-        out item bias : dcBias;
-    }
 
-    action def GenerateSfqPulseTrain {
-        doc
-        /*
-         * Produce a train of SFQ pulses from an external microwave trigger
-         * tone. An SFQ pulse is produced when magnetic flux through a
-         * superconducting circuit containing an overdamped Josephson
-         * junction changes by one flux quantum, as a result of the junction
-         * switching, which represents a two pi phase jump. The pulses have a
-         * quantized area given by Equation 1.
-         *
-         * An individual SFQ pulse produces a broadband excitation and is
-         * therefore incompatible with coherent manipulation of a qubit, so
-         * control relies on a train of pulses whose pulse-to-pulse
-         * separation is matched to the qubit period.
-         *
-         * Source: p.7, left column, paragraphs 1 to 3; Eq. 1, p.7.
-         */
-        in item triggerTone : microwaveSignal;
-        in item biasSupply : dcBias;
-        out item pulseTrain : sfqPulse;
-        attribute fluxQuantum = 2.07E-15 [Wb];      // 2.07e-15 Wb  [Eq.1]
-        attribute pulseArea;                        // 2.07 mV ps   [Eq.1]
-        attribute minimumPulseInterval = 1.0E-12 [s];  // 1 ps      [p.7 LC para 2]
-        attribute pulseAmplitude;                   // mV range     [p.7 LC para 2]
-        attribute pulseSeparation;                  // matched to qubit period
-    }
 
     action def ManipulateQubitState {
         doc
@@ -200,109 +95,13 @@ package SingleFluxQuantumInterface {
         attribute realisedGateFidelity;             // approx 95 % [p.7 LC para 3]
     }
 
-    action def MapStateToPhotonOccupation {
-        doc
-        /*
-         * Map the qubit state onto the photon occupation of a microwave
-         * cavity, which is the first stage of the digital readout chain.
-         *
-         * Source: p.7, right column, paragraph 2.
-         */
-        in item qubitCoupling : microwaveSignal;
-        out item photonOccupation : microwaveSignal;
-    }
 
-    action def DetectPhoton {
-        doc
-        /*
-         * Detect the cavity photon with a Josephson photomultiplier, which
-         * effectively measures the qubit state and stores the result in a
-         * circulating current.
-         *
-         * Source: p.7, right column, paragraph 2.
-         */
-        in item photonOccupation : microwaveSignal;
-        out item storedResult : circulatingCurrent;
-    }
 
-    action def ModulateFluxonArrival {
-        doc
-        /*
-         * Delay or accelerate fluxons travelling along an underdamped
-         * Josephson transmission line, according to the circulating current
-         * in the coupled photomultiplier.
-         *
-         * Source: p.7, right column, paragraph 2.
-         */
-        in item storedResult : circulatingCurrent;
-        out item fluxon : sfqPulse;
-        attribute arrivalTimeDeviation;
-    }
 
-    action def ConvertToSfqLogic {
-        doc
-        /*
-         * Convert the deviation in fluxon arrival time into an SFQ logic
-         * signal, delivering digital qubit readout. In rapid single flux
-         * quantum logic the presence or absence of a voltage pulse across a
-         * Josephson junction constitutes a classical one or zero binary bit.
-         *
-         * Source: p.7, right column, paragraph 2; p.7, left column,
-         * paragraph 2.
-         */
-        in item fluxon : sfqPulse;
-        in item biasSupply : dcBias;
-        out item logicSignal : microwaveSignal;
-        attribute clockSpeed = 7.7E11 [Hz];         // up to 770 GHz [p.7 LC para 2]
-        attribute bitSwitchEnergy = 2.0E-19 [J];    // ERSFQ         [p.8 LC para 2]
-    }
 
-    action def Amplify {
-        doc
-        /*
-         * Boost the readout signal. Fig. 5 shows a low-noise amplifier stage
-         * inside the refrigerator at 4 K and a further stage at room
-         * temperature.
-         *
-         * Source: low-noise amplifier in the Fig. 5 legend, p.8.
-         */
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
-    }
 
-    action def Downconvert {
-        doc
-        /*
-         * Mix the returning readout signal back down to baseband.
-         *
-         * Source: IQ mixer in the Fig. 5 legend, p.8.
-         */
-        in item waveform : microwaveSignal;
-        in item referenceCarrier : microwaveSignal;
-        out item baseband : microwaveSignal;
-    }
 
-    action def ConvertAnalogToDigital {
-        doc
-        /*
-         * Digitise the downconverted readout signal.
-         *
-         * Source: ADC in Fig. 5, p.8.
-         */
-        in item analogInput : microwaveSignal;
-        out item digitalOutput : digitalData;
-    }
 
-    action def PostProcess {
-        doc
-        /*
-         * Recover the qubit state from the digitised record.
-         *
-         * Source: Computer/FPGA in Fig. 5, p.8.
-         */
-        in item digitisedResponse : digitalData;
-        out attribute qubitState;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -340,21 +139,21 @@ package SingleFluxQuantumInterface {
         action generateTriggerCarrier : GenerateCarrier;           // [Fig.5]
         action upconvertTrigger : Upconvert;                       // [p.7 LC para 3]
         action filterTrigger : FilterSignal;                       // [Fig.5]
-        action attenuateTrigger50K : AttenuateThermalNoise;        // [Fig.5]
-        action attenuateTrigger4K : AttenuateThermalNoise;         // [Fig.5]
-        action attenuateTrigger800mK : AttenuateThermalNoise;      // [Fig.5]
+        action attenuateTrigger50K : AttenuateSignal;        // [Fig.5]
+        action attenuateTrigger4K : AttenuateSignal;         // [Fig.5]
+        action attenuateTrigger800mK : AttenuateSignal;      // [Fig.5]
         action generateSfqPulseTrain : GenerateSfqPulseTrain;      // [p.7 LC para 3]
         action manipulateQubitState : ManipulateQubitState;        // [p.7 LC para 3]
 
         // ---- bias chains, one per SFQ chip ----
-        action provideDcSfqBias : ProvideBias;                     // [Fig.5]
+        action provideDcSfqBias : SupplyBias;                     // [Fig.5]
         action filterDcSfqBias : FilterSignal;                     // [Fig.5]
-        action provideSfqDcBias : ProvideBias;                     // [Fig.5]
+        action provideSfqDcBias : SupplyBias;                     // [Fig.5]
         action filterSfqDcBias : FilterSignal;                     // [Fig.5]
 
         // ---- digital readout chain ----
         action mapStateToPhoton : MapStateToPhotonOccupation;      // [p.7 RC para 2]
-        action detectPhoton : DetectPhoton;                        // [p.7 RC para 2]
+        action detectPhoton : DetectPhotonToCurrent;                        // [p.7 RC para 2]
         action modulateFluxonArrival : ModulateFluxonArrival;      // [p.7 RC para 2]
         action convertToSfqLogic : ConvertToSfqLogic;              // [p.7 RC para 2]
         action amplifyCryogenic : Amplify;                         // [Fig.5]
@@ -363,7 +162,7 @@ package SingleFluxQuantumInterface {
         action downconvertReadout : Downconvert;                   // [Fig.5]
         action filterReadout : FilterSignal;                       // [Fig.5]
         action digitiseReadout : ConvertAnalogToDigital;           // [Fig.5]
-        action decipherQubitState : PostProcess;                   // [Fig.5]
+        action decipherQubitState : AnalyseMeasurement;                   // [Fig.5]
 
         // ---- control nodes ----
         fork initiate;
@@ -439,7 +238,7 @@ package SingleFluxQuantumInterface {
         flow from generateReadoutCarrier.carrier to downconvertReadout.referenceCarrier;
         flow from downconvertReadout.baseband to filterReadout.unfiltered;
         flow from filterReadout.filtered to digitiseReadout.analogInput;
-        flow from digitiseReadout.digitalOutput to decipherQubitState.digitisedResponse;
+        flow from digitiseReadout.digitalOutput to decipherQubitState.measurement;
 
         bind measuredQubitState = decipherQubitState.qubitState;
     }
@@ -909,7 +708,7 @@ package SingleFluxQuantumInterface {
                 out item item1;
             }
             perform sfqOperation.decipherQubitState;               // [Fig.5]
-            flow from resultIn.item1 to decipherQubitState.digitisedResponse;
+            flow from resultIn.item1 to decipherQubitState.measurement;
         }
         part sfqDcBias : powerSource {
             doc

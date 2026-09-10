@@ -69,33 +69,7 @@ package CryoCMOSInterface {
     // Action definitions
     // =====================================================================
 
-    action def PreloadDataSequence {
-        doc
-        /*
-         * Load a data sequence into the cryo-CMOS processor inside the
-         * cryostat before the measurement begins. This is what allows only a
-         * power source to be connected through the cryostat, so that signals
-         * need not be sent in from instruments outside the fridge during
-         * measurements.
-         *
-         * Source: p.6, left column, paragraph 2; pre-loaded data sequence in
-         * the Fig. 3 legend.
-         */
-        out item sequence : digitalData;
-    }
 
-    action def ProvidePower {
-        doc
-        /*
-         * Supply power to the cryo-CMOS processor through the cryostat.
-         * Under the pre-loaded scheme this is the only connection that must
-         * cross the cryostat during measurement.
-         *
-         * Source: p.6, left column, paragraph 2; power source in the Fig. 3
-         * legend.
-         */
-        out item supply : dcBias;
-    }
 
     action def GenerateControlSignal {
         doc
@@ -109,8 +83,8 @@ package CryoCMOSInterface {
          * Source: p.5, right column, paragraphs 2 and 3; p.6, right column,
          * paragraph 2.
          */
-        in item sequence : digitalData;
-        in item supply : dcBias;
+        in item command : digitalData;
+        in item bias : dcBias;
         out item driveSignal : microwaveSignal;
     }
 
@@ -135,37 +109,11 @@ package CryoCMOSInterface {
          * Source: p.5, right column, paragraph 3.
          */
         in item qubitResponse : microwaveSignal;
-        in item supply : dcBias;
+        in item bias : dcBias;
         out item measurement : digitalData;
     }
 
-    action def PerformFastFeedback {
-        doc
-        /*
-         * Use the outcome of a single-shot measurement to immediately inform
-         * the next action on the qubit. Cryogenic electronics empower rapid
-         * feedback and quick error correction because of the reduced
-         * feedback latency, which lowers error rates in the feedback
-         * operation and raises the overall fidelity of quantum information
-         * processing.
-         *
-         * Source: p.5, right column, paragraphs 2 and 3.
-         */
-        in item measurement : digitalData;
-        out item nextAction : digitalData;
-        attribute feedbackLatency : DurationValue;
-    }
 
-    action def PostProcess {
-        doc
-        /*
-         * Analyse the measurement record outside the fridge.
-         *
-         * Source: post-processing electronics in Fig. 3, p.6.
-         */
-        in item measurement : digitalData;
-        out attribute qubitState;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -197,14 +145,14 @@ package CryoCMOSInterface {
 
         out attribute measuredQubitState;
 
-        action preloadDataSequence : PreloadDataSequence;          // [p.6 LC para 2]
-        action provideControlPower : ProvidePower;                 // [Fig.3]
-        action provideReadoutPower : ProvidePower;                 // [Fig.3]
+        action preloadDataSequence : IssueCommand;          // [p.6 LC para 2]
+        action provideControlPower : SupplyBias;                 // [Fig.3]
+        action provideReadoutPower : SupplyBias;                 // [Fig.3]
         action generateControlSignal : GenerateControlSignal;      // [p.5 RC para 3]
         action manipulateQubitState : ManipulateQubitState;        // [Fig.3]
         action acquireQubitState : AcquireQubitState;              // [p.5 RC para 3]
-        action performFastFeedback : PerformFastFeedback;          // [p.5 RC para 2]
-        action postProcess : PostProcess;                          // [Fig.3]
+        action performFastFeedback : ApplyFeedback;          // [p.5 RC para 2]
+        action postProcess : AnalyseMeasurement;                          // [Fig.3]
 
         fork initiate;
         join joinControl;
@@ -230,15 +178,15 @@ package CryoCMOSInterface {
         first postProcess then done;
 
         // ---- item chain ----
-        flow from preloadDataSequence.sequence to generateControlSignal.sequence;
-        flow from provideControlPower.supply to generateControlSignal.supply;
+        flow from preloadDataSequence.command to generateControlSignal.command;
+        flow from provideControlPower.bias to generateControlSignal.bias;
         flow from generateControlSignal.driveSignal to manipulateQubitState.driveSignal;
         flow from manipulateQubitState.qubitResponse to acquireQubitState.qubitResponse;
-        flow from provideReadoutPower.supply to acquireQubitState.supply;
+        flow from provideReadoutPower.bias to acquireQubitState.bias;
         flow from acquireQubitState.measurement to performFastFeedback.measurement;
         flow from acquireQubitState.measurement to postProcess.measurement;
         // the feedback loop stays inside the cryostat [p.5 RC para 2]
-        flow from performFastFeedback.nextAction to generateControlSignal.sequence;
+        flow from performFastFeedback.feedback to generateControlSignal.command;
 
         bind measuredQubitState = postProcess.qubitState;
     }
@@ -264,7 +212,7 @@ package CryoCMOSInterface {
                 in item item1;
             }
             perform cryoCmosOperation.provideControlPower;         // [Fig.3]
-            flow from provideControlPower.supply to powerOut.item1;
+            flow from provideControlPower.bias to powerOut.item1;
         }
         part preLoadedData {
             doc
@@ -279,7 +227,7 @@ package CryoCMOSInterface {
                 in item item1;
             }
             perform cryoCmosOperation.preloadDataSequence;
-            flow from preloadDataSequence.sequence to sequenceOut.item1;
+            flow from preloadDataSequence.command to sequenceOut.item1;
         }
         port powerOut : dcBiasPort;
         port sequenceOut : digitalPort;
@@ -364,15 +312,15 @@ package CryoCMOSInterface {
                 perform cryoCmosOperation.generateControlSignal;
                 perform cryoCmosOperation.acquireQubitState;
                 perform cryoCmosOperation.performFastFeedback;
-                flow from sequenceIn.item1 to generateControlSignal.sequence;
-                flow from controlPowerIn.item1 to generateControlSignal.supply;
+                flow from sequenceIn.item1 to generateControlSignal.command;
+                flow from controlPowerIn.item1 to generateControlSignal.bias;
                 flow from generateControlSignal.driveSignal to driveOut.item1;
                 flow from readoutIn.item1 to acquireQubitState.qubitResponse;
-                flow from readoutPowerIn.item1 to acquireQubitState.supply;
+                flow from readoutPowerIn.item1 to acquireQubitState.bias;
                 flow from acquireQubitState.measurement to resultOut.item1;
                 // feedback is internal to the processor [p.5 RC para 2]
                 flow from acquireQubitState.measurement to performFastFeedback.measurement;
-                flow from performFastFeedback.nextAction to generateControlSignal.sequence;
+                flow from performFastFeedback.feedback to generateControlSignal.command;
             }
             part qpu : QPU {
                 doc
@@ -419,7 +367,7 @@ package CryoCMOSInterface {
                 in item item1;
             }
             perform cryoCmosOperation.provideReadoutPower;         // [Fig.3]
-            flow from provideReadoutPower.supply to powerOut.item1;
+            flow from provideReadoutPower.bias to powerOut.item1;
         }
         part postProcessingElectronics {
             port resultIn : ~digitalPort {

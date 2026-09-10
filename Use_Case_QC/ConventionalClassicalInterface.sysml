@@ -51,115 +51,6 @@ package ConventionalClassicalInterface {
         derivativeRemovalByAdiabaticGate;
         dynamicalDecoupling;
     }
-    action def GenerateEnvelope {
-        doc 
-        /* Produce the low-frequency baseband envelope of a microwave pulse.
-         * Low-frequency signals from an arbitrary waveform generator define
-         * the shape and duration of the pulse. By engineering the amplitude,
-         * duration and shape of the pulse it is possible to reach any
-         * arbitrary state on the Bloch sphere.
-         *
-         * Amplitude, duration and shape are characteristics that configure
-         * this action rather than payloads transferred to another action, so
-         * they are plain attributes; the envelope itself is the out parameter.
-         *
-         * Source: p.4, right column, paragraph 1.
-         */
-        out item envelope : digitalData;
-        attribute pulseAmplitude;
-        attribute pulseDuration : DurationValue;
-        attribute pulseShape;
-    }
-    action def ApplyPulseProtocol {
-        doc 
-        /* Shape the pulse sequence according to an advanced control protocol
-         * in order to suppress the side effects of anharmonicity and
-         * environmental noise, improving control fidelity.
-         *
-         * Source: p.4, right column, paragraph 1.
-         */
-        in item envelope : digitalData;
-        out item shapedEnvelope : digitalData;
-        attribute protocol : pulseProtocol;
-        attribute controlFidelity;
-    }
-    action def ConvertDigitalToAnalog {
-        doc 
-        /* Convert the digital waveform description into an analog signal. A
-         * probe pulse is supplied from a digital to analog converter or from
-         * an arbitrary waveform generator.
-         *
-         * Source: p.5, left column, paragraph 1; DAC shown in Fig. 2.
-         */
-        in item digitalInput : digitalData;
-        out item analogOutput : microwaveSignal;
-    }
-    action def GenerateCarrier {
-        doc 
-        /* Produce the high-frequency carrier tone used by the heterodyne
-         * scheme. The carrier sits near the qubit fundamental transition
-         * frequency.
-         *
-         * Source: p.4, right column, paragraph 1; local oscillator in the
-         * Fig. 2 legend.
-         */
-        out item carrier : microwaveSignal;
-        attribute carrierFrequency : FrequencyValue;
-    }
-    action def Upconvert {
-        doc 
-        /* Mix a baseband signal with the high-frequency carrier to produce
-         * the desired waveform at the qubit frequency. Control pulses are
-         * generated using a heterodyne scheme in which the baseband signals
-         * are mixed with a carrier near the qubit fundamental transition
-         * frequency. On the readout side the same operation generates the
-         * readout tone and is named upconversion; together with the matching
-         * downconversion it constitutes the heterodyne or homodyne
-         * measurement of the probe tone.
-         *
-         * Source: p.4, right column, paragraph 1; p.5, left column,
-         * paragraph 1.
-         */
-        in item baseband : microwaveSignal;
-        in item carrier : microwaveSignal;
-        out item waveform : microwaveSignal;
-    }
-    action def FilterSignal {
-        doc 
-        /* Band-limit a signal. Filters appear both in the room-temperature
-         * electronics and inside the refrigerator, and are among the
-         * components combined onto a single board in modern FPGA-based
-         * hardware. Typed against the general signal item so that the same
-         * definition serves the microwave drive line and the qubit bias line.
-         *
-         * Source: Fig. 2 legend, p.4; p.5, left column, paragraph 2.
-         */
-        in item unfiltered : signal;
-        out item filtered : signal;
-    }
-    action def AttenuateThermalNoise {
-        doc 
-        /* Suppress thermal noise carried on a microwave line. The two tones
-         * pass through thermally anchored attenuator stages within the
-         * dilution refrigerator so that thermal noise is suppressed before
-         * the signal reaches the qubit sample. Fig. 2 places one such stage
-         * at each of the 50 K, 4 K and 800 mK plates.
-         *
-         * Source: p.4, left column, paragraph 1; attenuator in the Fig. 2
-         * legend.
-         */
-        in item unattenuated : microwaveSignal;
-        out item attenuated : microwaveSignal;
-    }
-    action def ProvideQubitBias {
-        doc 
-        /* Supply the static qubit bias. Fig. 2 shows a dedicated power source
-         * feeding a qubit bias line into the refrigerator.
-         *
-         * Source: Fig. 2 and its legend, p.4.
-         */
-        out item bias : dcBias;
-    }
     action def ManipulateQubitState {
         doc 
         /* Drive the qubit to a target state. By engineering the amplitude,
@@ -179,106 +70,6 @@ package ConventionalClassicalInterface {
         out item qubitResponse : microwaveSignal;
         attribute blochSphereState;
         attribute gateDuration : DurationValue;
-    }
-    action def DispersiveInteraction {
-        doc 
-        /* Let the probe tone interact with the on-chip resonator so that the
-         * resonator response carries the qubit state. A microwave tone probes
-         * the qubit state in a dispersive readout architecture, interacting
-         * with the resonator on-chip before leaving the sample.
-         *
-         * Source: p.4, right column, paragraph 2.
-         */
-        in item probeTone : microwaveSignal;
-        in item qubitCoupling : microwaveSignal;
-        out item stateDependentResponse : microwaveSignal;
-    }
-    action def SuppressBackaction {
-        doc 
-        /* Prevent measurement-chain signals from propagating back to the
-         * qubit. Inside the dilution refrigerator the measurement chain
-         * includes circulators and isolators, which suppress backaction
-         * signals to the qubit.
-         *
-         * Source: p.5, left column, paragraph 1.
-         */
-        in item incoming : microwaveSignal;
-        out item forwarded : microwaveSignal;
-    }
-    action def AmplifyQuantumLimited {
-        doc 
-        /* First-stage amplification of the readout signal at the base plate,
-         * performed by quantum-limited Josephson parametric amplifiers.
-         *
-         * Source: p.5, left column, paragraph 1; JPA in the Fig. 2 legend.
-         */
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
-    }
-    action def Amplify {
-        doc 
-        /* Boost the readout signal. The tone is amplified at several stages.
-         * Inside the refrigerator this is done by high-electron mobility
-         * transistor amplifiers, and a further low-noise amplifier stage sits
-         * at room temperature.
-         *
-         * Source: p.4, right column, paragraph 2; p.5, left column,
-         * paragraph 1; low-noise amplifier in the Fig. 2 legend.
-         */
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
-    }
-    action def Downconvert {
-        doc 
-        /* Mix the returning signal back down to baseband. The transmitted
-         * signal is downconverted using the same reference carrier wave that
-         * was used to generate the readout tone. Together with the preceding
-         * upconversion this realises the heterodyne or homodyne measurement.
-         *
-         * Source: p.5, left column, paragraph 1.
-         */
-        in item waveform : microwaveSignal;
-        in item referenceCarrier : microwaveSignal;
-        out item baseband : microwaveSignal;
-    }
-    action def ConvertAnalogToDigital {
-        doc 
-        /* Digitise the downconverted readout signal. The signal is recorded
-         * through an analog to digital converter. Commercial products for
-         * quantum measurement offer analog signal capture at high bitrate,
-         * up to 14 bit.
-         *
-         * Source: p.5, left column, paragraph 1; bitrate from p.5, left
-         * column, paragraph 2.
-         */
-        in item analogInput : microwaveSignal;
-        out item digitalOutput : digitalData;
-        attribute resolution;
-    }
-    action def PostProcess {
-        doc 
-        /* Recover the qubit state from the digitised record. The signal is
-         * converted from analog to digital and recorded for post-processing.
-         * Modern FPGA-based hardware records analog signals and deciphers
-         * qubit states in real time, which enables fast feedback control.
-         *
-         * Source: p.4, right column, paragraph 2; p.5, left column,
-         * paragraph 2.
-         */
-        in item digitisedResponse : digitalData;
-        out attribute qubitState;
-    }
-    action def SynchroniseClock {
-        doc 
-        /* Align the individual drive electronics to a common external clock.
-         * This is a major limitation of the conventional architecture,
-         * because the instruments are generic and individually commercially
-         * sourced. Synchronisation causes a delay of approximately one
-         * microsecond, which significantly affects gate operations.
-         *
-         * Source: p.5, left column, paragraph 1.
-         */
-        attribute clockDelay : DurationValue;
     }
     action def ConventionalControlAndReadout {
         doc 
@@ -311,11 +102,11 @@ package ConventionalClassicalInterface {
         action generateDriveCarrier : GenerateCarrier;
         action upconvertDrive : Upconvert;
         action filterDrive : FilterSignal;
-        action attenuateDrive50K : AttenuateThermalNoise;
-        action attenuateDrive4K : AttenuateThermalNoise;
-        action attenuateDrive800mK : AttenuateThermalNoise;
+        action attenuateDrive50K : AttenuateSignal;
+        action attenuateDrive4K : AttenuateSignal;
+        action attenuateDrive800mK : AttenuateSignal;
         action manipulateQubitState : ManipulateQubitState;
-        action provideQubitBias : ProvideQubitBias;
+        action provideQubitBias : SupplyBias;
         action filterBias : FilterSignal;
         action synchroniseClock : SynchroniseClock;
         action generateProbeEnvelope : GenerateEnvelope;
@@ -330,7 +121,7 @@ package ConventionalClassicalInterface {
         action downconvertProbe : Downconvert;
         action filterProbe : FilterSignal;
         action digitiseProbe : ConvertAnalogToDigital;
-        action decipherQubitState : PostProcess;
+        action decipherQubitState : AnalyseMeasurement;
         fork initiate;
         join joinDrive;
         join joinProbe;
@@ -391,7 +182,7 @@ package ConventionalClassicalInterface {
         flow from generateProbeCarrier.carrier to downconvertProbe.referenceCarrier;
         flow from downconvertProbe.baseband to filterProbe.unfiltered;
         flow from filterProbe.filtered to digitiseProbe.analogInput;
-        flow from digitiseProbe.digitalOutput to decipherQubitState.digitisedResponse;
+        flow from digitiseProbe.digitalOutput to decipherQubitState.measurement;
         binding bind measuredQubitState = decipherQubitState.qubitState;
     }
     action conventionalOperation : ConventionalControlAndReadout;
@@ -883,7 +674,7 @@ package ConventionalClassicalInterface {
                 out item item1;
             }
             perform conventionalOperation.decipherQubitState;
-            flow from resultIn.item1 to decipherQubitState.digitisedResponse;
+            flow from resultIn.item1 to decipherQubitState.measurement;
         }
         port probeOut : microwavePort;
         port readoutIn : ~microwavePort;

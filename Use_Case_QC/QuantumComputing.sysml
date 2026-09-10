@@ -28,6 +28,37 @@ package QuantumComputing {
         port def opticalPort { out item payload : opticalSignal; }
         port def dcBiasPort { out item payload : dcBias; }
 
+        // ── Functional action roles ──────────────────────────────────
+        // One abstract action per component role above. Every concrete
+        // action in the library specialises one of these, so that the
+        // question "what does this kind of component do" has a single
+        // answer independent of qubit technology.
+        abstract action def GenerateSignal {
+            out item signal : signal;
+        }
+        abstract action def ConvertSignal {
+            in item input : signal;
+            out item output : signal;
+        }
+        abstract action def AmplifySignal {
+            in item weakSignal : signal;
+            out item amplifiedSignal : signal;
+        }
+        abstract action def ConditionSignal {
+            in item input : signal;
+            out item output : signal;
+        }
+        abstract action def TransmitSignal {
+            in item input : signal;
+            out item output : signal;
+        }
+        abstract action def ProcessData {
+            in item input : digitalData;
+            out item output : digitalData;
+        }
+        abstract action def OperateOnQubit;
+        abstract action def RegulateEnvironment;
+
         // ── Qubit technology + QPU ───────────────────────────────────
         enum def qubitTechnology {
             superconducting;

@@ -54,103 +54,12 @@ package EQCTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-    action def IssueControlSequence {
-        doc
-        /*
-         * Issue the digital control sequence that schedules the gate,
-         * transport, cooling and measurement operations.
-         *
-         * Source: Table XXV, p.79.
-         */
-        out item sequence : digitalData;
-    }
 
-    action def GenerateElectrodeWaveform {
-        doc
-        /*
-         * Generate the time-dependent control waveforms applied to the
-         * transport electrodes. Each shuttling step is framed as a
-         * constrained optimization problem, matching the desired moving
-         * potential to a linear combination of basis potentials generated
-         * from the transport electrodes.
-         *
-         * Source: p.79, right column, transport paragraph.
-         */
-        in item sequence : digitalData;
-        out item electrodeVoltage : dcBias;
-    }
 
-    action def GenerateGateRfSignal {
-        doc
-        /*
-         * Generate the RF drive that produces the spatially structured
-         * magnetic fields used for gates. An RF signal can induce rotation
-         * between the two hyperfine levels of an ion that define a Bloch
-         * sphere.
-         *
-         * Source: p.78, right column, one-qubit and two-qubit gates
-         * paragraph.
-         */
-        in item sequence : digitalData;
-        out item rfDrive : microwaveSignal;
-    }
 
-    action def RadiateNearFieldRf {
-        doc
-        /*
-         * Radiate the near-field RF from the gate antenna beneath the linear
-         * section. Every horizontal section has a gate RF antenna underneath,
-         * and a single wire for a gate antenna can be routed under multiple
-         * linear sections so that many two-qubit gates run in parallel.
-         *
-         * Source: p.78, left column, zonal operation paragraph.
-         */
-        in item rfDrive : microwaveSignal;
-        out item nearField : magneticField;
-    }
 
-    action def TransportIon {
-        doc
-        /*
-         * Move an ion by quasistatically updating the electrode voltages to
-         * transition from one potential well configuration into another, so
-         * that a well centred at one location adiabatically shuttles to a
-         * nearby location, similar to how signal electrons are transferred in
-         * CCD cameras.
-         *
-         * Source: p.79, right column, transport paragraph; Table XXV,
-         * shuttling row.
-         */
-        in item electrodeVoltage : dcBias;
-        attribute shuttlingTime;                    // 5 to 15 us [Tab.XXV]
-    }
 
-    action def MergeWells {
-        doc
-        /*
-         * Merge two single-ion crystals into a two-ion crystal, forming an
-         * ion crystal inside a common potential well in which the motions of
-         * the ions hybridize into collective motional modes. Required before
-         * a two-qubit gate, since the participating ions must be in the same
-         * linear section above a gate antenna with their wells merged.
-         *
-         * Source: p.78, left and right columns; Table XXV, merge row.
-         */
-        in item electrodeVoltage : dcBias;
-        attribute mergeTime;                        // 50 to 100 us [Tab.XXV]
-    }
 
-    action def SplitWells {
-        doc
-        /*
-         * Split a merged well back into two, separating the two-ion crystal
-         * after the entangling operation.
-         *
-         * Source: Table XXV, split row, p.79.
-         */
-        in item electrodeVoltage : dcBias;
-        attribute splitTime;                        // 50 to 100 us [Tab.XXV]
-    }
 
     action def PerformSingleQubitGate {
         doc
@@ -189,77 +98,9 @@ package EQCTrappedIonInterface {
         attribute gateTime;                         // 100 to 300 us [Tab.XXV]
     }
 
-    action def GenerateLaserBeam {
-        doc
-        /*
-         * Produce one of the laser beams required for loading, cooling,
-         * preparation, shelving or measurement.
-         *
-         * Source: p.78 right column; p.80 left column; Table XXV.
-         */
-        out item beam : opticalSignal;
-    }
 
-    action def RouteLightToZone {
-        doc
-        /*
-         * Route laser light to an optical zone through the on-chip photonic
-         * layer. An optical zone is a section with output grating couplers
-         * for various laser wavelengths and a collecting lens that relays
-         * photons to a photodetector.
-         *
-         * Optical zone density is sparser than gate zone density because of
-         * the engineering challenge of photonic waveguide routing with small
-         * bend radii and optical crosstalk between neighbouring optical
-         * zones.
-         *
-         * Source: p.78, left column, zonal operation paragraph.
-         */
-        in item light : opticalSignal;
-        out item deliveredLight : opticalSignal;
-    }
 
-    action def LoadIon {
-        doc
-        /*
-         * Load ions into the trap. A high flux of ions is generated by
-         * photo-ionizing a beam of neutral atoms produced by ablation, ovens,
-         * or a magneto-optical trap. The flux is photoionized inside the
-         * trapping region and laser-cooled to remove motional quanta, a
-         * necessary step for high-fidelity transport and gate operation.
-         *
-         * Loading is fundamentally non-deterministic, so loading rates
-         * generally need to be kept higher than loss rates, with a mechanism
-         * for ejecting or storing excess loaded ions.
-         *
-         * Source: p.80, left column, loading paragraph.
-         */
-        in item ionisationBeam : opticalSignal;
-        attribute loadingRate;                      // > 400 ions/s [p.80 LC]
-    }
 
-    action def CoolIon {
-        doc
-        /*
-         * Remove motional entropy from the ions and dissipate it to the
-         * environment through spontaneous emission. Doppler cooling is the
-         * simplest and most robust method, providing a frictional cooling
-         * force through velocity-dependent radiation pressure, and is used
-         * for hot ions freshly captured in a well. It leaves a relatively
-         * high steady-state motional entropy, so sideband, EIT or
-         * polarization gradient cooling is used to approach the motional
-         * ground state.
-         *
-         * Data qubits cannot be laser-cooled, but their motional entropies
-         * can be effectively reduced by sympathetic cooling.
-         *
-         * Source: p.80, left column, cooling paragraph; Table XXV, cooling
-         * laser pulses row.
-         */
-        in item coolingBeam : opticalSignal;
-        attribute coolingRate;                      // 0.3 phonon/us [Tab.XXV]
-        attribute steadyStatePhononNumber;          // n ~ 1 [p.80 LC]
-    }
 
     action def PrepareState {
         doc
@@ -288,63 +129,9 @@ package EQCTrappedIonInterface {
         attribute postSelectionRate;                // > 90 % [Tab.XXV]
     }
 
-    action def ShelveQubit {
-        doc
-        /*
-         * Perform the shelving pulses that map the qubit back to a ground
-         * state of the ion where it can continuously fluoresce under
-         * illumination by the excitation lasers.
-         *
-         * Source: p.79, right column, measurement paragraph.
-         */
-        in item shelvingBeam : opticalSignal;
-        out item shelvedState : opticalSignal;
-    }
 
-    action def CollectFluorescence {
-        doc
-        /*
-         * Collect the fluorescent photons with collection optics focused on
-         * the ions and relay them onto the photodetectors, using the
-         * collecting lens of the optical zone.
-         *
-         * Source: p.79, right column, measurement paragraph; p.78, left
-         * column, zonal operation paragraph.
-         */
-        in item fluorescence : opticalSignal;
-        out item relayedPhotons : opticalSignal;
-    }
 
-    action def DetectPhotons {
-        doc
-        /*
-         * Convert the relayed photons into a photon count on the
-         * photodetector.
-         *
-         * Source: p.79, right column, measurement paragraph; Table XXV,
-         * measurement laser pulses row.
-         */
-        in item relayedPhotons : opticalSignal;
-        out item photonCount : digitalData;
-        attribute exposureTime;                     // 350 us per image [Tab.XXV]
-    }
 
-    action def BinariseCount {
-        doc
-        /*
-         * Binarize each detector signal according to whether the photon count
-         * within the exposure time is below or above a threshold count. The
-         * imaging procedure is applied sequentially to each of the two qubit
-         * states, so the two classical bits obtained indicate whether the
-         * qubit was in the first state, the second state, or neither, the
-         * last indicating potential qubit leakage or loss.
-         *
-         * Source: p.79, right column, measurement paragraph.
-         */
-        in item photonCount : digitalData;
-        out attribute qubitState;
-        attribute thresholdCount;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -379,10 +166,10 @@ package EQCTrappedIonInterface {
         out attribute measuredQubitState;
 
         // ---- control generation ----
-        action issueControlSequence : IssueControlSequence;        // [Tab.XXV]
-        action generateElectrodeWaveform : GenerateElectrodeWaveform; // [p.79 RC]
-        action generateGateRfSignal : GenerateGateRfSignal;        // [p.78 RC]
-        action radiateNearFieldRf : RadiateNearFieldRf;            // [p.78 LC]
+        action issueControlSequence : IssueCommand;        // [Tab.XXV]
+        action generateElectrodeWaveform : ConvertDigitalToAnalog; // [p.79 RC]
+        action generateGateRfSignal : SynthesiseWaveform;        // [p.78 RC]
+        action radiateNearFieldRf : RadiateBeam;            // [p.78 LC]
 
         // ---- laser generation and delivery ----
         action generateIonisationBeam : GenerateLaserBeam;         // [p.80 LC]
@@ -390,12 +177,12 @@ package EQCTrappedIonInterface {
         action generatePumpingBeam : GenerateLaserBeam;            // [p.78 RC]
         action generateShelvingBeam : GenerateLaserBeam;           // [p.79 RC]
         action generateExcitationBeam : GenerateLaserBeam;         // [p.79 RC]
-        action routeControlLight : RouteLightToZone;               // [p.78 LC]
-        action routeReadoutLight : RouteLightToZone;               // [p.78 LC]
+        action routeControlLight : RouteSignal;               // [p.78 LC]
+        action routeReadoutLight : RouteSignal;               // [p.78 LC]
 
         // ---- ion operations ----
         action loadIon : LoadIon;                                  // [p.80 LC]
-        action coolIon : CoolIon;                                  // [p.80 LC]
+        action coolIon : CoolAtom;                                  // [p.80 LC]
         action prepareState : PrepareState;                        // [p.78 RC]
         action transportToGateZone : TransportIon;                 // [p.79 RC]
         action mergeWells : MergeWells;                            // [Tab.XXV]
@@ -406,9 +193,9 @@ package EQCTrappedIonInterface {
 
         // ---- measurement ----
         action shelveQubit : ShelveQubit;                          // [p.79 RC]
-        action collectFluorescence : CollectFluorescence;          // [p.79 RC]
+        action collectFluorescence : CollectLight;          // [p.79 RC]
         action detectPhotons : DetectPhotons;                      // [p.79 RC]
-        action binariseCount : BinariseCount;                      // [p.79 RC]
+        action binariseCount : AnalyseMeasurement;                      // [p.79 RC]
 
         // ---- control nodes ----
         fork initiate;
@@ -457,29 +244,29 @@ package EQCTrappedIonInterface {
         first binariseCount then done;
 
         // ---- item chain ----
-        flow from issueControlSequence.sequence to generateElectrodeWaveform.sequence;
-        flow from issueControlSequence.sequence to generateGateRfSignal.sequence;
-        flow from generateGateRfSignal.rfDrive to radiateNearFieldRf.rfDrive;
-        flow from radiateNearFieldRf.nearField to performSingleQubitGate.nearField;
-        flow from radiateNearFieldRf.nearField to performEntanglingGate.nearField;
+        flow from issueControlSequence.command to generateElectrodeWaveform.digitalInput;
+        flow from issueControlSequence.command to generateGateRfSignal.command;
+        flow from generateGateRfSignal.waveform to radiateNearFieldRf.feed;
+        flow from radiateNearFieldRf.beam to performSingleQubitGate.nearField;
+        flow from radiateNearFieldRf.beam to performEntanglingGate.nearField;
 
-        flow from generateElectrodeWaveform.electrodeVoltage to transportToGateZone.electrodeVoltage;
-        flow from generateElectrodeWaveform.electrodeVoltage to transportToOpticalZone.electrodeVoltage;
-        flow from generateElectrodeWaveform.electrodeVoltage to mergeWells.electrodeVoltage;
-        flow from generateElectrodeWaveform.electrodeVoltage to splitWells.electrodeVoltage;
+        flow from generateElectrodeWaveform.analogOutput to transportToGateZone.electrodePotential;
+        flow from generateElectrodeWaveform.analogOutput to transportToOpticalZone.electrodePotential;
+        flow from generateElectrodeWaveform.analogOutput to mergeWells.electrodePotential;
+        flow from generateElectrodeWaveform.analogOutput to splitWells.electrodePotential;
 
-        flow from generateIonisationBeam.beam to routeControlLight.light;
-        flow from routeControlLight.deliveredLight to loadIon.ionisationBeam;
+        flow from generateIonisationBeam.beam to routeControlLight.input;
+        flow from routeControlLight.output to loadIon.ionisationBeam;
         flow from generateCoolingBeam.beam to coolIon.coolingBeam;
         flow from generatePumpingBeam.beam to prepareState.pumpingBeam;
         flow from generateShelvingBeam.beam to prepareState.shelvingDrive;
         flow from generateShelvingBeam.beam to shelveQubit.shelvingBeam;
 
-        flow from generateExcitationBeam.beam to routeReadoutLight.light;
-        flow from routeReadoutLight.deliveredLight to shelveQubit.shelvingBeam;
-        flow from shelveQubit.shelvedState to collectFluorescence.fluorescence;
-        flow from collectFluorescence.relayedPhotons to detectPhotons.relayedPhotons;
-        flow from detectPhotons.photonCount to binariseCount.photonCount;
+        flow from generateExcitationBeam.beam to routeReadoutLight.input;
+        flow from routeReadoutLight.output to shelveQubit.shelvingBeam;
+        flow from shelveQubit.shelvedState to collectFluorescence.emittedLight;
+        flow from collectFluorescence.collectedLight to detectPhotons.light;
+        flow from detectPhotons.count to binariseCount.measurement;
 
         bind measuredQubitState = binariseCount.qubitState;
     }
@@ -505,7 +292,7 @@ package EQCTrappedIonInterface {
                 in item item1;
             }
             perform eqcOperation.issueControlSequence;             // [Tab.XXV]
-            flow from issueControlSequence.sequence to sequenceOut.item1;
+            flow from issueControlSequence.command to sequenceOut.item1;
         }
         part dac : digitalToAnalogConverter {
             doc
@@ -522,8 +309,8 @@ package EQCTrappedIonInterface {
                 in item item1;
             }
             perform eqcOperation.generateElectrodeWaveform;
-            flow from digitalIn.item1 to generateElectrodeWaveform.sequence;
-            flow from generateElectrodeWaveform.electrodeVoltage to electrodeVoltageOut.item1;
+            flow from digitalIn.item1 to generateElectrodeWaveform.digitalInput;
+            flow from generateElectrodeWaveform.analogOutput to electrodeVoltageOut.item1;
         }
         part rfWaveformGenerator : microwaveSource {
             doc
@@ -540,8 +327,8 @@ package EQCTrappedIonInterface {
                 in item item1;
             }
             perform eqcOperation.generateGateRfSignal;
-            flow from digitalIn.item1 to generateGateRfSignal.sequence;
-            flow from generateGateRfSignal.rfDrive to rfOut.item1;
+            flow from digitalIn.item1 to generateGateRfSignal.command;
+            flow from generateGateRfSignal.waveform to rfOut.item1;
         }
         part laserSystem {
             doc
@@ -682,10 +469,10 @@ package EQCTrappedIonInterface {
                 perform eqcOperation.splitWells;
                 perform eqcOperation.transportToOpticalZone;
                 perform eqcOperation.shelveQubit;
-                flow from electrodeVoltageIn.item1 to transportToGateZone.electrodeVoltage;
-                flow from electrodeVoltageIn.item1 to transportToOpticalZone.electrodeVoltage;
-                flow from electrodeVoltageIn.item1 to mergeWells.electrodeVoltage;
-                flow from electrodeVoltageIn.item1 to splitWells.electrodeVoltage;
+                flow from electrodeVoltageIn.item1 to transportToGateZone.electrodePotential;
+                flow from electrodeVoltageIn.item1 to transportToOpticalZone.electrodePotential;
+                flow from electrodeVoltageIn.item1 to mergeWells.electrodePotential;
+                flow from electrodeVoltageIn.item1 to splitWells.electrodePotential;
                 flow from nearFieldIn.item1 to performSingleQubitGate.nearField;
                 flow from nearFieldIn.item1 to performEntanglingGate.nearField;
                 flow from controlLightIn.item1 to loadIon.ionisationBeam;
@@ -712,8 +499,8 @@ package EQCTrappedIonInterface {
                         in item item1;
                     }
                     perform eqcOperation.radiateNearFieldRf;
-                    flow from feedIn.item1 to radiateNearFieldRf.rfDrive;
-                    flow from radiateNearFieldRf.nearField to nearFieldOut.item1;
+                    flow from feedIn.item1 to radiateNearFieldRf.feed;
+                    flow from radiateNearFieldRf.beam to nearFieldOut.item1;
                 }
                 port feedIn : ~microwavePort;
                 port nearFieldOut : magneticFieldPort;
@@ -744,8 +531,8 @@ package EQCTrappedIonInterface {
                     in item item1;
                 }
                 perform eqcOperation.routeControlLight;
-                flow from lightIn.item1 to routeControlLight.light;
-                flow from routeControlLight.deliveredLight to beamOut.item1;
+                flow from lightIn.item1 to routeControlLight.input;
+                flow from routeControlLight.output to beamOut.item1;
                 flow from lightIn to nanophotonicWaveguide.lightIn;
                 flow from nanophotonicWaveguide.lightOut to outputGratingCoupler.lightIn;
                 flow from outputGratingCoupler.beamOut to beamOut;
@@ -773,8 +560,8 @@ package EQCTrappedIonInterface {
                     in item item1;
                 }
                 perform eqcOperation.routeReadoutLight;
-                flow from lightIn.item1 to routeReadoutLight.light;
-                flow from routeReadoutLight.deliveredLight to beamOut.item1;
+                flow from lightIn.item1 to routeReadoutLight.input;
+                flow from routeReadoutLight.output to beamOut.item1;
                 flow from lightIn to nanophotonicWaveguide.lightIn;
                 flow from nanophotonicWaveguide.lightOut to outputGratingCoupler.lightIn;
                 flow from outputGratingCoupler.beamOut to beamOut;
@@ -796,8 +583,8 @@ package EQCTrappedIonInterface {
                     in item item1;
                 }
                 perform eqcOperation.collectFluorescence;
-                flow from photonIn.item1 to collectFluorescence.fluorescence;
-                flow from collectFluorescence.relayedPhotons to photonOut.item1;
+                flow from photonIn.item1 to collectFluorescence.emittedLight;
+                flow from collectFluorescence.collectedLight to photonOut.item1;
             }
             port electrodeVoltageIn : ~dcBiasPort;
             port gateRfIn : ~microwavePort;
@@ -848,8 +635,8 @@ package EQCTrappedIonInterface {
                 in item item1;
             }
             perform eqcOperation.detectPhotons;                    // [p.79 RC]
-            flow from photonIn.item1 to detectPhotons.relayedPhotons;
-            flow from detectPhotons.photonCount to countOut.item1;
+            flow from photonIn.item1 to detectPhotons.light;
+            flow from detectPhotons.count to countOut.item1;
         }
         part thresholdDiscriminator {
             doc
@@ -864,7 +651,7 @@ package EQCTrappedIonInterface {
                 out item item1;
             }
             perform eqcOperation.binariseCount;
-            flow from countIn.item1 to binariseCount.photonCount;
+            flow from countIn.item1 to binariseCount.measurement;
         }
         port readoutLightOut : opticalPort;
         port fluorescenceIn : ~opticalPort;

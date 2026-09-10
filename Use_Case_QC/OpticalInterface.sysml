@@ -49,161 +49,15 @@ package OpticalInterface {
     // Action definitions
     // =====================================================================
 
-    action def GenerateEnvelope {
-        doc
-        /*
-         * Produce the low-frequency baseband envelope of the qubit drive
-         * pulse.
-         *
-         * Source: AWG/FPGA in Fig. 7, p.10.
-         */
-        out item envelope : digitalData;
-    }
 
-    action def ConvertDigitalToAnalog {
-        doc
-        /*
-         * Convert the digital waveform description into an analog signal.
-         *
-         * Source: DAC in Fig. 7, p.10.
-         */
-        in item digitalInput : digitalData;
-        out item analogOutput : microwaveSignal;
-    }
 
-    action def GenerateCarrier {
-        doc
-        /*
-         * Produce the high-frequency microwave carrier tone.
-         *
-         * Source: local oscillator in the Fig. 7 legend, p.10.
-         */
-        out item carrier : microwaveSignal;
-    }
 
-    action def Upconvert {
-        doc
-        /*
-         * Mix the baseband signal with the microwave carrier.
-         *
-         * Source: IQ mixer in the Fig. 7 legend, p.10.
-         */
-        in item baseband : microwaveSignal;
-        in item carrier : microwaveSignal;
-        out item waveform : microwaveSignal;
-    }
 
-    action def Downconvert {
-        doc
-        /*
-         * Mix the recovered readout signal back down to baseband. The
-         * reference describes simultaneous upconversion and downconversion
-         * between microwave and optical frequencies in an optical heterodyne
-         * detection scheme.
-         *
-         * Source: p.9, right column, paragraph 1; IQ mixer in the Fig. 7
-         * legend.
-         */
-        in item waveform : microwaveSignal;
-        in item referenceCarrier : microwaveSignal;
-        out item baseband : microwaveSignal;
-    }
 
-    action def FilterSignal {
-        doc
-        /*
-         * Band-limit a signal. Typed against the general signal item so that
-         * one definition serves the microwave lines and the photodiode bias
-         * line.
-         *
-         * Source: filter in the Fig. 7 legend, p.10.
-         */
-        in item unfiltered : signal;
-        out item filtered : signal;
-    }
 
-    action def GenerateOpticalCarrier {
-        doc
-        /*
-         * Produce the coherent optical carrier onto which the electrical
-         * signal is encoded. The laser power required to transmit
-         * information effectively is set by the extinction ratio of the
-         * modulator.
-         *
-         * Source: p.8 right column paragraph 1; p.9 left column paragraph 1;
-         * laser source in the Fig. 7 legend.
-         */
-        out item opticalCarrier : opticalSignal;
-    }
 
-    action def EncodeOntoOptical {
-        doc
-        /*
-         * Encode an electrical signal onto the optical domain. Encoding is
-         * generally carried out by an electro-optical modulator, which takes
-         * advantage of the Pockels effect in dielectric crystals. This
-         * controls the optical path length of light propagating through the
-         * electro-optic crystal and, in combination with optical waveguides,
-         * allows the phase, intensity and polarization of coherent light to
-         * be controlled.
-         *
-         * Which performance metric matters depends on where the modulator
-         * sits. At room temperature a high extinction ratio is crucial,
-         * because it minimises the laser power required; lithium niobate
-         * intensity modulators have been tested with extinction ratios
-         * upward of 20 dB. At cryogenic temperatures insertion losses, power
-         * consumption and modulation efficiency must be considered instead,
-         * because the first two determine the heat dissipated in the
-         * cryogenic stage. Power consumption is strongly related to
-         * electrode resistance, which can be greatly reduced by employing
-         * superconducting electrodes.
-         *
-         * Source: p.8 left column paragraph 3; p.8 right column paragraph 1;
-         * p.9 left column paragraphs 1 and 2.
-         */
-        in item electricalInput : microwaveSignal;
-        in item opticalCarrier : opticalSignal;
-        out item modulatedLight : opticalSignal;
-        attribute extinctionRatio;                  // upward of 20 dB [p.9 LC para 1]
-        attribute insertionLoss;                    // [p.9 LC para 2]
-        attribute powerConsumption;                 // [p.9 LC para 2]
-        attribute modulationEfficiency;             // [p.9 LC para 2]
-    }
 
-    action def ProvidePhotodiodeBias {
-        doc
-        /*
-         * Supply the photodiode bias.
-         *
-         * Source: PD bias in Fig. 7; power source in the Fig. 7 legend, p.10.
-         */
-        out item bias : dcBias;
-    }
 
-    action def RecoverElectricalSignal {
-        doc
-        /*
-         * Recover the electrical signal from intensity modulated light,
-         * carried out most simply and directly by a photodiode. Photodiodes
-         * can detect 1550 nm light at mK temperatures with a bandwidth of
-         * tens of GHz, which is suitable for current superconducting qubit
-         * measurements, and have been demonstrated to provide shot-noise
-         * limited performance in an electro-optical control scheme.
-         *
-         * One drawback of commercially available photodiodes is the ubiquity
-         * of 50 ohm output lines; a photodiode with higher output impedance
-         * could achieve increased conversion gain and so decrease the
-         * required laser power.
-         *
-         * Source: p.9, left column, paragraph 3.
-         */
-        in item modulatedLight : opticalSignal;
-        in item bias : dcBias;
-        out item electricalOutput : microwaveSignal;
-        attribute detectionWavelength = 1.55E-6 [m];   // 1550 nm [p.9 LC para 3]
-        attribute outputImpedance;                     // 50 ohm  [p.9 LC para 3]
-        attribute bandwidth;                           // tens of GHz [p.9 LC para 3]
-    }
 
     action def ManipulateQubitState {
         doc
@@ -217,40 +71,8 @@ package OpticalInterface {
         out item qubitResponse : microwaveSignal;
     }
 
-    action def Amplify {
-        doc
-        /*
-         * Boost the qubit readout signal before it is encoded onto the
-         * optical domain. Fig. 7 places this amplifier at the base stage,
-         * immediately ahead of the cryogenic modulator.
-         *
-         * Source: low-noise amplifier in the Fig. 7 legend, p.10.
-         */
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
-    }
 
-    action def ConvertAnalogToDigital {
-        doc
-        /*
-         * Digitise the downconverted readout signal.
-         *
-         * Source: ADC in Fig. 7, p.10.
-         */
-        in item analogInput : microwaveSignal;
-        out item digitalOutput : digitalData;
-    }
 
-    action def PostProcess {
-        doc
-        /*
-         * Recover the qubit state from the digitised record.
-         *
-         * Source: Computer/FPGA in Fig. 7, p.10.
-         */
-        in item digitisedResponse : digitalData;
-        out attribute qubitState;
-    }
 
     // =====================================================================
     // End-to-end behaviour
@@ -291,23 +113,23 @@ package OpticalInterface {
         action generateDriveCarrier : GenerateCarrier;             // [Fig.7]
         action upconvertDrive : Upconvert;                         // [Fig.7]
         action filterDrive : FilterSignal;                         // [Fig.7]
-        action generateDriveOpticalCarrier : GenerateOpticalCarrier; // [Fig.7]
+        action generateDriveOpticalCarrier : GenerateLaserBeam; // [Fig.7]
         action encodeDriveOntoOptical : EncodeOntoOptical;         // [p.8 LC para 3]
-        action provideDriveBias : ProvidePhotodiodeBias;           // [Fig.7]
+        action provideDriveBias : SupplyBias;           // [Fig.7]
         action filterDriveBias : FilterSignal;                     // [Fig.7]
         action recoverDriveSignal : RecoverElectricalSignal;       // [p.9 LC para 3]
         action manipulateQubitState : ManipulateQubitState;        // [Fig.7]
 
         // ---- readout chain ----
         action amplifyCryogenic : Amplify;                         // [Fig.7]
-        action generateReadoutOpticalCarrier : GenerateOpticalCarrier; // [Fig.7]
+        action generateReadoutOpticalCarrier : GenerateLaserBeam; // [Fig.7]
         action encodeReadoutOntoOptical : EncodeOntoOptical;       // [p.9 RC para 1]
         action recoverReadoutSignal : RecoverElectricalSignal;     // [p.9 LC para 3]
         action filterReadout : FilterSignal;                       // [Fig.7]
         action generateReadoutCarrier : GenerateCarrier;           // [Fig.7]
         action downconvertReadout : Downconvert;                   // [p.9 RC para 1]
         action digitiseReadout : ConvertAnalogToDigital;           // [Fig.7]
-        action decipherQubitState : PostProcess;                   // [Fig.7]
+        action decipherQubitState : AnalyseMeasurement;                   // [Fig.7]
 
         // ---- control nodes ----
         fork initiate;
@@ -365,7 +187,7 @@ package OpticalInterface {
         flow from generateDriveCarrier.carrier to upconvertDrive.carrier;
         flow from upconvertDrive.waveform to filterDrive.unfiltered;
         flow from filterDrive.filtered to encodeDriveOntoOptical.electricalInput;
-        flow from generateDriveOpticalCarrier.opticalCarrier to encodeDriveOntoOptical.opticalCarrier;
+        flow from generateDriveOpticalCarrier.beam to encodeDriveOntoOptical.opticalCarrier;
         flow from encodeDriveOntoOptical.modulatedLight to recoverDriveSignal.modulatedLight;
         flow from provideDriveBias.bias to filterDriveBias.unfiltered;
         flow from filterDriveBias.filtered to recoverDriveSignal.bias;
@@ -373,14 +195,14 @@ package OpticalInterface {
 
         flow from manipulateQubitState.qubitResponse to amplifyCryogenic.weakSignal;
         flow from amplifyCryogenic.amplifiedSignal to encodeReadoutOntoOptical.electricalInput;
-        flow from generateReadoutOpticalCarrier.opticalCarrier to encodeReadoutOntoOptical.opticalCarrier;
+        flow from generateReadoutOpticalCarrier.beam to encodeReadoutOntoOptical.opticalCarrier;
         flow from encodeReadoutOntoOptical.modulatedLight to recoverReadoutSignal.modulatedLight;
         flow from filterDriveBias.filtered to recoverReadoutSignal.bias;
         flow from recoverReadoutSignal.electricalOutput to filterReadout.unfiltered;
         flow from filterReadout.filtered to downconvertReadout.waveform;
         flow from generateReadoutCarrier.carrier to downconvertReadout.referenceCarrier;
         flow from downconvertReadout.baseband to digitiseReadout.analogInput;
-        flow from digitiseReadout.digitalOutput to decipherQubitState.digitisedResponse;
+        flow from digitiseReadout.digitalOutput to decipherQubitState.measurement;
 
         bind measuredQubitState = decipherQubitState.qubitState;
     }
@@ -464,7 +286,7 @@ package OpticalInterface {
                 in item item1;
             }
             perform opticalOperation.generateDriveOpticalCarrier;
-            flow from generateDriveOpticalCarrier.opticalCarrier to carrierOut.item1;
+            flow from generateDriveOpticalCarrier.beam to carrierOut.item1;
         }
         part controlElectroOpticalModulator {
             doc
@@ -699,7 +521,7 @@ package OpticalInterface {
                 in item item1;
             }
             perform opticalOperation.generateReadoutOpticalCarrier;
-            flow from generateReadoutOpticalCarrier.opticalCarrier to carrierOut.item1;
+            flow from generateReadoutOpticalCarrier.beam to carrierOut.item1;
         }
         part readoutPhotodiode {
             doc
@@ -773,7 +595,7 @@ package OpticalInterface {
                 out item item1;
             }
             perform opticalOperation.decipherQubitState;           // [Fig.7]
-            flow from resultIn.item1 to decipherQubitState.digitisedResponse;
+            flow from resultIn.item1 to decipherQubitState.measurement;
         }
         port readoutCarrierOut : opticalPort;
         port readoutOpticalIn : ~opticalPort;
