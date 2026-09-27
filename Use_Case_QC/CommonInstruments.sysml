@@ -101,13 +101,13 @@ package CommonInstruments {
     }
     action def Upconvert :> ConvertSignal {
         in item baseband : signal;
-        in item carrier : microwaveSignal;
         out item waveform : microwaveSignal;
+        in item carrier : microwaveSignal;
     }
     action def Downconvert :> ConvertSignal {
         in item waveform : microwaveSignal;
-        in item referenceCarrier : microwaveSignal;
         out item baseband : microwaveSignal;
+        in item referenceCarrier : microwaveSignal;
     }
     action def RadiateBeam :> ConvertSignal {
         in item feed : microwaveSignal;
@@ -119,8 +119,8 @@ package CommonInstruments {
     }
     action def EncodeOntoOptical :> ConvertSignal {
         in item electricalInput : microwaveSignal;
-        in item opticalCarrier : opticalSignal;
         out item modulatedLight : opticalSignal;
+        in item opticalCarrier : opticalSignal;
         attribute extinctionRatio;
         attribute insertionLoss;
         attribute powerConsumption;
@@ -128,16 +128,16 @@ package CommonInstruments {
     }
     action def RecoverElectricalSignal :> ConvertSignal {
         in item modulatedLight : opticalSignal;
-        in item bias : dcBias;
         out item electricalOutput : microwaveSignal;
+        in item bias : dcBias;
         attribute detectionWavelength;
         attribute outputImpedance;
         attribute bandwidth;
     }
     action def ConvertWavelength :> ConvertSignal {
         in item inputPhoton : opticalSignal;
-        in item pumpBeam : opticalSignal;
         out item outputPhoton : opticalSignal;
+        in item pumpBeam : opticalSignal;
     }
     action def SynthesiseWaveform :> ConvertSignal {
         // a signal generator driven by a digital command, as distinct from a
@@ -147,9 +147,9 @@ package CommonInstruments {
         attribute driveFrequency : FrequencyValue;
     }
     action def DeflectBeam :> ConvertSignal {
-        in item drive : microwaveSignal;
         in item light : opticalSignal;
         out item deflectedLight : opticalSignal;
+        in item drive : microwaveSignal;
     }
     action def DetectPhotons :> ConvertSignal {
         in item light : opticalSignal;
@@ -214,7 +214,7 @@ package CommonInstruments {
     action def AnalyseMeasurement :> ProcessData {
         // terminal analysis yielding the qubit state
         in item measurement : digitalData;
-        out attribute qubitState;
+        out item qubitState : digitalData;
         attribute readoutFidelity;
         attribute detectionWindow : DurationValue;
     }
