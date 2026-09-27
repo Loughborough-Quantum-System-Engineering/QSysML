@@ -32,8 +32,8 @@ package SuperconductingCommon {
     // ── Dispersive readout chain ─────────────────────────────────────
     action def DispersiveInteraction :> ConvertSignal {
         in item probeTone : microwaveSignal;
-        in item qubitCoupling : microwaveSignal;
         out item stateDependentResponse : microwaveSignal;
+        in item qubitCoupling : microwaveSignal;
     }
     action def SuppressBackaction :> ConditionSignal {
         in item incoming : microwaveSignal;
@@ -42,21 +42,55 @@ package SuperconductingCommon {
     action def AmplifyQuantumLimited :> Amplify;
 
     // ── Pulse engineering ────────────────────────────────────────────
+    enum def pulseProtocol {
+        doc 
+        /* Advanced protocols with complex pulse sequences, employed to reduce
+         * the unwanted side effects of anharmonicity and environment noise in
+         * real qubit devices, aiming to improve the fidelity of the control
+         * operation. The reference names these two.
+         *
+         * Source: p.4, right column, paragraph 1.
+         */
+        derivativeRemovalByAdiabaticGate;
+        dynamicalDecoupling;
+    }
     action def ApplyPulseProtocol :> ProcessData {
         in item envelope : digitalData;
         out item shapedEnvelope : digitalData;
-        attribute protocol;
+        attribute protocol : pulseProtocol;
         attribute controlFidelity;
     }
-    action def SynchroniseClock :> ProcessData {
+    action def SynchroniseClock {
         attribute clockDelay : DurationValue;
+    }
+
+    // ── Qubit operation ──────────────────────────────────────────────
+    action def ManipulateQubitState :> OperateOnQubit {
+        doc 
+        /* Drive the qubit to a target state. By engineering the amplitude,
+         * duration and shape of the microwave pulse it is possible to achieve
+         * any arbitrary state on the Bloch sphere, within a timescale of tens
+         * of nanoseconds.
+         *
+         * The achieved state is recorded as an attribute rather than an out
+         * parameter, because it is not transferred to a following action; the
+         * readout chain observes it indirectly through the dispersive
+         * interaction with the on-chip resonator.
+         *
+         * Source: p.4, right column, paragraph 1.
+         */
+        in item controlWaveform : microwaveSignal;
+        in item biasSupply : dcBias;
+        out item qubitResponse : microwaveSignal;
+        attribute blochSphereState;
+        attribute gateDuration : DurationValue;
     }
 
     // ── Single flux quantum chain ────────────────────────────────────
     action def GenerateSfqPulseTrain :> ConvertSignal {
         in item triggerTone : microwaveSignal;
-        in item biasSupply : dcBias;
         out item pulseTrain : sfqPulse;
+        in item biasSupply : dcBias;
         attribute fluxQuantum;
         attribute pulseArea;
         attribute minimumPulseInterval : DurationValue;
@@ -78,8 +112,8 @@ package SuperconductingCommon {
     }
     action def ConvertToSfqLogic :> ConvertSignal {
         in item fluxon : sfqPulse;
-        in item biasSupply : dcBias;
         out item logicSignal : microwaveSignal;
+        in item biasSupply : dcBias;
         attribute clockSpeed : FrequencyValue;
         attribute bitSwitchEnergy;
     }
