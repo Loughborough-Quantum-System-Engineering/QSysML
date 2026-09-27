@@ -53,7 +53,6 @@ package AtomicCommon {
         attribute moveExecutionTime : DurationValue;
     }
 
-
     // ── Readout and interconnect ─────────────────────────────────────
     action def ShelveQubit :> OperateOnQubit {
         in item shelvingBeam : opticalSignal;
