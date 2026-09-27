@@ -52,12 +52,6 @@ package LaserTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-
-
-
-
-
-
     action def TrapAndCoolIons {
         doc
         /*
@@ -89,16 +83,6 @@ package LaserTrappedIonInterface {
         attribute gateSpeed;                        // 10 to 100 kHz [p.1165 RC]
     }
 
-
-
-
-
-
-
-
-
-
-
     // =====================================================================
     // End-to-end behaviour
     // =====================================================================
@@ -124,7 +108,7 @@ package LaserTrappedIonInterface {
          * Source: p.1164 right column through p.1168 right column.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
         out attribute entanglementHerald;
 
         // ---- trapping and preparation ----
