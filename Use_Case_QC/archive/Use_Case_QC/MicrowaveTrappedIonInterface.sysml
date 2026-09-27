@@ -61,20 +61,6 @@ package MicrowaveTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     action def PerformQuantumGate {
         doc
         /*
@@ -96,8 +82,6 @@ package MicrowaveTrappedIonInterface {
         out item fluorescence : opticalSignal;
     }
 
-
-
     action def PrepareState {
         doc
         /*
@@ -107,10 +91,6 @@ package MicrowaveTrappedIonInterface {
          */
         in item statePrepBeam : opticalSignal;
     }
-
-
-
-
 
     action def RemoveHeat {
         doc
@@ -188,7 +168,7 @@ package MicrowaveTrappedIonInterface {
          * paragraph 1, with Figs. 1 and 2.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         // ---- room-temperature generation ----
         action generateGlobalMicrowaveField : GenerateMicrowaveDrive;  // [p.4 RC para 1]
