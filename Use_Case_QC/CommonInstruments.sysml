@@ -31,8 +31,8 @@ package CommonInstruments {
     part def microwaveAmplifier :> amplifier;
 
     // ── Passive signal conditioners ──────────────────────────────────
-    part def filter :> signalConditioner;
-    part def lowPassbandFilter :> filter;
+    part def signalFilter :> signalConditioner;
+    part def lowPassbandFilter;
     part def attenuator :> signalConditioner;
     part def lens :> signalConditioner;
     part def circulator :> signalConditioner;
