@@ -54,13 +54,6 @@ package EQCTrappedIonInterface {
     // Action definitions
     // =====================================================================
 
-
-
-
-
-
-
-
     action def PerformSingleQubitGate {
         doc
         /*
@@ -98,10 +91,6 @@ package EQCTrappedIonInterface {
         attribute gateTime;                         // 100 to 300 us [Tab.XXV]
     }
 
-
-
-
-
     action def PrepareState {
         doc
         /*
@@ -128,10 +117,6 @@ package EQCTrappedIonInterface {
         attribute preparationTime;                  // 450 us [Tab.XXV]
         attribute postSelectionRate;                // > 90 % [Tab.XXV]
     }
-
-
-
-
 
     // =====================================================================
     // End-to-end behaviour
@@ -163,7 +148,7 @@ package EQCTrappedIonInterface {
          * Table XXV.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         // ---- control generation ----
         action issueControlSequence : IssueCommand;        // [Tab.XXV]
