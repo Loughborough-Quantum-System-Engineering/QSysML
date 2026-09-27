@@ -49,16 +49,6 @@ package OpticalInterface {
     // Action definitions
     // =====================================================================
 
-
-
-
-
-
-
-
-
-
-
     action def ManipulateQubitState {
         doc
         /*
@@ -70,9 +60,6 @@ package OpticalInterface {
         in item driveSignal : microwaveSignal;
         out item qubitResponse : microwaveSignal;
     }
-
-
-
 
     // =====================================================================
     // End-to-end behaviour
@@ -105,7 +92,7 @@ package OpticalInterface {
          * paragraph 1, and Fig. 7.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         // ---- drive chain ----
         action generateEnvelope : GenerateEnvelope;                // [Fig.7]
