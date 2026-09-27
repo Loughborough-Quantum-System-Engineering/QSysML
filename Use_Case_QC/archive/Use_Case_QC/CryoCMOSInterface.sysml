@@ -69,8 +69,6 @@ package CryoCMOSInterface {
     // Action definitions
     // =====================================================================
 
-
-
     action def GenerateControlSignal {
         doc
         /*
@@ -113,8 +111,6 @@ package CryoCMOSInterface {
         out item measurement : digitalData;
     }
 
-
-
     // =====================================================================
     // End-to-end behaviour
     // =====================================================================
@@ -143,7 +139,7 @@ package CryoCMOSInterface {
          * paragraph 2, and Fig. 3.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         action preloadDataSequence : IssueCommand;          // [p.6 LC para 2]
         action provideControlPower : SupplyBias;                 // [Fig.3]
