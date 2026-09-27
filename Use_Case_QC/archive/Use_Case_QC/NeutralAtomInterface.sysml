@@ -88,11 +88,6 @@ package NeutralAtomInterface {
         out item calibration : digitalData;
     }
 
-
-
-
-
-
     action def ReconstructOccupancy {
         doc
         /*
@@ -207,12 +202,6 @@ package NeutralAtomInterface {
         attribute maxSteps;                         // 4        [p.6 RC]
     }
 
-
-
-
-
-
-
     action def ManipulateQubitState {
         doc
         /*
@@ -228,9 +217,6 @@ package NeutralAtomInterface {
         in item imagingBeam : opticalSignal;
         out item fluorescence : opticalSignal;
     }
-
-
-
 
     action def IssueGateInstruction :> ProcessData {
         doc
@@ -280,7 +266,7 @@ package NeutralAtomInterface {
          * Source: abstract and p.1 through p.6, with Figs. 1, 5 and 6.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
         attribute mode : operatingMode;
         attribute endToEndLatency = 25.3E-3 [s];    // 25.3 ms  [abstract]
         attribute firstMoveLatency = 4.0E-3 [s];    // 4 ms     [abstract]
