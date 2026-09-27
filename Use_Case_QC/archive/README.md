@@ -1,7 +1,7 @@
 # Archive
 
 Models parked while work focuses on a single superconducting transmon slice under the QSysMM framework.
-Files are kept unchanged for reference and may return to active use later.
+Files are kept for reference, unchanged apart from the action library refactor and its minimal follow-up repairs, and may return to active use later.
 Folder structure mirrors the original location.
 
 | Group | Files | Why parked |
