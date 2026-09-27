@@ -49,34 +49,8 @@ package SingleFluxQuantumInterface {
     public import SI::*;
 
     // =====================================================================
-    // Local signal vocabulary
-    // =====================================================================
-    item def circulatingCurrent :> signal {
-        doc
-        /*
-         * Persistent current in which a Josephson photomultiplier stores the
-         * outcome of a photon detection. Declared locally because it is
-         * specific to the SFQ readout chain and has no counterpart in the
-         * shared instrument library.
-         *
-         * Source: p.7, right column, paragraph 2.
-         */
-    }
-    port def circulatingCurrentPort {
-        out item payload : circulatingCurrent;
-    }
-
-    // =====================================================================
     // Action definitions
     // =====================================================================
-
-
-
-
-
-
-
-
 
     action def ManipulateQubitState {
         doc
@@ -94,14 +68,6 @@ package SingleFluxQuantumInterface {
         attribute predictedGateFidelity;            // > 99.99 %   [p.7 LC para 3]
         attribute realisedGateFidelity;             // approx 95 % [p.7 LC para 3]
     }
-
-
-
-
-
-
-
-
 
     // =====================================================================
     // End-to-end behaviour
@@ -131,7 +97,7 @@ package SingleFluxQuantumInterface {
          * paragraph 2, and Fig. 5.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         // ---- trigger (control) chain ----
         action generateEnvelope : GenerateEnvelope;                // [Fig.5]
