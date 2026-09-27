@@ -56,11 +56,6 @@ package WirelessInterface {
     // Action definitions
     // =====================================================================
 
-
-
-
-
-
     action def ManipulateQubitState {
         doc
         /*
@@ -73,7 +68,6 @@ package WirelessInterface {
         in item driveSignal : microwaveSignal;
         out item qubitResponse : microwaveSignal;
     }
-
 
     // =====================================================================
     // End-to-end behaviour
@@ -103,7 +97,7 @@ package WirelessInterface {
          * Fig. 8.
          */
 
-        out attribute measuredQubitState;
+        out item measuredQubitState : digitalData;
 
         // ---- downlink (control) ----
         action generateTone : GenerateMicrowaveDrive;                        // [Fig.8]
