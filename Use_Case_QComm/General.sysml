@@ -95,6 +95,9 @@ package QSysML {
             /* Splitting one optical pulse into two paths, Recombining paths to create interference (creating phase difference),
              * separating measurement bases probabilistically, Setting intensity ratios in decoy-state QKD or modulator designs to control how much power */
         }
+        part def Eve;
+        item def preperationBasis;
+        item def measurementBasis;
         item def Qubits {
             doc /* There are many kinds of qubits such as electrons, photons, quantum dots, Josephson junctions etc. P */
         }
@@ -119,16 +122,22 @@ package QSysML {
             Diagonal = 45;
             AntiDiagonal = -45;
         }
-        attribute def preprationBasis;
-        enum def preprationBasis {
+        attribute def prepration_Basis;
+        enum def prepration_Basis {
             Random;
             Superposition;
         }
         attribute def QuantumState;
+        attribute def BipartiteQuantumState :> QuantumState;
         enum def QuantumState {
             pureState;
             mixedState;
-            entangleState;
+        }
+        enum def BellStateKind {
+            phiPlus;
+            phiMinus;
+            psiPlus;
+            psiMinus;
         }
         item def Bits;
         connection def channel {
