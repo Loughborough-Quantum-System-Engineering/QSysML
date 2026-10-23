@@ -109,4 +109,69 @@ package QuantumComputing {
         action quantumInformationProcessing;
         action logicalOperations;
     }
+
+    // reference
+// @standard{bsisoiec4879,
+//   title = {...},  // completed once you give the exact edition
+// }
+
+package quantumOperationDefinitions {
+
+    item def QuantumState {
+        doc /* The state of a quantum system, defining the probability
+               distribution of possible outcomes of measurements on it.
+               In this model a pure single-qubit state is carried by
+               three values relative to the computational (z) basis:
+               the |0> and |1> outcome probabilities (Born rule:
+               probability = squared amplitude) and the relative phase
+               phi between the |1> and |0> components, with the
+               convention |psi> proportional to |0> + exp(i phi)|1>;
+               phi is in radians. The basis states are the values
+               (1, 0) and (0, 1); the phase is conventional (taken as
+               0) when one component is absent. Probabilities together
+               with the relative phase determine a pure state up to
+               global phase (the Bloch sphere parameters); the global
+               phase and the amplitudes stay in the native model.
+               Source: Quantum Ontology (BS ISO/IEC 4879), quantum
+               state; Qiskit Textbook, ch01. */
+        attribute probabilityOfZero : Real;
+        attribute probabilityOfOne : Real;
+        attribute relativePhase : Real;
+    }
+
+    item def LogicalQubit {
+        doc /* The qubit at the logical level: the carrier that the gates of
+               the universal gate set act on. Its mapping to physical qubits
+               (error correction) is out of scope at this stage.
+               Source: Quantum Ontology (BS ISO/IEC 4879). */
+        item quantumState : QuantumState;
+    }
+
+    abstract attribute def QuantumOperator {
+        doc /* Mathematical description of a quantum operator.
+               Source: Quantum Ontology (BS ISO/IEC 4879). */
+    }
+
+    attribute def UnitaryOperator :> QuantumOperator {
+        doc /* A quantum operator that is unitary.
+               Source: Quantum Ontology (BS ISO/IEC 4879). */
+    }
+
+    abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {
+        doc /* A quantum operation acts on one or more quantum systems and is
+               represented by one or more quantum operators, justified by the
+               Kraus representation. State preparation, quantum gates,
+               Hamiltonian evolution and quantum measurement specialise it.
+               Source: Quantum Ontology (BS ISO/IEC 4879). */
+        ref item actsOn : LogicalQubit[1..*];
+        attribute representedBy : QuantumOperator[1..*];
+    }
+
+    abstract action def QuantumGate :> QuantumOperation {
+        doc /* A quantum operation represented by exactly one unitary operator.
+               Source: Quantum Ontology (BS ISO/IEC 4879). */
+        attribute : UnitaryOperator[1] :>> representedBy;
+    }
+
+}
 }
