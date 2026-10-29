@@ -1,6 +1,7 @@
 package QuantumComputing {
     private import ScalarValues::*;
     private import CollectionFunctions::*;
+    private import Quantum::*;
 
     package physicalLayerDefinitions {
         // ── Subsystem roles ──────────────────────────────────────────
@@ -118,43 +119,7 @@ package QuantumComputing {
 //   title = {...},  // completed once you give the exact edition
 // }
 
-package quantumOperationDefinitions {
-
-    attribute def Basis {
-        doc /* A basis: the set of outcome states that defines a measurement.
-               Member i is the state of certain outcome i in this basis;
-               membership is the member's definition, so a member carries no
-               values and its own basis feature is unset by convention.
-               Indices order the outcomes; member names are optional reader
-               aid. Dimension: 2 for a single qubit, 2^n for an n-qubit
-               register, d for a qudit. Superposition is relative to a
-               basis: a state definite in one basis is a combination in
-               another.
-               Source: Quantum Ontology (BS ISO/IEC 4879), basis and basis
-               states; Qiskit Textbook, ch01; MIT OCW 8.04, ch01. */
-        attribute dimension : Integer;
-        ref state memberState : QuantumState[0..*] ordered;
-        constraint { size(memberState) == dimension }
-    }
-
-    state def QuantumState {
-        doc /* The state of a quantum system, expressed relative to a basis:
-               one Born probability per basis member, by index, plus the
-               relative phase of member 2's component relative to member 1,
-               in radians. probability[i] corresponds to basis.memberState[i]
-               by index. Probabilities with the relative phase determine a
-               pure state up to global phase; the global phase and the
-               amplitudes stay in the native model. The same state has
-               different probability descriptions in different bases. A
-               state that is a basis member is defined by its membership
-               and sets none of these features.
-               Source: Quantum Ontology (BS ISO/IEC 4879), quantum state;
-               Qiskit Textbook, ch01. */
-        attribute basis : Basis;
-        attribute probability : Real[0..*] ordered;
-        attribute relativePhase : Real;
-        constraint { size(probability) == basis.dimension }
-    }
+    package quantumOperationDefinitions {
 
     item def LogicalQubit {
         doc /* The qubit at the logical level: the carrier that the gates of
@@ -163,16 +128,6 @@ package quantumOperationDefinitions {
                feature makes the qubit an exhibitor of its quantum state.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
         state quantumState : QuantumState;
-    }
-
-    abstract attribute def QuantumOperator {
-        doc /* Mathematical description of a quantum operator.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
-    }
-
-    attribute def UnitaryOperator :> QuantumOperator {
-        doc /* A quantum operator that is unitary.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
     }
 
     abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {

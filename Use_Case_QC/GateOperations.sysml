@@ -5,9 +5,11 @@
 // operation is deferred until the two-qubit coupling construct is
 // settled (open decision D-8).
 //
-// General definitions (basis, quantum state, logical qubit, quantum
-// operation, quantum gate, operators) live in QuantumComputing.sysml,
-// package quantumOperationDefinitions. The basis is defined first; a
+// General quantum-domain definitions (basis, quantum state, quantum
+// operator, unitary operator) live in quantum.sysml, package Quantum.
+// Quantum computing definitions (logical qubit, quantum operation,
+// quantum gate, gate sets) live in QuantumComputing.sysml, package
+// quantumOperationDefinitions. The basis is defined first; a
 // quantum state is always expressed as its own description relative to
 // a basis (the basis, probabilities by member index, relative phase),
 // never as a reference to a basis member.
@@ -22,6 +24,7 @@
 
 package GateOperations {
     private import ScalarValues::*;
+    public import Quantum::*;
     public import QuantumComputing::quantumOperationDefinitions::*;
 
     attribute pi : Real = 3.141592653589793;
