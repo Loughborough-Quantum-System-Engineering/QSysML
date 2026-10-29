@@ -169,32 +169,24 @@ package ConventionalClassicalInterface {
              * Source: p.4 right column paragraph 1; p.5 left column
              * paragraph 2.
              */
-            port envelopeOut : QuantumComputing::physicalLayerDefinitions::digitalPort {
-                in item item1;
-            }
+            port envelopeOut : QuantumComputing::physicalLayerDefinitions::digitalPort;
             perform conventionalOperation.generateEnvelope;
             perform conventionalOperation.applyPulseProtocol;
             perform conventionalOperation.synchroniseClock;
             succession flow from generateEnvelope.envelope to applyPulseProtocol.envelope;
-            succession flow from applyPulseProtocol.shapedEnvelope to envelopeOut.item1;
+            succession flow from applyPulseProtocol.shapedEnvelope to envelopeOut.payload;
         }
         part dac : CommonInstruments::digitalToAnalogConverter {
-            port digitalIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort {
-                out item item1;
-            }
-            port analogOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port digitalIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort;
+            port analogOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.convertDriveToAnalog;
-            flow from digitalIn.item1 to convertDriveToAnalog.digitalInput;
-            succession flow from convertDriveToAnalog.analogOutput to analogOut.item1;
+            flow from digitalIn.payload to convertDriveToAnalog.digitalInput;
+            succession flow from convertDriveToAnalog.analogOutput to analogOut.payload;
         }
         part controlLocalOscillator : CommonInstruments::localOscillator {
-            port carrierOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port carrierOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.generateDriveCarrier;
-            succession flow from generateDriveCarrier.carrier to carrierOut.item1;
+            succession flow from generateDriveCarrier.carrier to carrierOut.payload;
         }
         part controlIqMixer : CommonInstruments::iqMixer {
             doc 
@@ -205,37 +197,25 @@ package ConventionalClassicalInterface {
              * Source: p.4 right column paragraph 1; IQ mixer in the Fig. 2
              * legend.
              */
-            port ifIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port rfOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port ifIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port rfOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.upconvertDrive;
-            flow from ifIn.item1 to upconvertDrive.baseband;
-            flow from loIn.item1 to upconvertDrive.carrier;
-            succession flow from upconvertDrive.waveform to rfOut.item1;
+            flow from ifIn.payload to upconvertDrive.baseband;
+            flow from loIn.payload to upconvertDrive.carrier;
+            succession flow from upconvertDrive.waveform to rfOut.payload;
         }
         part controlFilter {
-            port filterIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port filterOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port filterIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port filterOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.filterDrive;
-            flow from filterIn.item1 to filterDrive.unfiltered;
-            succession flow from filterDrive.filtered to filterOut.item1;
+            flow from filterIn.payload to filterDrive.unfiltered;
+            succession flow from filterDrive.filtered to filterOut.payload;
         }
         part qubitBias : CommonInstruments::powerSource {
-            port biasOut : QuantumComputing::physicalLayerDefinitions::dcBiasPort {
-                in item item1;
-            }
+            port biasOut : QuantumComputing::physicalLayerDefinitions::dcBiasPort;
             perform conventionalOperation.provideQubitBias;
-            succession flow from provideQubitBias.bias to biasOut.item1;
+            succession flow from provideQubitBias.bias to biasOut.payload;
         }
         port driveOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
         port qubitBiasOut : QuantumComputing::physicalLayerDefinitions::dcBiasPort;
@@ -276,15 +256,11 @@ package ConventionalClassicalInterface {
                  *
                  * Source: p.4 left column paragraph 1; Fig. 2.
                  */
-                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.attenuateDrive50K;
-                flow from attIn.item1 to attenuateDrive50K.unattenuated;
-                succession flow from attenuateDrive50K.attenuated to attOut.item1;
+                flow from attIn.payload to attenuateDrive50K.unattenuated;
+                succession flow from attenuateDrive50K.attenuated to attOut.payload;
             }
         }
         part thirdLayer {
@@ -303,15 +279,11 @@ package ConventionalClassicalInterface {
                  *
                  * Source: p.4 left column paragraph 1; Fig. 2.
                  */
-                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.attenuateDrive4K;
-                flow from attIn.item1 to attenuateDrive4K.unattenuated;
-                succession flow from attenuateDrive4K.attenuated to attOut.item1;
+                flow from attIn.payload to attenuateDrive4K.unattenuated;
+                succession flow from attenuateDrive4K.attenuated to attOut.payload;
             }
             part biasFilter {
                 doc 
@@ -319,15 +291,11 @@ package ConventionalClassicalInterface {
                  *
                  * Source: Fig. 2, p.4.
                  */
-                port filterIn : ~QuantumComputing::physicalLayerDefinitions::dcBiasPort {
-                    out item item1;
-                }
-                port filterOut : QuantumComputing::physicalLayerDefinitions::dcBiasPort {
-                    in item item1;
-                }
+                port filterIn : ~QuantumComputing::physicalLayerDefinitions::dcBiasPort;
+                port filterOut : QuantumComputing::physicalLayerDefinitions::dcBiasPort;
                 perform conventionalOperation.filterBias;
-                flow from filterIn.item1 to filterBias.unfiltered;
-                succession flow from filterBias.filtered to filterOut.item1;
+                flow from filterIn.payload to filterBias.unfiltered;
+                succession flow from filterBias.filtered to filterOut.payload;
             }
             part lowNoiseAmplifier {
                 doc 
@@ -337,15 +305,11 @@ package ConventionalClassicalInterface {
                  * Source: p.5 left column paragraph 1; low-noise amplifier in
                  * the Fig. 2 legend.
                  */
-                port ampIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port ampOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port ampIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port ampOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.amplifyCryogenic;
-                flow from ampIn.item1 to amplifyCryogenic.weakSignal;
-                succession flow from amplifyCryogenic.amplifiedSignal to ampOut.item1;
+                flow from ampIn.payload to amplifyCryogenic.weakSignal;
+                succession flow from amplifyCryogenic.amplifiedSignal to ampOut.payload;
             }
         }
         part fourthLayer {
@@ -357,15 +321,11 @@ package ConventionalClassicalInterface {
                  *
                  * Source: p.4 left column paragraph 1; Fig. 2.
                  */
-                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port attIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port attOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.attenuateDrive800mK;
-                flow from attIn.item1 to attenuateDrive800mK.unattenuated;
-                flow from attenuateDrive800mK.attenuated to attOut.item1;
+                flow from attIn.payload to attenuateDrive800mK.unattenuated;
+                flow from attenuateDrive800mK.attenuated to attOut.payload;
             }
         }
         part fifthLayer {
@@ -392,19 +352,13 @@ package ConventionalClassicalInterface {
                  * Source: QPU in the Fig. 2 legend; Fig. 2 caption, p.4.
                  */
                 attribute :>> technology = QuantumComputing::physicalLayerDefinitions::qubitTechnology::superconducting;
-                port driveIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port biasIn : ~QuantumComputing::physicalLayerDefinitions::dcBiasPort {
-                    out item item1;
-                }
-                port cavityOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port driveIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port biasIn : ~QuantumComputing::physicalLayerDefinitions::dcBiasPort;
+                port cavityOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.manipulateQubitState;
-                flow from biasIn.item1 to manipulateQubitState.biasSupply;
-                flow from driveIn.item1 to manipulateQubitState.controlWaveform;
-                flow from manipulateQubitState.qubitResponse to cavityOut.item1;
+                flow from biasIn.payload to manipulateQubitState.biasSupply;
+                flow from driveIn.payload to manipulateQubitState.controlWaveform;
+                flow from manipulateQubitState.qubitResponse to cavityOut.payload;
             }
             part cavity {
                 doc 
@@ -414,19 +368,13 @@ package ConventionalClassicalInterface {
                  *
                  * Source: p.4 right column paragraph 2; Cavity in Fig. 2.
                  */
-                port qubitIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port probeIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port probeOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port qubitIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port probeIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port probeOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.disperseInteract;
-                flow from probeIn.item1 to disperseInteract.probeTone;
-                flow from qubitIn.item1 to disperseInteract.qubitCoupling;
-                flow from disperseInteract.stateDependentResponse to probeOut.item1;
+                flow from probeIn.payload to disperseInteract.probeTone;
+                flow from qubitIn.payload to disperseInteract.qubitCoupling;
+                flow from disperseInteract.stateDependentResponse to probeOut.payload;
             }
             part circulator {
                 doc 
@@ -437,23 +385,15 @@ package ConventionalClassicalInterface {
                  * Source: p.5 left column paragraph 1; circulator in the
                  * Fig. 2 legend.
                  */
-                port cavityIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port jpaOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
-                port jpaIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port isolatorOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port cavityIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port jpaOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port jpaIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port isolatorOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.suppressBackactionCirculator;
-                flow from cavityIn.item1 to suppressBackactionCirculator.incoming;
-                flow from jpaIn.item1 to suppressBackactionCirculator.incoming;
-                flow from suppressBackactionCirculator.forwarded to jpaOut.item1;
-                flow from suppressBackactionCirculator.forwarded to isolatorOut.item1;
+                flow from cavityIn.payload to suppressBackactionCirculator.incoming;
+                flow from jpaIn.payload to suppressBackactionCirculator.incoming;
+                flow from suppressBackactionCirculator.forwarded to jpaOut.payload;
+                flow from suppressBackactionCirculator.forwarded to isolatorOut.payload;
             }
             part josephsonParametricAmplifier {
                 doc 
@@ -463,15 +403,11 @@ package ConventionalClassicalInterface {
                  * Source: p.5 left column paragraph 1; JPA in the Fig. 2
                  * legend.
                  */
-                port signalIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port signalOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port signalIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port signalOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.amplifyQuantumLimited;
-                flow from signalIn.item1 to amplifyQuantumLimited.weakSignal;
-                flow from amplifyQuantumLimited.amplifiedSignal to signalOut.item1;
+                flow from signalIn.payload to amplifyQuantumLimited.weakSignal;
+                flow from amplifyQuantumLimited.amplifiedSignal to signalOut.payload;
             }
             part isolator {
                 doc 
@@ -484,15 +420,11 @@ package ConventionalClassicalInterface {
                  *
                  * Source: p.5 left column paragraph 1.
                  */
-                port signalIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    out item item1;
-                }
-                port signalOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                    in item item1;
-                }
+                port signalIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+                port signalOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
                 perform conventionalOperation.suppressBackactionIsolator;
-                flow from signalIn.item1 to suppressBackactionIsolator.incoming;
-                flow from suppressBackactionIsolator.forwarded to signalOut.item1;
+                flow from signalIn.payload to suppressBackactionIsolator.incoming;
+                flow from suppressBackactionIsolator.forwarded to signalOut.payload;
             }
             flow from qpu.cavityOut to cavity.qubitIn;
             flow from cavity.probeOut to circulator.cavityIn;
@@ -521,11 +453,9 @@ package ConventionalClassicalInterface {
          * Fig. 2, p.4.
          */
         part readoutAWGFPGA : CommonInstruments::awgFPGA {
-            port envelopeOut : QuantumComputing::physicalLayerDefinitions::digitalPort {
-                in item item1;
-            }
+            port envelopeOut : QuantumComputing::physicalLayerDefinitions::digitalPort;
             perform conventionalOperation.generateProbeEnvelope;
-            flow from generateProbeEnvelope.envelope to envelopeOut.item1;
+            flow from generateProbeEnvelope.envelope to envelopeOut.payload;
         }
         part readoutLocalOscillator : CommonInstruments::localOscillator {
             doc 
@@ -536,11 +466,9 @@ package ConventionalClassicalInterface {
              *
              * Source: p.5 left column paragraph 1.
              */
-            port carrierOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port carrierOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.generateProbeCarrier;
-            flow from generateProbeCarrier.carrier to carrierOut.item1;
+            flow from generateProbeCarrier.carrier to carrierOut.payload;
         }
         part readoutIqMixer1 : CommonInstruments::iqMixer {
             doc 
@@ -551,19 +479,13 @@ package ConventionalClassicalInterface {
              *
              * Source: p.5 left column paragraph 1.
              */
-            port ifIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort {
-                out item item1;
-            }
-            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port rfOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port ifIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort;
+            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port rfOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.upconvertProbe;
-            flow from ifIn.item1 to upconvertProbe.baseband;
-            flow from loIn.item1 to upconvertProbe.carrier;
-            flow from upconvertProbe.waveform to rfOut.item1;
+            flow from ifIn.payload to upconvertProbe.baseband;
+            flow from loIn.payload to upconvertProbe.carrier;
+            flow from upconvertProbe.waveform to rfOut.payload;
         }
         part lowNoiseAmplifier {
             doc 
@@ -572,15 +494,11 @@ package ConventionalClassicalInterface {
              *
              * Source: p.4 right column paragraph 2; Fig. 2.
              */
-            port ampIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port ampOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port ampIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port ampOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.amplifyRoomTemperature;
-            flow from ampIn.item1 to amplifyRoomTemperature.weakSignal;
-            flow from amplifyRoomTemperature.amplifiedSignal to ampOut.item1;
+            flow from ampIn.payload to amplifyRoomTemperature.weakSignal;
+            flow from amplifyRoomTemperature.amplifiedSignal to ampOut.payload;
         }
         part readoutIqMixer2 : CommonInstruments::iqMixer {
             doc 
@@ -590,41 +508,27 @@ package ConventionalClassicalInterface {
              *
              * Source: p.5 left column paragraph 1.
              */
-            port rfIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port ifOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port rfIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port loIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port ifOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.downconvertProbe;
-            flow from rfIn.item1 to downconvertProbe.waveform;
-            flow from loIn.item1 to downconvertProbe.referenceCarrier;
-            flow from downconvertProbe.baseband to ifOut.item1;
+            flow from rfIn.payload to downconvertProbe.waveform;
+            flow from loIn.payload to downconvertProbe.referenceCarrier;
+            flow from downconvertProbe.baseband to ifOut.payload;
         }
         part readoutFilter {
-            port filterIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port filterOut : QuantumComputing::physicalLayerDefinitions::microwavePort {
-                in item item1;
-            }
+            port filterIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port filterOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
             perform conventionalOperation.filterProbe;
-            flow from filterIn.item1 to filterProbe.unfiltered;
-            flow from filterProbe.filtered to filterOut.item1;
+            flow from filterIn.payload to filterProbe.unfiltered;
+            flow from filterProbe.filtered to filterOut.payload;
         }
         part adc : CommonInstruments::analogToDigitalConverter {
-            port analogIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort {
-                out item item1;
-            }
-            port digitalOut : QuantumComputing::physicalLayerDefinitions::digitalPort {
-                in item item1;
-            }
+            port analogIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
+            port digitalOut : QuantumComputing::physicalLayerDefinitions::digitalPort;
             perform conventionalOperation.digitiseProbe;
-            flow from analogIn.item1 to digitiseProbe.analogInput;
-            flow from digitiseProbe.digitalOutput to digitalOut.item1;
+            flow from analogIn.payload to digitiseProbe.analogInput;
+            flow from digitiseProbe.digitalOutput to digitalOut.payload;
         }
         part computerFpga {
             doc 
@@ -635,11 +539,9 @@ package ConventionalClassicalInterface {
              * Source: p.4 right column paragraph 2; p.5 left column
              * paragraph 2.
              */
-            port resultIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort {
-                out item item1;
-            }
+            port resultIn : ~QuantumComputing::physicalLayerDefinitions::digitalPort;
             perform conventionalOperation.decipherQubitState;
-            flow from resultIn.item1 to decipherQubitState.measurement;
+            flow from resultIn.payload to decipherQubitState.measurement;
         }
         port probeOut : QuantumComputing::physicalLayerDefinitions::microwavePort;
         port readoutIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
