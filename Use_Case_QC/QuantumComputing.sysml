@@ -1,4 +1,7 @@
 package QuantumComputing {
+    private import ScalarValues::*;
+    private import CollectionFunctions::*;
+
     package physicalLayerDefinitions {
         // ── Subsystem roles ──────────────────────────────────────────
         abstract part def classicalInterfaceSystem;
@@ -34,7 +37,7 @@ package QuantumComputing {
         // question "what does this kind of component do" has a single
         // answer independent of qubit technology.
         abstract action def GenerateSignal {
-            out item signal : signal;
+            out item signal : QuantumComputing::physicalLayerDefinitions::signal;
         }
         abstract action def ConvertSignal {
             in item input : signal;
@@ -117,34 +120,49 @@ package QuantumComputing {
 
 package quantumOperationDefinitions {
 
-    item def QuantumState {
-        doc /* The state of a quantum system, defining the probability
-               distribution of possible outcomes of measurements on it.
-               In this model a pure single-qubit state is carried by
-               three values relative to the computational (z) basis:
-               the |0> and |1> outcome probabilities (Born rule:
-               probability = squared amplitude) and the relative phase
-               phi between the |1> and |0> components, with the
-               convention |psi> proportional to |0> + exp(i phi)|1>;
-               phi is in radians. The basis states are the values
-               (1, 0) and (0, 1); the phase is conventional (taken as
-               0) when one component is absent. Probabilities together
-               with the relative phase determine a pure state up to
-               global phase (the Bloch sphere parameters); the global
-               phase and the amplitudes stay in the native model.
-               Source: Quantum Ontology (BS ISO/IEC 4879), quantum
-               state; Qiskit Textbook, ch01. */
-        attribute probabilityOfZero : Real;
-        attribute probabilityOfOne : Real;
+    attribute def Basis {
+        doc /* A basis: the set of outcome states that defines a measurement.
+               Member i is the state of certain outcome i in this basis;
+               membership is the member's definition, so a member carries no
+               values and its own basis feature is unset by convention.
+               Indices order the outcomes; member names are optional reader
+               aid. Dimension: 2 for a single qubit, 2^n for an n-qubit
+               register, d for a qudit. Superposition is relative to a
+               basis: a state definite in one basis is a combination in
+               another.
+               Source: Quantum Ontology (BS ISO/IEC 4879), basis and basis
+               states; Qiskit Textbook, ch01; MIT OCW 8.04, ch01. */
+        attribute dimension : Integer;
+        ref state memberState : QuantumState[0..*] ordered;
+        constraint { size(memberState) == dimension }
+    }
+
+    state def QuantumState {
+        doc /* The state of a quantum system, expressed relative to a basis:
+               one Born probability per basis member, by index, plus the
+               relative phase of member 2's component relative to member 1,
+               in radians. probability[i] corresponds to basis.memberState[i]
+               by index. Probabilities with the relative phase determine a
+               pure state up to global phase; the global phase and the
+               amplitudes stay in the native model. The same state has
+               different probability descriptions in different bases. A
+               state that is a basis member is defined by its membership
+               and sets none of these features.
+               Source: Quantum Ontology (BS ISO/IEC 4879), quantum state;
+               Qiskit Textbook, ch01. */
+        attribute basis : Basis;
+        attribute probability : Real[0..*] ordered;
         attribute relativePhase : Real;
+        constraint { size(probability) == basis.dimension }
     }
 
     item def LogicalQubit {
         doc /* The qubit at the logical level: the carrier that the gates of
                the universal gate set act on. Its mapping to physical qubits
-               (error correction) is out of scope at this stage.
+               (error correction) is out of scope at this stage. The state
+               feature makes the qubit an exhibitor of its quantum state.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
-        item quantumState : QuantumState;
+        state quantumState : QuantumState;
     }
 
     abstract attribute def QuantumOperator {
@@ -171,6 +189,24 @@ package quantumOperationDefinitions {
         doc /* A quantum operation represented by exactly one unitary operator.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
         attribute : UnitaryOperator[1] :>> representedBy;
+    }
+
+    abstract action def GateSet {
+        doc /* A gate set: a named collection of gates. Modeled as an
+               action def because its members are gates, and this
+               toolchain accepts action-typed members only in action
+               defs.
+               Source: Quantum Ontology (BS ISO/IEC 4879), gate set. */
+        ref action memberGate : QuantumGate[0..*];
+    }
+
+    action def UniversalGateSet :> GateSet {
+        doc /* A universal gate set: a gate set from which any unitary
+               can be approximated to any accuracy. Universality is a
+               theorem about a set, not a structural property; the
+               members carry it.
+               Source: Quantum Ontology (BS ISO/IEC 4879), universal
+               gate set; Qiskit Textbook, ch02; Nielsen-Chuang, ch04. */
     }
 
 }

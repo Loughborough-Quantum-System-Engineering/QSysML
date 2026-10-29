@@ -5,41 +5,45 @@
 // operation is deferred until the two-qubit coupling construct is
 // settled (open decision D-8).
 //
-// General definitions (quantum state, logical qubit, quantum operation,
-// quantum gate, operators) live in QuantumComputing.sysml, package
-// quantumOperationDefinitions.
+// General definitions (basis, quantum state, logical qubit, quantum
+// operation, quantum gate, operators) live in QuantumComputing.sysml,
+// package quantumOperationDefinitions. The basis is defined first; a
+// quantum state is always expressed as its own description relative to
+// a basis (the basis, probabilities by member index, relative phase),
+// never as a reference to a basis member.
 //
 // Extensibility pattern: every single-qubit gate of the set specialises
 // SingleQubitGateApplication, which fixes the acted-on multiplicity.
-// Case usages state the state transition across the gate with the two
-// standard slices beforeGate and afterGate, setting the qubit state's
-// three values (probabilityOfZero, probabilityOfOne, relativePhase)
-// per phase. States are values, not kinds: name a state at the slice
-// with a named usage when a label helps (plusState), and promote a
-// recurring name to a pinned definition only when it is shared. Adding
-// or swapping a gate means: one gate definition plus its case usages.
+// Each case usage is one performance with its own local view of the
+// acted-on qubit: a caseQubit item carrying only that case's beforeGate
+// and afterGate phases. The cases are alternatives, not steps of one
+// run, so no case's timeline touches another's. Adding or swapping a
+// gate means: one gate definition plus one case usage.
 
 package GateOperations {
+    private import ScalarValues::*;
     public import QuantumComputing::quantumOperationDefinitions::*;
+
+    attribute pi : Real = 3.141592653589793;
 
     abstract action def SingleQubitGateApplication :> QuantumGate {
         doc /* Common pattern for gates of the universal set acting on one
-               qubit: fixes the acted-on multiplicity to one and the
-               standard slice names (beforeGate, afterGate) used by case
-               usages to state the state transition.
+               qubit: fixes the acted-on multiplicity to one. Case usages
+               carry their phases on a local caseQubit item.
                Source: QSysML gate-level mapping. */
         ref item redefines actsOn[1];
     }
 
     action def HadamardGate :> SingleQubitGateApplication {
         doc /* Single-qubit gate; the Hadamard operator interchanges the
-               computational (z) and x basis views of the qubit.
-               Operator: 1/sqrt(2) times the matrix with rows (1, 1)
-               and (1, -1). Exact action on the basis states:
-               (1, 0, 0) maps to (0.5, 0.5, 0), the plus state
-               |+> = (|0> + |1>)/sqrt(2); (0, 1, 0) maps to
-               (0.5, 0.5, pi), the minus state |-> = (|0> - |1>)/sqrt(2).
-               General action on the probabilities:
+               computational (z) and x basis views of the qubit. Exact
+               action on the basis states: the member-1 state of zBasis
+               maps to the member-1 state of xBasis (|0> to |+>), and
+               the member-2 state of zBasis to the member-2 state of
+               xBasis (|1> to |->). Equivalently, H maps a state's
+               z-description to the x-description carrying the same
+               probabilities and relative phase. General action on the
+               probabilities in one basis:
                p0' = 1/2 + sqrt(p0 p1) cos(phi) and
                p1' = 1/2 - sqrt(p0 p1) cos(phi); the output relative
                phase follows from the output amplitudes and stays in
@@ -54,7 +58,7 @@ package GateOperations {
                action in this model's representation: both probabilities
                are unchanged and pi/4 is added to the relative phase,
                (p0, p1, phi) maps to (p0, p1, phi + pi/4). On basis
-               states this is a global phase only, so the states are
+               states this is a global phase only, so the description is
                unchanged; on a superposition it is the visible phase
                effect: H-T-H on |0> yields measurement probabilities of
                about (0.854, 0.146), versus (1, 0) without the T.
@@ -67,6 +71,91 @@ package GateOperations {
                qubit.
                Source: Qiskit Textbook, ch02. */
         ref item redefines actsOn[2];
+    }
+
+    abstract action def GateSeries :> SingleQubitGateApplication {
+        doc /* An ordered series of gates composing one gate: the
+               composition mechanism of the composite gates. All member
+               gates act on the series' qubit, in the succession order
+               stated by the specializing gate.
+               Source: QSysML gate-level mapping. */
+        action gate[1..*] : QuantumGate;
+        bind gate.actsOn = actsOn;
+    }
+
+    action def ZGate :> GateSeries {
+        doc /* Pauli Z gate realized from the universal gate set:
+               Z = T T T T, exact, since T^4 = diag(1, exp(i pi)) =
+               diag(1, -1). The body shows the realization; the gate
+               remains one operation with one unitary operator.
+               Source: Qiskit Textbook, ch01/ch02. */
+        action t1 : TGate subsets gate;
+        action t2 : TGate subsets gate;
+        action t3 : TGate subsets gate;
+        action t4 : TGate subsets gate;
+        first t1 then t2;
+        first t2 then t3;
+        first t3 then t4;
+    }
+
+    action def XGate :> GateSeries {
+        doc /* Pauli X gate realized from the universal gate set:
+               X = H T T T T H, exact, since Z = T^4 and X = H Z H.
+               The body shows the realization; the gate remains one
+               operation with one unitary operator.
+               Source: Qiskit Textbook, ch01/ch02. */
+        action h1 : HadamardGate subsets gate;
+        action t1 : TGate subsets gate;
+        action t2 : TGate subsets gate;
+        action t3 : TGate subsets gate;
+        action t4 : TGate subsets gate;
+        action h2 : HadamardGate subsets gate;
+        first h1 then t1;
+        first t1 then t2;
+        first t2 then t3;
+        first t3 then t4;
+        first t4 then h2;
+    }
+
+    action def YGate :> GateSeries {
+        doc /* Pauli Y gate realized from the universal gate set:
+               Y is realized as Z then X, since X Z = i Y, exact up to
+               the global phase i, which this model leaves in the
+               native model as unobservable. The body shows the
+               realization; the gate remains one operation with one
+               unitary operator.
+               Source: Qiskit Textbook, ch01/ch02. */
+        action z : ZGate subsets gate;
+        action x : XGate subsets gate;
+        first z then x;
+    }
+
+    attribute zBasis : Basis {
+        doc /* The computational (z) basis of a single qubit; members
+               labelled |0> and |1> by convention.
+               Source: Qiskit Textbook, ch01. */
+        attribute :>> dimension = 2;
+        ref state zeroMember subsets memberState;
+        ref state oneMember subsets memberState;
+    }
+
+    attribute xBasis : Basis {
+        doc /* The x basis of a single qubit; members labelled |+> and
+               |-> by convention.
+               Source: Qiskit Textbook, ch01. */
+        attribute :>> dimension = 2;
+        ref state plusMember subsets memberState;
+        ref state minusMember subsets memberState;
+    }
+
+    action universalGateSet : UniversalGateSet {
+        doc /* The universal gate set {H, T, CNOT}. S is omitted as
+               redundant (S = T^2); the Pauli gates are generated
+               (Z = T^4, X = H T^4 H, Y = X Z up to global phase).
+               Source: /qp consult, 22 Oct 2026. */
+        ref action hadamardMember : HadamardGate subsets memberGate;
+        ref action tMember : TGate subsets memberGate;
+        ref action cnotMember : CNOTGate subsets memberGate;
     }
 
     part def QuantumComputer {
@@ -85,105 +174,186 @@ package GateOperations {
             ref item :>> actsOn = logicalQubit;
         }
 
-        // case usages: the state transition across each gate, stated as
-        // beforeGate and afterGate phases of the qubit; each state is
-        // given by its three values, named locally where a label helps
+        // case usages: one performance each, with a local view of the
+        // acted-on qubit carrying only that case's before/after phases
         action applyHadamardToZero : HadamardGate {
-            ref item :>> actsOn = logicalQubit {
+            doc /* H on the |0> state: certainty of member 1 in z becomes
+                   certainty of member 1 in x; same description, different
+                   basis.
+                   Source: Qiskit Textbook, ch01. */
+            item caseQubit : LogicalQubit {
                 timeslice beforeGate {
-                    item zeroState :>> quantumState {
-                        attribute :>> probabilityOfZero = 1.0;
-                        attribute :>> probabilityOfOne = 0.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
-                    item plusState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.5;
-                        attribute :>> probabilityOfOne = 0.5;
+                    state :>> quantumState {
+                        attribute :>> basis = xBasis;
+                        attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
             }
+            ref item :>> actsOn = caseQubit;
         }
 
         action applyHadamardToOne : HadamardGate {
-            ref item :>> actsOn = logicalQubit {
+            doc /* H on the |1> state: certainty of member 2 in z becomes
+                   certainty of member 2 in x.
+                   Source: Qiskit Textbook, ch01. */
+            item caseQubit : LogicalQubit {
                 timeslice beforeGate {
-                    item oneState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.0;
-                        attribute :>> probabilityOfOne = 1.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
-                    item minusState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.5;
-                        attribute :>> probabilityOfOne = 0.5;
-                        attribute :>> relativePhase = 3.141592653589793;
+                    state :>> quantumState {
+                        attribute :>> basis = xBasis;
+                        attribute :>> probability = (0.0, 1.0);
+                        attribute :>> relativePhase = 0.0;
                     }
                 }
             }
+            ref item :>> actsOn = caseQubit;
         }
 
-        // T on basis states: a global phase only, values unchanged
+        // T on basis states: global phase only, description unchanged
         action applyTToZero : TGate {
-            ref item :>> actsOn = logicalQubit {
+            doc /* T on the |0> state: the state is unchanged, since T
+                   adds only a global phase.
+                   Source: Qiskit Textbook, ch01. */
+            item caseQubit : LogicalQubit {
                 timeslice beforeGate {
-                    item zeroState :>> quantumState {
-                        attribute :>> probabilityOfZero = 1.0;
-                        attribute :>> probabilityOfOne = 0.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
-                    item zeroState :>> quantumState {
-                        attribute :>> probabilityOfZero = 1.0;
-                        attribute :>> probabilityOfOne = 0.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
             }
+            ref item :>> actsOn = caseQubit;
         }
 
         action applyTToOne : TGate {
-            ref item :>> actsOn = logicalQubit {
+            doc /* T on the |1> state: the state is unchanged, since
+                   exp(i pi/4)|1> equals |1> up to a global phase.
+                   Source: Qiskit Textbook, ch01. */
+            item caseQubit : LogicalQubit {
                 timeslice beforeGate {
-                    item oneState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.0;
-                        attribute :>> probabilityOfOne = 1.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
-                    item oneState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.0;
-                        attribute :>> probabilityOfOne = 1.0;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
             }
+            ref item :>> actsOn = caseQubit;
         }
 
-        // the case where T's action is visible: probabilities unchanged,
-        // relative phase advanced by pi/4
+        // the visible T case: probabilities unchanged, phase + pi/4
         action applyTToPlus : TGate {
-            ref item :>> actsOn = logicalQubit {
+            doc /* T on the |+> state: both probabilities unchanged, the
+                   relative phase advanced by pi/4.
+                   Source: Qiskit Textbook, ch01. */
+            item caseQubit : LogicalQubit {
                 timeslice beforeGate {
-                    item plusState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.5;
-                        attribute :>> probabilityOfOne = 0.5;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
-                    item tOnPlusState :>> quantumState {
-                        attribute :>> probabilityOfZero = 0.5;
-                        attribute :>> probabilityOfOne = 0.5;
-                        attribute :>> relativePhase = 0.7853981633974483;
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = pi / 4;
                     }
                 }
             }
+            ref item :>> actsOn = caseQubit;
+        }
+
+        // X on |0>, traced through the realization: the T gates walk
+        // the relative phase from 0 to pi in four quarter steps, and
+        // the final Hadamard converts the minus state into |1>
+        action applyXToZero : XGate {
+            doc /* X on the |0> state, traced through the realization
+                   X = H T^4 H: |0> -> (0.5, 0.5, 0) -> four T steps to
+                   (0.5, 0.5, pi) = |-> -> H -> |1>.
+                   Source: Qiskit Textbook, ch01/ch02. */
+            item caseQubit : LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (1.0, 0.0);
+                        attribute :>> relativePhase = 0.0;
+                    }
+                }
+                timeslice afterHadamard {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = 0.0;
+                    }
+                }
+                timeslice afterT1 {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = pi / 4;
+                    }
+                }
+                timeslice afterT2 {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = pi / 2;
+                    }
+                }
+                timeslice afterT3 {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = 3 * pi / 4;
+                    }
+                }
+                timeslice afterT4 {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = pi;
+                    }
+                }
+                timeslice afterGate {
+                    state :>> quantumState {
+                        attribute :>> basis = zBasis;
+                        attribute :>> probability = (0.0, 1.0);
+                        attribute :>> relativePhase = 0.0;
+                    }
+                }
+            }
+            ref item :>> actsOn = caseQubit;
         }
     }
 }
