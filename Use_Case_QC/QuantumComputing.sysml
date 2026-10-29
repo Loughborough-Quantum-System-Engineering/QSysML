@@ -120,48 +120,47 @@ package QuantumComputing {
 
     package quantumOperationDefinitions {
 
-    item def LogicalQubit {
-        doc /* The qubit at the logical level: the carrier that the gates of
-               the universal gate set act on. Its mapping to physical qubits
-               (error correction) is out of scope at this stage. The state
-               feature makes the qubit an exhibitor of its quantum state.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
-        state quantumState : Quantum::QuantumState;
-    }
+        item def LogicalQubit :> Quantum::Qubit {
+            doc /* The qubit at the logical level: the carrier that the gates of
+                 the universal gate set act on. Its mapping to physical qubits
+                (error correction) is out of scope at this stage. The state
+                feature makes the qubit an exhibitor of its quantum state.
+                Source: Quantum Ontology (BS ISO/IEC 4879). */
+        }
 
-    abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {
-        doc /* A quantum operation acts on one or more quantum systems and is
-               represented by one or more quantum operators, justified by the
-               Kraus representation. State preparation, quantum gates,
-               Hamiltonian evolution and quantum measurement specialise it.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
-        ref item actsOn : LogicalQubit[1..*];
-        attribute representedBy : Quantum::QuantumOperator[1..*];
-    }
+        abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {
+            doc /* A quantum operation acts on one or more quantum systems and is
+                 represented by one or more quantum operators, justified by the
+                Kraus representation. State preparation, quantum gates,
+                Hamiltonian evolution and quantum measurement specialise it.
+                Source: Quantum Ontology (BS ISO/IEC 4879). */
+            ref item actsOn : LogicalQubit[1..*];
+            attribute representedBy : Quantum::QuantumOperator[1..*];
+        }
 
-    abstract action def QuantumGate :> QuantumOperation {
-        doc /* A quantum operation represented by exactly one unitary operator.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
-        attribute : Quantum::UnitaryOperator[1] :>> representedBy;
-    }
+        abstract action def QuantumGate :> QuantumOperation {
+            doc /* A quantum operation represented by exactly one unitary operator.
+                 Source: Quantum Ontology (BS ISO/IEC 4879). */
+            attribute : Quantum::UnitaryOperator[1] :>> representedBy;
+        }
 
-    abstract action def GateSet {
-        doc /* A gate set: a named collection of gates. Modeled as an
-               action def because its members are gates, and this
-               toolchain accepts action-typed members only in action
-               defs.
-               Source: Quantum Ontology (BS ISO/IEC 4879), gate set. */
-        ref action memberGate : QuantumGate[0..*];
-    }
+        abstract action def GateSet {
+            doc /* A gate set: a named collection of gates. Modeled as an
+                 action def because its members are gates, and this
+                toolchain accepts action-typed members only in action
+                defs.
+                Source: Quantum Ontology (BS ISO/IEC 4879), gate set. */
+            ref action memberGate : QuantumGate[0..*];
+        }
 
-    action def UniversalGateSet :> GateSet {
-        doc /* A universal gate set: a gate set from which any unitary
-               can be approximated to any accuracy. Universality is a
-               theorem about a set, not a structural property; the
-               members carry it.
-               Source: Quantum Ontology (BS ISO/IEC 4879), universal
-               gate set; Qiskit Textbook, ch02; Nielsen-Chuang, ch04. */
-    }
+        action def UniversalGateSet :> GateSet {
+            doc /* A universal gate set: a gate set from which any unitary
+                 can be approximated to any accuracy. Universality is a
+                theorem about a set, not a structural property; the
+                members carry it.
+                Source: Quantum Ontology (BS ISO/IEC 4879), universal
+                gate set; Qiskit Textbook, ch02; Nielsen-Chuang, ch04. */
+        }
 
-}
+    }
 }

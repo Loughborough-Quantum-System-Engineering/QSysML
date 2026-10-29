@@ -8,6 +8,10 @@
 package Quantum {
     private import ScalarValues::*;
     private import CollectionFunctions::*;
+    private import RealFunctions::*;
+
+    abstract item def QuantumSystem { }
+
 
     attribute def Basis {
         doc /* A basis: the set of outcome states that defines a measurement.
@@ -34,8 +38,9 @@ package Quantum {
                by index. Probabilities with the relative phase determine a
                pure state up to global phase; the global phase and the
                amplitudes stay in the native model. The same state has
-               different probability descriptions in different bases. A
-               state that is a basis member is defined by its membership
+               different probability descriptions in different bases. The
+               probabilities are normalized: their sum is 1 (Born rule).
+               A state that is a basis member is defined by its membership
                and sets none of these features.
                Source: Quantum Ontology (BS ISO/IEC 4879), quantum state;
                Qiskit Textbook, ch01. */
@@ -43,7 +48,45 @@ package Quantum {
         attribute probability : Real[0..*] ordered;
         attribute relativePhase : Real;
         constraint { size(probability) == basis.dimension }
+        constraint { sum(probability) == 1.0 }
     }
+
+    item def Qubit :> QuantumSystem {
+        state quantumState : QuantumState {
+            attribute :>> basis {
+                attribute :>> dimension = 2;
+            }
+        }
+    }
+
+    item def Qutrit :> QuantumSystem {
+        state quantumState : QuantumState {
+            attribute :>> basis {
+                attribute :>> dimension = 3;
+            }
+        }
+    }
+
+
+    attribute def Entanglement {
+        doc /* The entanglement of an EntangleSystem's two subsystems:
+               measured by the Schmidt rank of the joint state across the
+               two-subsystem cut; 1 = separable, 2 or more = entangled.
+               Source: Nielsen-Chuang sec 1.3.6, ch 2.5. */
+        attribute schmidtRank : Integer;
+    }
+
+    item def EntangleSystem :> QuantumSystem {
+        doc /* A quantum system consisting of two subsystems whose joint
+               state is described by quantumState; entanglement records
+               the Schmidt rank across the two-subsystem cut.
+               Source: Quantum Ontology (BS ISO/IEC 4879), quantum system. */
+        item state1 : QuantumSystem;
+        item state2 : QuantumSystem;
+        state quantumState : QuantumState;
+        attribute entanglement : Entanglement;
+    }
+
 
     abstract attribute def QuantumOperator {
         doc /* Mathematical description of a quantum operator.
