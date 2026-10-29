@@ -243,8 +243,8 @@ package ConventionalClassicalInterface {
         flow from dac.analogOut to controlIqMixer.ifIn;
         flow from controlLocalOscillator.carrierOut to controlIqMixer.loIn;
         flow from controlIqMixer.rfOut to controlFilter.filterIn;
-        flow from controlFilter.filterOut to driveOut;
-        flow from qubitBias.biasOut to qubitBiasOut;
+        flow from controlFilter.filterOut to driveOut.payload;
+        flow from qubitBias.biasOut to qubitBiasOut.payload;
     }
     part dilutionRefrigeratorEnv : SuperconductingCommon::dilutionRefrigerator {
         doc 
@@ -500,15 +500,15 @@ package ConventionalClassicalInterface {
             flow from josephsonParametricAmplifier.signalOut to circulator.jpaIn;
             flow from circulator.isolatorOut to isolator.signalIn;
         }
-        flow from driveIn to secondLayer.driveAttenuator.attIn;
+        flow from driveIn.payload to secondLayer.driveAttenuator.attIn;
         flow from secondLayer.driveAttenuator.attOut to thirdLayer.driveAttenuator.attIn;
         flow from thirdLayer.driveAttenuator.attOut to fourthLayer.driveAttenuator.attIn;
         flow from fourthLayer.driveAttenuator.attOut to sixthLayer.qpu.driveIn;
-        flow from biasIn to thirdLayer.biasFilter.filterIn;
+        flow from biasIn.payload to thirdLayer.biasFilter.filterIn;
         flow from thirdLayer.biasFilter.filterOut to sixthLayer.qpu.biasIn;
-        flow from probeIn to sixthLayer.cavity.probeIn;
+        flow from probeIn.payload to sixthLayer.cavity.probeIn;
         flow from sixthLayer.isolator.signalOut to thirdLayer.lowNoiseAmplifier.ampIn;
-        flow from thirdLayer.lowNoiseAmplifier.ampOut to readoutOut;
+        flow from thirdLayer.lowNoiseAmplifier.ampOut to readoutOut.payload;
     }
     part conventionalReadoutSystem : QuantumComputing::physicalLayerDefinitions::classicalReadoutSystem {
         doc 
@@ -645,8 +645,8 @@ package ConventionalClassicalInterface {
         port readoutIn : ~QuantumComputing::physicalLayerDefinitions::microwavePort;
         flow from readoutAWGFPGA.envelopeOut to readoutIqMixer1.ifIn;
         flow from readoutLocalOscillator.carrierOut to readoutIqMixer1.loIn;
-        flow from readoutIqMixer1.rfOut to probeOut;
-        flow from readoutIn to lowNoiseAmplifier.ampIn;
+        flow from readoutIqMixer1.rfOut to probeOut.payload;
+        flow from readoutIn.payload to lowNoiseAmplifier.ampIn;
         flow from lowNoiseAmplifier.ampOut to readoutIqMixer2.rfIn;
         flow from readoutLocalOscillator.carrierOut to readoutIqMixer2.loIn;
         flow from readoutIqMixer2.ifOut to readoutFilter.filterIn;
