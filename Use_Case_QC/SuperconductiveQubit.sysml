@@ -19,8 +19,8 @@
 // Phi_0 (dimensionless), coherence times in [us], temperature in [mK].
 
 package SuperconductiveQubit {
-    public import ISQ::*;
-    public import SI::*;
+    private import ISQ::*;
+    private import SI::*;
 
     // Electrical connection point (non-directional circuit node terminal).
     port def Terminal;

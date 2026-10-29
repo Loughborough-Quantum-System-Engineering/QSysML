@@ -1,27 +1,25 @@
 // Superconducting-specific definitions shared across the superconducting
 // interface models (conventional, SFQ, cryo-CMOS, optical, wireless).
 package SuperconductingCommon {
-    public import QuantumComputing::physicalLayerDefinitions::*;
-    public import CommonInstruments::*;
-    public import ISQ::*;
-    public import SI::*;
+    private import ISQ::*;
+    private import SI::*;
 
     // ── Environment ──────────────────────────────────────────────────
-    part def dilutionRefrigerator :> qubitEnvironment;
+    part def dilutionRefrigerator :> QuantumComputing::physicalLayerDefinitions::qubitEnvironment;
 
     // ── Superconducting quantum devices ──────────────────────────────
-    part def josephsonParametricAmplifier :> amplifier;
-    part def josephsonPhotomultiplier :> transducer;
-    part def josephsonTransmissionLine :> transducer;
-    part def sfqConverter :> transducer;          // dc-SFQ / SFQ logic chip
-    part def cryoCMOSProcessor :> classicalProcessor;
+    part def josephsonParametricAmplifier :> QuantumComputing::physicalLayerDefinitions::amplifier;
+    part def josephsonPhotomultiplier :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def josephsonTransmissionLine :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def sfqConverter :> QuantumComputing::physicalLayerDefinitions::transducer;          // dc-SFQ / SFQ logic chip
+    part def cryoCMOSProcessor :> QuantumComputing::physicalLayerDefinitions::classicalProcessor;
 
     // ── SFQ signal + port ────────────────────────────────────────────
-    item def sfqPulse :> signal;
+    item def sfqPulse :> QuantumComputing::physicalLayerDefinitions::signal;
     port def sfqPort { out item payload : sfqPulse; }
 
     // ── Circulating current (Josephson photomultiplier readout) ──────
-    item def circulatingCurrent :> signal;
+    item def circulatingCurrent :> QuantumComputing::physicalLayerDefinitions::signal;
     port def circulatingCurrentPort { out item payload : circulatingCurrent; }
 
     // =====================================================================
@@ -30,16 +28,16 @@ package SuperconductingCommon {
 
 
     // ── Dispersive readout chain ─────────────────────────────────────
-    action def DispersiveInteraction :> ConvertSignal {
-        in item probeTone : microwaveSignal;
-        out item stateDependentResponse : microwaveSignal;
-        in item qubitCoupling : microwaveSignal;
+    action def DispersiveInteraction :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item probeTone : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item stateDependentResponse : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item qubitCoupling : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def SuppressBackaction :> ConditionSignal {
-        in item incoming : microwaveSignal;
-        out item forwarded : microwaveSignal;
+    action def SuppressBackaction :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item incoming : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item forwarded : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def AmplifyQuantumLimited :> Amplify;
+    action def AmplifyQuantumLimited :> CommonInstruments::Amplify;
 
     // ── Pulse engineering ────────────────────────────────────────────
     enum def pulseProtocol {
@@ -54,9 +52,9 @@ package SuperconductingCommon {
         derivativeRemovalByAdiabaticGate;
         dynamicalDecoupling;
     }
-    action def ApplyPulseProtocol :> ProcessData {
-        in item envelope : digitalData;
-        out item shapedEnvelope : digitalData;
+    action def ApplyPulseProtocol :> QuantumComputing::physicalLayerDefinitions::ProcessData {
+        in item envelope : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item shapedEnvelope : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute protocol : pulseProtocol;
         attribute controlFidelity;
     }
@@ -65,7 +63,7 @@ package SuperconductingCommon {
     }
 
     // ── Qubit operation ──────────────────────────────────────────────
-    action def ManipulateQubitState :> OperateOnQubit {
+    action def ManipulateQubitState :> QuantumComputing::physicalLayerDefinitions::OperateOnQubit {
         doc 
         /* Drive the qubit to a target state. By engineering the amplitude,
          * duration and shape of the microwave pulse it is possible to achieve
@@ -79,41 +77,41 @@ package SuperconductingCommon {
          *
          * Source: p.4, right column, paragraph 1.
          */
-        in item controlWaveform : microwaveSignal;
-        in item biasSupply : dcBias;
-        out item qubitResponse : microwaveSignal;
+        in item controlWaveform : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item biasSupply : QuantumComputing::physicalLayerDefinitions::dcBias;
+        out item qubitResponse : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute blochSphereState;
         attribute gateDuration : DurationValue;
     }
 
     // ── Single flux quantum chain ────────────────────────────────────
-    action def GenerateSfqPulseTrain :> ConvertSignal {
-        in item triggerTone : microwaveSignal;
+    action def GenerateSfqPulseTrain :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item triggerTone : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         out item pulseTrain : sfqPulse;
-        in item biasSupply : dcBias;
+        in item biasSupply : QuantumComputing::physicalLayerDefinitions::dcBias;
         attribute fluxQuantum;
         attribute pulseArea;
         attribute minimumPulseInterval : DurationValue;
         attribute pulseAmplitude;
         attribute pulseSeparation;
     }
-    action def MapStateToPhotonOccupation :> ConvertSignal {
-        in item qubitCoupling : microwaveSignal;
-        out item photonOccupation : microwaveSignal;
+    action def MapStateToPhotonOccupation :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item qubitCoupling : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item photonOccupation : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def DetectPhotonToCurrent :> ConvertSignal {
-        in item photonOccupation : microwaveSignal;
+    action def DetectPhotonToCurrent :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item photonOccupation : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         out item storedResult : circulatingCurrent;
     }
-    action def ModulateFluxonArrival :> ConvertSignal {
+    action def ModulateFluxonArrival :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
         in item storedResult : circulatingCurrent;
         out item fluxon : sfqPulse;
         attribute arrivalTimeDeviation;
     }
-    action def ConvertToSfqLogic :> ConvertSignal {
+    action def ConvertToSfqLogic :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
         in item fluxon : sfqPulse;
-        out item logicSignal : microwaveSignal;
-        in item biasSupply : dcBias;
+        out item logicSignal : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item biasSupply : QuantumComputing::physicalLayerDefinitions::dcBias;
         attribute clockSpeed : FrequencyValue;
         attribute bitSwitchEnergy;
     }

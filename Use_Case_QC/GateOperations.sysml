@@ -24,12 +24,10 @@
 
 package GateOperations {
     private import ScalarValues::*;
-    public import Quantum::*;
-    public import QuantumComputing::quantumOperationDefinitions::*;
 
     attribute pi : Real = 3.141592653589793;
 
-    abstract action def SingleQubitGateApplication :> QuantumGate {
+    abstract action def SingleQubitGateApplication :> QuantumComputing::quantumOperationDefinitions::QuantumGate {
         doc /* Common pattern for gates of the universal set acting on one
                qubit: fixes the acted-on multiplicity to one. Case usages
                carry their phases on a local caseQubit item.
@@ -68,7 +66,7 @@ package GateOperations {
                Source: Qiskit Textbook, ch01. */
     }
 
-    action def CNOTGate :> QuantumGate {
+    action def CNOTGate :> QuantumComputing::quantumOperationDefinitions::QuantumGate {
         doc /* Two-qubit gate; the controlled-NOT operator applies NOT to
                the target qubit conditioned on the state of the control
                qubit.
@@ -82,7 +80,7 @@ package GateOperations {
                gates act on the series' qubit, in the succession order
                stated by the specializing gate.
                Source: QSysML gate-level mapping. */
-        action gate[1..*] : QuantumGate;
+        action gate[1..*] : QuantumComputing::quantumOperationDefinitions::QuantumGate;
         bind gate.actsOn = actsOn;
     }
 
@@ -133,7 +131,7 @@ package GateOperations {
         first z then x;
     }
 
-    attribute zBasis : Basis {
+    attribute zBasis : Quantum::Basis {
         doc /* The computational (z) basis of a single qubit; members
                labelled |0> and |1> by convention.
                Source: Qiskit Textbook, ch01. */
@@ -142,7 +140,7 @@ package GateOperations {
         ref state oneMember subsets memberState;
     }
 
-    attribute xBasis : Basis {
+    attribute xBasis : Quantum::Basis {
         doc /* The x basis of a single qubit; members labelled |+> and
                |-> by convention.
                Source: Qiskit Textbook, ch01. */
@@ -151,7 +149,7 @@ package GateOperations {
         ref state minusMember subsets memberState;
     }
 
-    action universalGateSet : UniversalGateSet {
+    action universalGateSet : QuantumComputing::quantumOperationDefinitions::UniversalGateSet {
         doc /* The universal gate set {H, T, CNOT}. S is omitted as
                redundant (S = T^2); the Pauli gates are generated
                (Z = T^4, X = H T^4 H, Y = X Z up to global phase).
@@ -166,7 +164,7 @@ package GateOperations {
                quantum operations on its logical qubits. The mapping to the
                physical qubit hardware is out of scope at this stage.
                Source: Quantum Ontology (BS ISO/IEC 4879), quantum computer. */
-        item logicalQubit : LogicalQubit;
+        item logicalQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit;
 
         // general operations: what the computer performs on its qubit
         action applyHadamard : HadamardGate {
@@ -184,7 +182,7 @@ package GateOperations {
                    certainty of member 1 in x; same description, different
                    basis.
                    Source: Qiskit Textbook, ch01. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;
@@ -207,7 +205,7 @@ package GateOperations {
             doc /* H on the |1> state: certainty of member 2 in z becomes
                    certainty of member 2 in x.
                    Source: Qiskit Textbook, ch01. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;
@@ -231,7 +229,7 @@ package GateOperations {
             doc /* T on the |0> state: the state is unchanged, since T
                    adds only a global phase.
                    Source: Qiskit Textbook, ch01. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;
@@ -254,7 +252,7 @@ package GateOperations {
             doc /* T on the |1> state: the state is unchanged, since
                    exp(i pi/4)|1> equals |1> up to a global phase.
                    Source: Qiskit Textbook, ch01. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;
@@ -278,7 +276,7 @@ package GateOperations {
             doc /* T on the |+> state: both probabilities unchanged, the
                    relative phase advanced by pi/4.
                    Source: Qiskit Textbook, ch01. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;
@@ -305,7 +303,7 @@ package GateOperations {
                    X = H T^4 H: |0> -> (0.5, 0.5, 0) -> four T steps to
                    (0.5, 0.5, pi) = |-> -> H -> |1>.
                    Source: Qiskit Textbook, ch01/ch02. */
-            item caseQubit : LogicalQubit {
+            item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
                         attribute :>> basis = zBasis;

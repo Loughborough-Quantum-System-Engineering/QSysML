@@ -1,54 +1,53 @@
 // Technology-agnostic classical instruments, shared across qubit platforms.
 // Each specialises a functional role from QuantumComputing::physicalLayerDefinitions.
 package CommonInstruments {
-    public import QuantumComputing::physicalLayerDefinitions::*;
-    public import ISQ::*;
-    public import SI::*;
+    private import ISQ::*;
+    private import SI::*;
 
     // ── Signal sources ───────────────────────────────────────────────
-    part def awgFPGA :> signalSource;
-    part def localOscillator :> signalSource;
-    part def microwaveSource :> signalSource;
-    part def powerSource :> signalSource;
-    part def laserSource :> signalSource;
+    part def awgFPGA :> QuantumComputing::physicalLayerDefinitions::signalSource;
+    part def localOscillator :> QuantumComputing::physicalLayerDefinitions::signalSource;
+    part def microwaveSource :> QuantumComputing::physicalLayerDefinitions::signalSource;
+    part def powerSource :> QuantumComputing::physicalLayerDefinitions::signalSource;
+    part def laserSource :> QuantumComputing::physicalLayerDefinitions::signalSource;
 
     // ── Transducers (cross-domain conversion) ────────────────────────
-    part def digitalToAnalogConverter :> transducer;
-    part def analogToDigitalConverter :> transducer;
-    part def iqMixer :> transducer;
-    part def electroOpticalModulator :> transducer;
-    part def photodiode :> transducer;
-    part def photonCountingCamera :> transducer;
-    part def antenna :> transducer;
-    part def gratingCoupler :> transducer;
-    part def acoustoOpticDeflector :> transducer;
-    part def electroOpticDeflector :> transducer;
-    part def memsMirror :> transducer;
-    part def wavelengthConverter :> transducer;
+    part def digitalToAnalogConverter :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def analogToDigitalConverter :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def iqMixer :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def electroOpticalModulator :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def photodiode :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def photonCountingCamera :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def antenna :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def gratingCoupler :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def acoustoOpticDeflector :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def electroOpticDeflector :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def memsMirror :> QuantumComputing::physicalLayerDefinitions::transducer;
+    part def wavelengthConverter :> QuantumComputing::physicalLayerDefinitions::transducer;
 
     // ── Amplifiers ───────────────────────────────────────────────────
-    part def lowNoiseAmplifier :> amplifier;
-    part def microwaveAmplifier :> amplifier;
+    part def lowNoiseAmplifier :> QuantumComputing::physicalLayerDefinitions::amplifier;
+    part def microwaveAmplifier :> QuantumComputing::physicalLayerDefinitions::amplifier;
 
     // ── Passive signal conditioners ──────────────────────────────────
-    part def signalFilter :> signalConditioner;
+    part def signalFilter :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
     part def lowPassbandFilter;
-    part def attenuator :> signalConditioner;
-    part def lens :> signalConditioner;
-    part def circulator :> signalConditioner;
-    part def cavity :> signalConditioner;
-    part def beamSplitter :> signalConditioner;
+    part def attenuator :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
+    part def lens :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
+    part def circulator :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
+    part def cavity :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
+    part def beamSplitter :> QuantumComputing::physicalLayerDefinitions::signalConditioner;
 
     // ── Transmission media ───────────────────────────────────────────
-    part def waveguide :> transmissionMedium;
-    part def coaxialCable :> transmissionMedium;
-    part def opticalFiber :> transmissionMedium;
-    part def nanophotonicWaveguide :> transmissionMedium;
+    part def waveguide :> QuantumComputing::physicalLayerDefinitions::transmissionMedium;
+    part def coaxialCable :> QuantumComputing::physicalLayerDefinitions::transmissionMedium;
+    part def opticalFiber :> QuantumComputing::physicalLayerDefinitions::transmissionMedium;
+    part def nanophotonicWaveguide :> QuantumComputing::physicalLayerDefinitions::transmissionMedium;
 
     // ── Classical processing ─────────────────────────────────────────
-    part def fieldProgrammableGateArrays :> classicalProcessor;
-    part def physicalControlUnit :> classicalProcessor;
-    part def computerFPGA :> classicalProcessor;
+    part def fieldProgrammableGateArrays :> QuantumComputing::physicalLayerDefinitions::classicalProcessor;
+    part def physicalControlUnit :> QuantumComputing::physicalLayerDefinitions::classicalProcessor;
+    part def computerFPGA :> QuantumComputing::physicalLayerDefinitions::classicalProcessor;
 
     // =====================================================================
     // Actions
@@ -61,170 +60,170 @@ package CommonInstruments {
     // =====================================================================
 
     // ── Signal generation ────────────────────────────────────────────
-    action def GenerateEnvelope :> GenerateSignal {
-        out item envelope : digitalData;
+    action def GenerateEnvelope :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item envelope : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute pulseAmplitude;
         attribute pulseDuration : DurationValue;
         attribute pulseShape;
     }
-    action def GenerateCarrier :> GenerateSignal {
-        out item carrier : microwaveSignal;
+    action def GenerateCarrier :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item carrier : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute carrierFrequency : FrequencyValue;
     }
-    action def GenerateMicrowaveDrive :> GenerateSignal {
-        out item drive : microwaveSignal;
+    action def GenerateMicrowaveDrive :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item drive : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute driveFrequency : FrequencyValue;
     }
-    action def GenerateLaserBeam :> GenerateSignal {
-        out item beam : opticalSignal;
+    action def GenerateLaserBeam :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item beam : QuantumComputing::physicalLayerDefinitions::opticalSignal;
         attribute wavelength;
     }
-    action def SupplyBias :> GenerateSignal {
-        out item bias : dcBias;
+    action def SupplyBias :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item bias : QuantumComputing::physicalLayerDefinitions::dcBias;
         attribute voltageStability;
     }
-    action def IssueCommand :> GenerateSignal {
-        out item command : digitalData;
+    action def IssueCommand :> QuantumComputing::physicalLayerDefinitions::GenerateSignal {
+        out item command : QuantumComputing::physicalLayerDefinitions::digitalData;
     }
 
     // ── Transduction ─────────────────────────────────────────────────
-    action def ConvertDigitalToAnalog :> ConvertSignal {
-        in item digitalInput : digitalData;
-        out item analogOutput : microwaveSignal;
+    action def ConvertDigitalToAnalog :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item digitalInput : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item analogOutput : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute precision;
         attribute updateRate : FrequencyValue;
     }
-    action def ConvertAnalogToDigital :> ConvertSignal {
-        in item analogInput : microwaveSignal;
-        out item digitalOutput : digitalData;
+    action def ConvertAnalogToDigital :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item analogInput : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item digitalOutput : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute resolution;
     }
-    action def Upconvert :> ConvertSignal {
-        in item baseband : signal;
-        out item waveform : microwaveSignal;
-        in item carrier : microwaveSignal;
+    action def Upconvert :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item baseband : QuantumComputing::physicalLayerDefinitions::signal;
+        out item waveform : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item carrier : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def Downconvert :> ConvertSignal {
-        in item waveform : microwaveSignal;
-        out item baseband : microwaveSignal;
-        in item referenceCarrier : microwaveSignal;
+    action def Downconvert :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item waveform : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item baseband : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item referenceCarrier : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def RadiateBeam :> ConvertSignal {
-        in item feed : microwaveSignal;
-        out item beam : signal;
+    action def RadiateBeam :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item feed : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item beam : QuantumComputing::physicalLayerDefinitions::signal;
     }
-    action def ReceiveBeam :> ConvertSignal {
-        in item beam : signal;
-        out item feed : microwaveSignal;
+    action def ReceiveBeam :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item beam : QuantumComputing::physicalLayerDefinitions::signal;
+        out item feed : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def EncodeOntoOptical :> ConvertSignal {
-        in item electricalInput : microwaveSignal;
-        out item modulatedLight : opticalSignal;
-        in item opticalCarrier : opticalSignal;
+    action def EncodeOntoOptical :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item electricalInput : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item modulatedLight : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        in item opticalCarrier : QuantumComputing::physicalLayerDefinitions::opticalSignal;
         attribute extinctionRatio;
         attribute insertionLoss;
         attribute powerConsumption;
         attribute modulationEfficiency;
     }
-    action def RecoverElectricalSignal :> ConvertSignal {
-        in item modulatedLight : opticalSignal;
-        out item electricalOutput : microwaveSignal;
-        in item bias : dcBias;
+    action def RecoverElectricalSignal :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item modulatedLight : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item electricalOutput : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        in item bias : QuantumComputing::physicalLayerDefinitions::dcBias;
         attribute detectionWavelength;
         attribute outputImpedance;
         attribute bandwidth;
     }
-    action def ConvertWavelength :> ConvertSignal {
-        in item inputPhoton : opticalSignal;
-        out item outputPhoton : opticalSignal;
-        in item pumpBeam : opticalSignal;
+    action def ConvertWavelength :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item inputPhoton : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item outputPhoton : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        in item pumpBeam : QuantumComputing::physicalLayerDefinitions::opticalSignal;
     }
-    action def SynthesiseWaveform :> ConvertSignal {
+    action def SynthesiseWaveform :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
         // a signal generator driven by a digital command, as distinct from a
         // free-running source
-        in item command : digitalData;
-        out item waveform : microwaveSignal;
+        in item command : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item waveform : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute driveFrequency : FrequencyValue;
     }
-    action def DeflectBeam :> ConvertSignal {
-        in item light : opticalSignal;
-        out item deflectedLight : opticalSignal;
-        in item drive : microwaveSignal;
+    action def DeflectBeam :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item light : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item deflectedLight : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        in item drive : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
-    action def DetectPhotons :> ConvertSignal {
-        in item light : opticalSignal;
-        out item count : digitalData;
+    action def DetectPhotons :> QuantumComputing::physicalLayerDefinitions::ConvertSignal {
+        in item light : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item count : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute quantumEfficiency;
         attribute darkCountRate : FrequencyValue;
         attribute exposureTime : DurationValue;
     }
 
     // ── Amplification ────────────────────────────────────────────────
-    action def Amplify :> AmplifySignal {
-        in item weakSignal : microwaveSignal;
-        out item amplifiedSignal : microwaveSignal;
+    action def Amplify :> QuantumComputing::physicalLayerDefinitions::AmplifySignal {
+        in item weakSignal : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item amplifiedSignal : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
     }
 
     // ── Signal conditioning ──────────────────────────────────────────
-    action def FilterSignal :> ConditionSignal {
-        in item unfiltered : signal;
-        out item filtered : signal;
+    action def FilterSignal :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item unfiltered : QuantumComputing::physicalLayerDefinitions::signal;
+        out item filtered : QuantumComputing::physicalLayerDefinitions::signal;
     }
-    action def AttenuateSignal :> ConditionSignal {
-        in item unattenuated : signal;
-        out item attenuated : signal;
+    action def AttenuateSignal :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item unattenuated : QuantumComputing::physicalLayerDefinitions::signal;
+        out item attenuated : QuantumComputing::physicalLayerDefinitions::signal;
     }
-    action def SteerBeam :> ConditionSignal {
-        in item beam : opticalSignal;
-        out item steeredBeam : opticalSignal;
+    action def SteerBeam :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item beam : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item steeredBeam : QuantumComputing::physicalLayerDefinitions::opticalSignal;
         attribute steeringRange;
     }
-    action def FocusBeam :> ConditionSignal {
-        in item incomingBeam : signal;
-        out item focusedBeam : signal;
+    action def FocusBeam :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item incomingBeam : QuantumComputing::physicalLayerDefinitions::signal;
+        out item focusedBeam : QuantumComputing::physicalLayerDefinitions::signal;
         attribute beamDiameter;
     }
-    action def CollectLight :> ConditionSignal {
-        in item emittedLight : opticalSignal;
-        out item collectedLight : opticalSignal;
+    action def CollectLight :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item emittedLight : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item collectedLight : QuantumComputing::physicalLayerDefinitions::opticalSignal;
         attribute collectionEfficiency;
         attribute transmission;
     }
-    action def RouteSignal :> ConditionSignal {
-        in item input : signal;
-        out item output : signal;
+    action def RouteSignal :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item input : QuantumComputing::physicalLayerDefinitions::signal;
+        out item output : QuantumComputing::physicalLayerDefinitions::signal;
     }
-    action def Resonate :> ConditionSignal {
-        in item input : microwaveSignal;
-        out item output : microwaveSignal;
+    action def Resonate :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item input : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
+        out item output : QuantumComputing::physicalLayerDefinitions::microwaveSignal;
         attribute qualityFactor;
     }
-    action def SplitBeam :> ConditionSignal {
-        in item input : opticalSignal;
-        out item outputA : opticalSignal;
-        out item outputB : opticalSignal;
+    action def SplitBeam :> QuantumComputing::physicalLayerDefinitions::ConditionSignal {
+        in item input : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item outputA : QuantumComputing::physicalLayerDefinitions::opticalSignal;
+        out item outputB : QuantumComputing::physicalLayerDefinitions::opticalSignal;
     }
 
     // ── Classical processing ─────────────────────────────────────────
-    action def EvaluateMeasurement :> ProcessData {
+    action def EvaluateMeasurement :> QuantumComputing::physicalLayerDefinitions::ProcessData {
         // intermediate evaluation whose result feeds a further action
-        in item measurement : digitalData;
-        out item result : digitalData;
+        in item measurement : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item result : QuantumComputing::physicalLayerDefinitions::digitalData;
     }
-    action def AnalyseMeasurement :> ProcessData {
+    action def AnalyseMeasurement :> QuantumComputing::physicalLayerDefinitions::ProcessData {
         // terminal analysis yielding the qubit state
-        in item measurement : digitalData;
-        out item qubitState : digitalData;
+        in item measurement : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item qubitState : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute readoutFidelity;
         attribute detectionWindow : DurationValue;
     }
-    action def ApplyFeedback :> ProcessData {
-        in item measurement : digitalData;
-        out item feedback : digitalData;
+    action def ApplyFeedback :> QuantumComputing::physicalLayerDefinitions::ProcessData {
+        in item measurement : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item feedback : QuantumComputing::physicalLayerDefinitions::digitalData;
         attribute feedbackLatency : DurationValue;
     }
-    action def BufferStream :> ProcessData {
-        in item streamIn : digitalData;
-        out item streamOut : digitalData;
+    action def BufferStream :> QuantumComputing::physicalLayerDefinitions::ProcessData {
+        in item streamIn : QuantumComputing::physicalLayerDefinitions::digitalData;
+        out item streamOut : QuantumComputing::physicalLayerDefinitions::digitalData;
     }
 }

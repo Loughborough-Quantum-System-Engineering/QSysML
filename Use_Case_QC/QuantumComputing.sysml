@@ -1,7 +1,6 @@
 package QuantumComputing {
     private import ScalarValues::*;
     private import CollectionFunctions::*;
-    private import Quantum::*;
 
     package physicalLayerDefinitions {
         // ── Subsystem roles ──────────────────────────────────────────
@@ -127,7 +126,7 @@ package QuantumComputing {
                (error correction) is out of scope at this stage. The state
                feature makes the qubit an exhibitor of its quantum state.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
-        state quantumState : QuantumState;
+        state quantumState : Quantum::QuantumState;
     }
 
     abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {
@@ -137,13 +136,13 @@ package QuantumComputing {
                Hamiltonian evolution and quantum measurement specialise it.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
         ref item actsOn : LogicalQubit[1..*];
-        attribute representedBy : QuantumOperator[1..*];
+        attribute representedBy : Quantum::QuantumOperator[1..*];
     }
 
     abstract action def QuantumGate :> QuantumOperation {
         doc /* A quantum operation represented by exactly one unitary operator.
                Source: Quantum Ontology (BS ISO/IEC 4879). */
-        attribute : UnitaryOperator[1] :>> representedBy;
+        attribute : Quantum::UnitaryOperator[1] :>> representedBy;
     }
 
     abstract action def GateSet {
