@@ -22,10 +22,35 @@
 // run, so no case's timeline touches another's. Adding or swapping a
 // gate means: one gate definition plus one case usage.
 
-package GateOperations {
+package BasicSetup {
     private import ScalarValues::*;
 
     attribute pi : Real = 3.141592653589793;
+
+
+    attribute zBasis : Quantum::Basis {
+        doc /* The computational (z) basis of a single qubit; members
+               labelled |0> and |1> by convention.
+               Source: Qiskit Textbook, ch01. */
+        attribute :>> dimension = 2;
+        ref state zeroMember subsets memberState;
+        ref state oneMember subsets memberState;
+    }
+
+    attribute xBasis : Quantum::Basis {
+        doc /* The x basis of a single qubit; members labelled |+> and
+               |-> by convention.
+               Source: Qiskit Textbook, ch01. */
+        attribute :>> dimension = 2;
+        ref state plusMember subsets memberState;
+        ref state minusMember subsets memberState;
+    }
+
+    attribute zRegisterBasis : Quantum::Basis {
+        doc /* Two-qubit computational basis; index convention:
+               1 = |00>, 2 = |01>, 3 = |10>, 4 = |11>. */
+        attribute :>> dimension = 4;
+    }
 
     abstract action def SingleQubitGateApplication :> QuantumComputing::quantumOperationDefinitions::QuantumGate {
         doc /* Common pattern for gates of the universal set acting on one
@@ -35,6 +60,22 @@ package GateOperations {
         ref item redefines actsOn[1];
     }
 
+    abstract action def twoQubitGateApplication :>  QuantumComputing::quantumOperationDefinitions::QuantumGate {}
+
+}
+
+package GateOperation {
+    private import ScalarValues::*;
+
+    action def universalGateSet : QuantumComputing::quantumOperationDefinitions::UniversalGateSet {
+        doc /* The universal gate set {H, T, CNOT}. S is omitted as
+               redundant (S = T^2); the Pauli gates are generated
+               (Z = T^4, X = H T^4 H, Y = X Z up to global phase).
+               Source: /qp consult, 22 Oct 2026. */
+        ref action hadamardMember : HadamardGate subsets memberGate;
+        ref action tMember : TGate subsets memberGate;
+        ref action cnotMember : CNOTGate subsets memberGate;
+    }
     action def HadamardGate :> SingleQubitGateApplication {
         doc /* Single-qubit gate; the Hadamard operator interchanges the
                computational (z) and x basis views of the qubit. Exact
@@ -66,12 +107,28 @@ package GateOperations {
                Source: Qiskit Textbook, ch01. */
     }
 
-    action def CNOTGate :> QuantumComputing::quantumOperationDefinitions::QuantumGate {
-        doc /* Two-qubit gate; the controlled-NOT operator applies NOT to
-               the target qubit conditioned on the state of the control
-               qubit.
+    action def CNOTGate :> twoQubitGateApplication {
+        doc /* Controlled-NOT: if the control qubit is in state |0>, the
+               target is unchanged; otherwise the target flips (X). For
+               basis-state controls this is reversible classical logic;
+               for superposition controls the conditional flip is what
+               can create entanglement (modeled at the usage level; the
+               three scenario classes below state when it does and when
+               it does not).
                Source: Qiskit Textbook, ch02. */
         ref item redefines actsOn[2];
+        ref item control subsets actsOn;
+        ref item target subsets actsOn;
+        constraint { control.quantumState.basis == BasicSetup::zBasis }
+        constraint { target.quantumState.basis == BasicSetup::zBasis }
+
+        if control.quantumState.probability[1] == 1.0 {
+            // control |0>: the target is unchanged
+        } else if control.quantumState.probability[2] == 1.0 {
+            action flipTarget : XGate {
+                ref item :>> actsOn = target;
+            }
+        } else { }
     }
 
     abstract action def GateSeries :> SingleQubitGateApplication {
@@ -131,33 +188,7 @@ package GateOperations {
         first z then x;
     }
 
-    attribute zBasis : Quantum::Basis {
-        doc /* The computational (z) basis of a single qubit; members
-               labelled |0> and |1> by convention.
-               Source: Qiskit Textbook, ch01. */
-        attribute :>> dimension = 2;
-        ref state zeroMember subsets memberState;
-        ref state oneMember subsets memberState;
-    }
 
-    attribute xBasis : Quantum::Basis {
-        doc /* The x basis of a single qubit; members labelled |+> and
-               |-> by convention.
-               Source: Qiskit Textbook, ch01. */
-        attribute :>> dimension = 2;
-        ref state plusMember subsets memberState;
-        ref state minusMember subsets memberState;
-    }
-
-    action universalGateSet : QuantumComputing::quantumOperationDefinitions::UniversalGateSet {
-        doc /* The universal gate set {H, T, CNOT}. S is omitted as
-               redundant (S = T^2); the Pauli gates are generated
-               (Z = T^4, X = H T^4 H, Y = X Z up to global phase).
-               Source: /qp consult, 22 Oct 2026. */
-        ref action hadamardMember : HadamardGate subsets memberGate;
-        ref action tMember : TGate subsets memberGate;
-        ref action cnotMember : CNOTGate subsets memberGate;
-    }
 
     part def QuantumComputer {
         doc /* The quantum computer at the logical level: the performer of
@@ -185,14 +216,14 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
                     state :>> quantumState {
-                        attribute :>> basis = xBasis;
+                        attribute :>> basis = BasicSetup::xBasis;
                         attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
@@ -208,14 +239,14 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
                     state :>> quantumState {
-                        attribute :>> basis = xBasis;
+                        attribute :>> basis = BasicSetup::xBasis;
                         attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
@@ -232,14 +263,14 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
@@ -255,14 +286,14 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
@@ -271,7 +302,7 @@ package GateOperations {
             ref item :>> actsOn = caseQubit;
         }
 
-        // the visible T case: probabilities unchanged, phase + pi/4
+        // the visible T case: probabilities unchanged, phase + BasicSetup::pi/4
         action applyTToPlus : TGate {
             doc /* T on the |+> state: both probabilities unchanged, the
                    relative phase advanced by pi/4.
@@ -279,16 +310,16 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
-                        attribute :>> relativePhase = pi / 4;
+                        attribute :>> relativePhase = BasicSetup::pi / 4;
                     }
                 }
             }
@@ -296,7 +327,7 @@ package GateOperations {
         }
 
         // X on |0>, traced through the realization: the T gates walk
-        // the relative phase from 0 to pi in four quarter steps, and
+        // the relative phase from 0 to BasicSetup::pi in four quarter steps, and
         // the final Hadamard converts the minus state into |1>
         action applyXToZero : XGate {
             doc /* X on the |0> state, traced through the realization
@@ -306,55 +337,231 @@ package GateOperations {
             item caseQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
                 timeslice beforeGate {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (1.0, 0.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterHadamard {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
                 timeslice afterT1 {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
-                        attribute :>> relativePhase = pi / 4;
+                        attribute :>> relativePhase = BasicSetup::pi / 4;
                     }
                 }
                 timeslice afterT2 {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
-                        attribute :>> relativePhase = pi / 2;
+                        attribute :>> relativePhase = BasicSetup::pi / 2;
                     }
                 }
                 timeslice afterT3 {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
-                        attribute :>> relativePhase = 3 * pi / 4;
+                        attribute :>> relativePhase = 3 * BasicSetup::pi / 4;
                     }
                 }
                 timeslice afterT4 {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.5, 0.5);
-                        attribute :>> relativePhase = pi;
+                        attribute :>> relativePhase = BasicSetup::pi;
                     }
                 }
-                timeslice afterGate {
+                timeslice afterHadmard2 {
                     state :>> quantumState {
-                        attribute :>> basis = zBasis;
+                        attribute :>> basis = BasicSetup::zBasis;
                         attribute :>> probability = (0.0, 1.0);
                         attribute :>> relativePhase = 0.0;
                     }
                 }
             }
             ref item :>> actsOn = caseQubit;
+        }
+
+        // ── CNOT scenario class (a): basis control — reversible
+        // classical logic; no entanglement at any point ──
+        action applyCNOTBasisControlFlip : CNOTGate {
+            doc /* Control |1>, target |0>: the target flips to |1>.
+                   Both qubits carry their own descriptions before and
+                   after; no entanglement is created.
+                   Source: Qiskit Textbook, ch02. */
+            item caseControl : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.0, 1.0);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+            }
+            item caseTarget : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (1.0, 0.0);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+                timeslice afterGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.0, 1.0);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+            }
+            ref item :>> control = caseControl;
+            ref item :>> target = caseTarget;
+        }
+
+        // ── CNOT scenario class (b): superposed control on a Z-basis
+        // target — the entangling case; one entangled joint state after ──
+        action applyCNOTEntangling : CNOTGate {
+            doc /* Control |+>, target |0>: before the gate, two distinct
+                   qubits, each with its own state (separable product,
+                   entangled = false). After the gate, one entangled
+                   joint state, Bell Phi+ (entangled = true); the qubit
+                   descriptions exist only in the before phase, since an
+                   entangled subsystem has no pure state of its own.
+                   Source: Qiskit Textbook, ch02. */
+            item caseControl : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+            }
+            item caseTarget : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (1.0, 0.0);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+            }
+            item casePair : Quantum::QuantumSystem {
+                doc /* The joint descriptions are slice-local states: each
+                       phase owns its own description, so no feature is
+                       re-redefined across phases. */
+                ref item pairControl :>> subsystem = caseControl;
+                ref item pairTarget :>> subsystem = caseTarget;
+                timeslice beforeGate {
+                    state beforeJoint : Quantum::QuantumState {
+                        attribute :>> basis = BasicSetup::zRegisterBasis;
+                        attribute :>> probability = (0.5, 0.5, 0.0, 0.0);
+                        attribute :>> relativePhase = (0.0, 0.0, 0.0);
+                    }
+                    attribute beforeRecord : Quantum::Entanglement subsets entanglement {
+                        ref item controlSide :>> among = caseControl;
+                        ref item targetSide :>> among = caseTarget;
+                        attribute :>> entangled = false;
+                    }
+                }
+                timeslice afterGate {
+                    state afterJoint : Quantum::QuantumState {
+                        attribute :>> basis = BasicSetup::zRegisterBasis;
+                        attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
+                        attribute :>> relativePhase = (0.0, 0.0, 0.0);
+                    }
+                    attribute afterRecord : Quantum::Entanglement subsets entanglement {
+                        ref item controlSide :>> among = caseControl;
+                        ref item targetSide :>> among = caseTarget;
+                        attribute :>> entangled = true;
+                    }
+                }
+            }
+            ref item :>> control = caseControl;
+            ref item :>> target = caseTarget;
+        }
+
+        // ── CNOT scenario class (c): superposed control on an
+        // X-eigenstate target — no entanglement; the phase kickback ──
+        action applyCNOTKickback : CNOTGate {
+            doc /* Control |+>, target |->: the target is an X-eigenstate,
+                   so the conditional flip does nothing to it; instead the
+                   control absorbs the phase (|+> becomes |->). Product
+                   throughout, entangled = false in both phases; the
+                   joint description shows the phase kickback as the
+                   relative phases moving from 0 to pi.
+                   Source: Qiskit Textbook, ch02. */
+            item caseControl : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = (0.0);
+                    }
+                }
+                timeslice afterGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = (BasicSetup::pi);
+                    }
+                }
+            }
+            item caseTarget : QuantumComputing::quantumOperationDefinitions::LogicalQubit {
+                timeslice beforeGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = (BasicSetup::pi);
+                    }
+                }
+                timeslice afterGate {
+                    state :>> quantumState {
+                        attribute :>> basis = BasicSetup::zBasis;
+                        attribute :>> probability = (0.5, 0.5);
+                        attribute :>> relativePhase = (BasicSetup::pi);
+                    }
+                }
+            }
+            item casePair : Quantum::QuantumSystem {
+                doc /* The joint descriptions are slice-local states: each
+                       phase owns its own description, so no feature is
+                       re-redefined across phases. */
+                ref item pairControl :>> subsystem = caseControl;
+                ref item pairTarget :>> subsystem = caseTarget;
+                timeslice beforeGate {
+                    state beforeJoint : Quantum::QuantumState {
+                        attribute :>> basis = BasicSetup::zRegisterBasis;
+                        attribute :>> probability = (0.25, 0.25, 0.25, 0.25);
+                        attribute :>> relativePhase = (0.0, 0.0, 0.0);
+                    }
+                    attribute beforeRecord : Quantum::Entanglement subsets entanglement {
+                        ref item controlSide :>> among = caseControl;
+                        ref item targetSide :>> among = caseTarget;
+                        attribute :>> entangled = false;
+                    }
+                }
+                timeslice afterGate {
+                    state afterJoint : Quantum::QuantumState {
+                        attribute :>> basis = BasicSetup::zRegisterBasis;
+                        attribute :>> probability = (0.25, 0.25, 0.25, 0.25);
+                        attribute :>> relativePhase = (BasicSetup::pi, BasicSetup::pi, 0.0);
+                    }
+                    attribute afterRecord : Quantum::Entanglement subsets entanglement {
+                        ref item controlSide :>> among = caseControl;
+                        ref item targetSide :>> among = caseTarget;
+                        attribute :>> entangled = false;
+                    }
+                }
+            }
+            ref item :>> control = caseControl;
+            ref item :>> target = caseTarget;
         }
     }
 }

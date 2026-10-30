@@ -113,10 +113,6 @@ package QuantumComputing {
         action logicalOperations;
     }
 
-    // reference
-// @standard{bsisoiec4879,
-//   title = {...},  // completed once you give the exact edition
-// }
 
     package quantumOperationDefinitions {
 
@@ -140,7 +136,12 @@ package QuantumComputing {
 
         abstract action def QuantumGate :> QuantumOperation {
             doc /* A quantum operation represented by exactly one unitary operator.
-                 Source: Quantum Ontology (BS ISO/IEC 4879). */
+                 Note: an intermediate layer for trace-preserving quantum
+                operations (CPTP maps, e.g. TracePreservingOperation) may be
+                inserted between QuantumOperation and this def when the
+                physical realization layer (noisy gates) is modeled.
+                 Source: Quantum Ontology (BS ISO/IEC 4879);
+                Nielsen-Chuang ch 8.2. */
             attribute : Quantum::UnitaryOperator[1] :>> representedBy;
         }
 

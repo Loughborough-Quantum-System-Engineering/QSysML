@@ -10,7 +10,14 @@ package Quantum {
     private import CollectionFunctions::*;
     private import RealFunctions::*;
 
-    abstract item def QuantumSystem { }
+    abstract item def QuantumSystem {
+        ref item subsystem : QuantumSystem[0..*] ordered;
+        state quantumState : QuantumState;
+        attribute entanglement : Entanglement[0..*];
+        // dimension law: a composite system's basis dimension is the
+        // product of its subsystems' basis dimensions (leaves exempt)
+        constraint { size(subsystem) == 0 or quantumState.basis.dimension == product(subsystem.quantumState.basis.dimension) }
+    }
 
 
     attribute def Basis {
@@ -33,9 +40,11 @@ package Quantum {
     state def QuantumState {
         doc /* The state of a quantum system, expressed relative to a basis:
                one Born probability per basis member, by index, plus the
-               relative phase of member 2's component relative to member 1,
-               in radians. probability[i] corresponds to basis.memberState[i]
-               by index. Probabilities with the relative phase determine a
+               relative phases of the other members' components relative to
+               member 1, in radians: probability[i] corresponds to
+               basis.memberState[i] by index, and relativePhase[i] is the
+               phase of basis member i+1 relative to member 1 (so the
+               collection has basis.dimension - 1 entries). Probabilities with the relative phase determine a
                pure state up to global phase; the global phase and the
                amplitudes stay in the native model. The same state has
                different probability descriptions in different bases. The
@@ -46,34 +55,38 @@ package Quantum {
                Qiskit Textbook, ch01. */
         attribute basis : Basis;
         attribute probability : Real[0..*] ordered;
-        attribute relativePhase : Real;
+        attribute relativePhase : Real[0..*] ordered;
         constraint { size(probability) == basis.dimension }
+        constraint { size(relativePhase) == basis.dimension - 1 }
         constraint { sum(probability) == 1.0 }
     }
 
     item def Qubit :> QuantumSystem {
-        state quantumState : QuantumState {
-            attribute :>> basis {
-                attribute :>> dimension = 2;
-            }
-        }
+        // dimension law: a composite of n qubits has basis dimension 2^n
+        // (leaves: dimension free, set by the bound basis)
+        constraint { size(subsystem) == 0 or quantumState.basis.dimension == 2^size(subsystem) }
     }
 
     item def Qutrit :> QuantumSystem {
-        state quantumState : QuantumState {
-            attribute :>> basis {
-                attribute :>> dimension = 3;
-            }
-        }
+        // dimension law: a composite of n qutrits has basis dimension 3^n
+        // (leaves: dimension free, set by the bound basis)
+        constraint { size(subsystem) == 0 or quantumState.basis.dimension == 3^size(subsystem) }
     }
 
 
     attribute def Entanglement {
-        doc /* The entanglement of an EntangleSystem's two subsystems:
-               measured by the Schmidt rank of the joint state across the
-               two-subsystem cut; 1 = separable, 2 or more = entangled.
-               Source: Nielsen-Chuang sec 1.3.6, ch 2.5. */
-        attribute schmidtRank : Integer;
+        doc /* An entanglement relation of a quantum system: names the
+               subsystems that are entangled with each other (among), and
+               asserts whether the system's joint state is entangled
+               across their cut (true) or separable (false). The named
+               subsystems are the partition the statement is relative to;
+               the record is stated on the system that carries the joint
+               description, typically the common ancestor of the named
+               subsystems, wherever they sit in the containment tree.
+               Source: Quantum Ontology (BS ISO/IEC 4879);
+               Nielsen-Chuang sec 1.3.6, ch 2.5. */
+        ref item among : QuantumSystem[2..*] ordered;
+        attribute entangled : Boolean;
     }
 
     item def EntangleSystem :> QuantumSystem {
@@ -83,8 +96,7 @@ package Quantum {
                Source: Quantum Ontology (BS ISO/IEC 4879), quantum system. */
         item state1 : QuantumSystem;
         item state2 : QuantumSystem;
-        state quantumState : QuantumState;
-        attribute entanglement : Entanglement;
+        attribute :>> entanglement[1];
     }
 
 
