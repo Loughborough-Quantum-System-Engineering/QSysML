@@ -33,13 +33,12 @@ package Example {
         state :>> quantumState {
             attribute :>> basis = computationalBasis4;
             attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
-            attribute :>> relativePhase = 0.0;
-        }
-
-        attribute :>> entanglement {
-            ref item bellSide1 :>> among = q1;
-            ref item bellSide2 :>> among = q2;
-            attribute :>> entangled = true;
+            attribute :>> relativePhase = (0.0, 0.0, 0.0);
+            attribute :>> entanglement {
+                ref item bellSide1 :>> spannedSubsystems = q1;
+                ref item bellSide2 :>> spannedSubsystems = q2;
+                attribute :>> entangled = true;
+            }
         }
     }
 
@@ -75,7 +74,7 @@ package Example {
                 attribute :>> dimension = 4;
             }
             attribute :>> probability = (0.5, 0.5, 0.0, 0.0);
-            attribute :>> relativePhase = 0.0;
+            attribute :>> relativePhase = (0.0, 0.0, 0.0);
         }
     }
 
@@ -120,13 +119,12 @@ package Example {
                     attribute :>> dimension = 4;
                 }
                 attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
-                attribute :>> relativePhase = 0.0;
-            }
-
-            attribute :>> entanglement {
-                ref item aliceSide :>> among = alice.interfaceQubit;
-                ref item bobSide :>> among = bob.interfaceQubit;
-                attribute :>> entangled = true;
+                attribute :>> relativePhase = (0.0, 0.0, 0.0);
+                attribute :>> entanglement {
+                    ref item aliceSide :>> spannedSubsystems = alice.interfaceQubit;
+                    ref item bobSide :>> spannedSubsystems = bob.interfaceQubit;
+                    attribute :>> entangled = true;
+                }
             }
         }
     }

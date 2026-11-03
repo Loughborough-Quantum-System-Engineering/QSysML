@@ -33,8 +33,8 @@ package BasicSetup {
                labelled |0> and |1> by convention.
                Source: Qiskit Textbook, ch01. */
         attribute :>> dimension = 2;
-        ref state zeroMember subsets memberState;
-        ref state oneMember subsets memberState;
+        ref state zeroState subsets memberState;
+        ref state oneState subsets memberState;
     }
 
     attribute xBasis : Quantum::Basis {
@@ -42,8 +42,8 @@ package BasicSetup {
                |-> by convention.
                Source: Qiskit Textbook, ch01. */
         attribute :>> dimension = 2;
-        ref state plusMember subsets memberState;
-        ref state minusMember subsets memberState;
+        ref state plusState subsets memberState;
+        ref state minusState subsets memberState;
     }
 
     attribute zRegisterBasis : Quantum::Basis {
@@ -76,7 +76,7 @@ package GateOperation {
         ref action tMember : TGate subsets memberGate;
         ref action cnotMember : CNOTGate subsets memberGate;
     }
-    action def HadamardGate :> SingleQubitGateApplication {
+    action def HadamardGate :> BasicSetup::SingleQubitGateApplication {
         doc /* Single-qubit gate; the Hadamard operator interchanges the
                computational (z) and x basis views of the qubit. Exact
                action on the basis states: the member-1 state of zBasis
@@ -93,7 +93,7 @@ package GateOperation {
                Source: Qiskit Textbook, ch01. */
     }
 
-    action def TGate :> SingleQubitGateApplication {
+    action def TGate :> BasicSetup::SingleQubitGateApplication {
         doc /* Single-qubit gate; the T gate, also called the pi/8 gate
                (T equals exp(i pi/8) times a z rotation by pi/4, up to
                global phase). Operator: diag(1, exp(i pi/4)). General
@@ -107,7 +107,7 @@ package GateOperation {
                Source: Qiskit Textbook, ch01. */
     }
 
-    action def CNOTGate :> twoQubitGateApplication {
+    action def CNOTGate :> BasicSetup::twoQubitGateApplication {
         doc /* Controlled-NOT: if the control qubit is in state |0>, the
                target is unchanged; otherwise the target flips (X). For
                basis-state controls this is reversible classical logic;
@@ -131,7 +131,7 @@ package GateOperation {
         } else { }
     }
 
-    abstract action def GateSeries :> SingleQubitGateApplication {
+    abstract action def GateSeries :> BasicSetup::SingleQubitGateApplication {
         doc /* An ordered series of gates composing one gate: the
                composition mechanism of the composite gates. All member
                gates act on the series' qubit, in the succession order
@@ -463,11 +463,11 @@ package GateOperation {
                         attribute :>> basis = BasicSetup::zRegisterBasis;
                         attribute :>> probability = (0.5, 0.5, 0.0, 0.0);
                         attribute :>> relativePhase = (0.0, 0.0, 0.0);
-                    }
-                    attribute beforeRecord : Quantum::Entanglement subsets entanglement {
-                        ref item controlSide :>> among = caseControl;
-                        ref item targetSide :>> among = caseTarget;
-                        attribute :>> entangled = false;
+                        attribute beforeRecord : Quantum::Entanglement subsets entanglement {
+                            ref item controlSide :>> spannedSubsystems = caseControl;
+                            ref item targetSide :>> spannedSubsystems = caseTarget;
+                            attribute :>> entangled = false;
+                        }
                     }
                 }
                 timeslice afterGate {
@@ -475,11 +475,11 @@ package GateOperation {
                         attribute :>> basis = BasicSetup::zRegisterBasis;
                         attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
                         attribute :>> relativePhase = (0.0, 0.0, 0.0);
-                    }
-                    attribute afterRecord : Quantum::Entanglement subsets entanglement {
-                        ref item controlSide :>> among = caseControl;
-                        ref item targetSide :>> among = caseTarget;
-                        attribute :>> entangled = true;
+                        attribute afterRecord : Quantum::Entanglement subsets entanglement {
+                            ref item controlSide :>> spannedSubsystems = caseControl;
+                            ref item targetSide :>> spannedSubsystems = caseTarget;
+                            attribute :>> entangled = true;
+                        }
                     }
                 }
             }
@@ -540,11 +540,11 @@ package GateOperation {
                         attribute :>> basis = BasicSetup::zRegisterBasis;
                         attribute :>> probability = (0.25, 0.25, 0.25, 0.25);
                         attribute :>> relativePhase = (0.0, 0.0, 0.0);
-                    }
-                    attribute beforeRecord : Quantum::Entanglement subsets entanglement {
-                        ref item controlSide :>> among = caseControl;
-                        ref item targetSide :>> among = caseTarget;
-                        attribute :>> entangled = false;
+                        attribute beforeRecord : Quantum::Entanglement subsets entanglement {
+                            ref item controlSide :>> spannedSubsystems = caseControl;
+                            ref item targetSide :>> spannedSubsystems = caseTarget;
+                            attribute :>> entangled = false;
+                        }
                     }
                 }
                 timeslice afterGate {
@@ -552,11 +552,11 @@ package GateOperation {
                         attribute :>> basis = BasicSetup::zRegisterBasis;
                         attribute :>> probability = (0.25, 0.25, 0.25, 0.25);
                         attribute :>> relativePhase = (BasicSetup::pi, BasicSetup::pi, 0.0);
-                    }
-                    attribute afterRecord : Quantum::Entanglement subsets entanglement {
-                        ref item controlSide :>> among = caseControl;
-                        ref item targetSide :>> among = caseTarget;
-                        attribute :>> entangled = false;
+                        attribute afterRecord : Quantum::Entanglement subsets entanglement {
+                            ref item controlSide :>> spannedSubsystems = caseControl;
+                            ref item targetSide :>> spannedSubsystems = caseTarget;
+                            attribute :>> entangled = false;
+                        }
                     }
                 }
             }

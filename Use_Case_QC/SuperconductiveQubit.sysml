@@ -106,7 +106,7 @@ package SuperconductiveQubit {
     // Superconducting qubit (abstract base) — capacitively shunted
     // anharmonic oscillator across two circuit nodes (nodeA, nodeB).
     // =====================================================================
-    abstract part def SuperconductiveQubit {
+    part def SuperconductiveQubit {
         // characteristic energies (reported as E/h)
         attribute chargingEnergy : FrequencyValue;          // E_C/h [GHz]
         attribute josephsonEnergy : FrequencyValue;         // E_J/h [GHz]
