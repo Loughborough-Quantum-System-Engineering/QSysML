@@ -452,7 +452,7 @@ package GateOperation {
                     }
                 }
             }
-            item casePair : Quantum::QuantumSystem {
+            item casePair : Quantum::CompositeQuantumSystem {
                 doc /* The joint descriptions are slice-local states: each
                        phase owns its own description, so no feature is
                        re-redefined across phases. */
@@ -529,7 +529,7 @@ package GateOperation {
                     }
                 }
             }
-            item casePair : Quantum::QuantumSystem {
+            item casePair : Quantum::CompositeQuantumSystem {
                 doc /* The joint descriptions are slice-local states: each
                        phase owns its own description, so no feature is
                        re-redefined across phases. */

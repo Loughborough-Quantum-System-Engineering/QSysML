@@ -19,7 +19,7 @@ package Example {
     item q1 : Quantum::Qubit;
     item q2 : Quantum::Qubit;
 
-    item entangledPair : Quantum::QuantumSystem {
+    item entangledPair : Quantum::CompositeQuantumSystem {
         doc /* Entangled: Bell Phi+ = (|00> + |11>)/sqrt(2), rank 2
                across the {q1} | {q2} cut. The qubits carry no
                descriptions of their own: their reduced states are
@@ -46,7 +46,7 @@ package Example {
     // Example 2: the separable contrast, |0> x |+>
     // ────────────────────────────────────────────────────────────
 
-    item separablePair : Quantum::QuantumSystem {
+    item separablePair : Quantum::CompositeQuantumSystem {
         doc /* Separable: q3 in |0> and q4 in |+>. Each subsystem
                carries its own pure description, and the joint
                description is their product. No entanglement record
@@ -99,7 +99,7 @@ package Example {
         doc /* Entanglement-based QKD: an entangled photon pair is
                distributed, one photon to each station. The stations
                are ordinary parts with their own attributes; the pair
-               is a QuantumSystem whose subsystems reference the two
+               is a CompositeQuantumSystem whose subsystems reference the two
                photons where they live; the correlation is carried by
                the joint state and the entanglement record, and does
                not weaken with the separation. */
@@ -107,7 +107,7 @@ package Example {
         item alice : AliceStation;
         item bob : BobStation;
 
-        item distributedPair : Quantum::QuantumSystem {
+        item distributedPair : Quantum::CompositeQuantumSystem {
             doc /* The entangled photon pair after distribution. The
                    subsystems reference the interface qubits in Alice's
                    and Bob's stations. */

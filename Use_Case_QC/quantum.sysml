@@ -11,11 +11,20 @@ package Quantum {
     private import RealFunctions::*;
 
     item def QuantumSystem {
-        ref item subsystem : QuantumSystem[0..*] ordered;
         state quantumState : QuantumState;
+    }
+
+    item def CompositeQuantumSystem :> QuantumSystem {
+        doc /* A quantum system that names its subsystems: a composite
+               system whose joint description lives on the composite,
+               with subsystems referencing the parts wherever they sit
+               in the containment tree.
+               Source: Nielsen-Chuang sec 1.3.5, composite systems;
+               Quantum Ontology (BS ISO/IEC 4879), quantum system. */
+        ref item subsystem : QuantumSystem[2..*] ordered;
         // dimension law: a composite system's basis dimension is the
-        // product of its subsystems' basis dimensions (leaves exempt)
-        constraint { size(subsystem) == 0 or quantumState.basis.dimension == product(subsystem.quantumState.basis.dimension) }
+        // product of its subsystems' basis dimensions
+        constraint { quantumState.basis.dimension == product(subsystem.quantumState.basis.dimension) }
     }
 
 
@@ -84,15 +93,15 @@ package Quantum {
 
 
     item def Qubit :> QuantumSystem {
-        // dimension law: a composite of n qubits has basis dimension 2^n
-        // (leaves: dimension free, set by the bound basis)
-        constraint { size(subsystem) == 0 or quantumState.basis.dimension == 2^size(subsystem) }
+        // dimension law: a qubit's basis is 2-dimensional; a composite
+        // of n qubits inherits 2^n through the composite product law
+        constraint { quantumState.basis.dimension == 2 }
     }
 
     item def Qutrit :> QuantumSystem {
-        // dimension law: a composite of n qutrits has basis dimension 3^n
-        // (leaves: dimension free, set by the bound basis)
-        constraint { size(subsystem) == 0 or quantumState.basis.dimension == 3^size(subsystem) }
+        // dimension law: a qutrit's basis is 3-dimensional; a composite
+        // of n qutrits inherits 3^n through the composite product law
+        constraint { quantumState.basis.dimension == 3 }
     }
 
     abstract attribute def QuantumOperator {
