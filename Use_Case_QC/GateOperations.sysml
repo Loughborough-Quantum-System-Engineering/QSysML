@@ -194,7 +194,7 @@ package GateOperation {
         doc /* The quantum computer at the logical level: the performer of
                quantum operations on its logical qubits. The mapping to the
                physical qubit hardware is out of scope at this stage.
-               Source: Quantum Ontology (BS ISO/IEC 4879), quantum computer. */
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879), quantum computer. */
         item logicalQubit : QuantumComputing::quantumOperationDefinitions::LogicalQubit;
 
         // general operations: what the computer performs on its qubit

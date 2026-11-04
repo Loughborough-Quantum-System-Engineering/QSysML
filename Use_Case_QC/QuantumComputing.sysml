@@ -121,7 +121,7 @@ package QuantumComputing {
                  the universal gate set act on. Its mapping to physical qubits
                 (error correction) is out of scope at this stage. The state
                 feature makes the qubit an exhibitor of its quantum state.
-                Source: Quantum Ontology (BS ISO/IEC 4879). */
+                Source: Quantum Conceptual Model (BS ISO/IEC 4879). */
         }
 
         abstract action def QuantumOperation :> physicalLayerDefinitions::OperateOnQubit {
@@ -129,7 +129,7 @@ package QuantumComputing {
                  represented by one or more quantum operators, justified by the
                 Kraus representation. State preparation, quantum gates,
                 Hamiltonian evolution and quantum measurement specialise it.
-                Source: Quantum Ontology (BS ISO/IEC 4879). */
+                Source: Quantum Conceptual Model (BS ISO/IEC 4879). */
             ref item actsOn : LogicalQubit[1..*];
             attribute representedBy : Quantum::QuantumOperator[1..*];
         }
@@ -140,7 +140,7 @@ package QuantumComputing {
                 operations (CPTP maps, e.g. TracePreservingOperation) may be
                 inserted between QuantumOperation and this def when the
                 physical realization layer (noisy gates) is modeled.
-                 Source: Quantum Ontology (BS ISO/IEC 4879);
+                 Source: Quantum Conceptual Model (BS ISO/IEC 4879);
                 Nielsen-Chuang ch 8.2. */
             attribute : Quantum::UnitaryOperator[1] :>> representedBy;
         }
@@ -150,7 +150,7 @@ package QuantumComputing {
                  action def because its members are gates, and this
                 toolchain accepts action-typed members only in action
                 defs.
-                Source: Quantum Ontology (BS ISO/IEC 4879), gate set. */
+                Source: Quantum Conceptual Model (BS ISO/IEC 4879), gate set. */
             ref action memberGate : QuantumGate[0..*];
         }
 
@@ -159,7 +159,7 @@ package QuantumComputing {
                  can be approximated to any accuracy. Universality is a
                 theorem about a set, not a structural property; the
                 members carry it.
-                Source: Quantum Ontology (BS ISO/IEC 4879), universal
+                Source: Quantum Conceptual Model (BS ISO/IEC 4879), universal
                 gate set; Qiskit Textbook, ch02; Nielsen-Chuang, ch04. */
         }
 

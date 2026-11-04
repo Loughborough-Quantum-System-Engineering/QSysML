@@ -1,6 +1,6 @@
 // General quantum-domain vocabulary: definitions that hold for any
 // engineered quantum system, not only quantum computing. Terms and
-// meanings come from the Quantum Ontology (BS ISO/IEC 4879), referred
+// meanings come from the Quantum Conceptual Model (BS ISO/IEC 4879), referred
 // to only, never re-modelled. Quantum computing specific definitions
 // (logical qubit, quantum operation, quantum gate, gate sets) stay in
 // QuantumComputing.sysml, package quantumOperationDefinitions.
@@ -20,7 +20,7 @@ package Quantum {
                with subsystems referencing the parts wherever they sit
                in the containment tree.
                Source: Nielsen-Chuang sec 1.3.5, composite systems;
-               Quantum Ontology (BS ISO/IEC 4879), quantum system. */
+               Quantum Conceptual Model (BS ISO/IEC 4879), quantum system. */
         ref item subsystem : QuantumSystem[2..*] ordered;
         // dimension law: a composite system's basis dimension is the
         // product of its subsystems' basis dimensions
@@ -40,7 +40,7 @@ package Quantum {
                register, d for a qudit. Superposition is relative to a
                basis: a state definite in one basis is a combination in
                another.
-               Source: Quantum Ontology (BS ISO/IEC 4879), basis and basis
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879), basis and basis
                states; Qiskit Textbook, ch01; MIT OCW 8.04, ch01. */
         attribute dimension : Integer;
         ref state memberState : BasisState[0..*] ordered;
@@ -61,7 +61,7 @@ package Quantum {
                probabilities are normalized: their sum is 1 (Born rule).
                A state that is a basis member is defined by its membership
                and sets none of these features.
-               Source: Quantum Ontology (BS ISO/IEC 4879), quantum state;
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879), quantum state;
                Qiskit Textbook, ch01. */
         attribute basis : Basis;
         attribute probability : Real[0..*] ordered;
@@ -71,7 +71,7 @@ package Quantum {
         constraint { size(relativePhase) == basis.dimension - 1 }
         constraint { sum(probability) == 1.0 }
     }
-
+ 
     attribute def Entanglement {
         doc /* An entanglement relation of a quantum system: names the
                subsystems that are entangled with each other
@@ -84,7 +84,7 @@ package Quantum {
                the containment tree. Naming no subsystems is allowed
                only for a denial: the statement is then about the
                description as a whole.
-               Source: Quantum Ontology (BS ISO/IEC 4879);
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879);
                Nielsen-Chuang sec 1.3.6, ch 2.5. */
         ref item spannedSubsystems : QuantumSystem[0..*] ordered;
         attribute entangled : Boolean;
@@ -106,11 +106,11 @@ package Quantum {
 
     abstract attribute def QuantumOperator {
         doc /* Mathematical description of a quantum operator.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879). */
     }
 
     attribute def UnitaryOperator :> QuantumOperator {
         doc /* A quantum operator that is unitary.
-               Source: Quantum Ontology (BS ISO/IEC 4879). */
+               Source: Quantum Conceptual Model (BS ISO/IEC 4879). */
     }
 }
