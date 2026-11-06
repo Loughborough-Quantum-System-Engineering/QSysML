@@ -10,18 +10,18 @@ package Quantum {
     private import CollectionFunctions::*;
     private import RealFunctions::*;
 
-    item def QuantumSystem {
+    item def QuantumSubSystem {
         state quantumState : QuantumState;
     }
 
-    item def CompositeQuantumSystem :> QuantumSystem {
+    item def CompositeQuantumSystem :> QuantumSubSystem {
         doc /* A quantum system that names its subsystems: a composite
                system whose joint description lives on the composite,
                with subsystems referencing the parts wherever they sit
                in the containment tree.
                Source: Nielsen-Chuang sec 1.3.5, composite systems;
                Quantum Conceptual Model (BS ISO/IEC 4879), quantum system. */
-        ref item subsystem : QuantumSystem[2..*] ordered;
+        ref item subsystem : QuantumSubSystem[2..*] ordered;
         // dimension law: a composite system's basis dimension is the
         // product of its subsystems' basis dimensions
         constraint { quantumState.basis.dimension == product(subsystem.quantumState.basis.dimension) }
@@ -86,19 +86,19 @@ package Quantum {
                description as a whole.
                Source: Quantum Conceptual Model (BS ISO/IEC 4879);
                Nielsen-Chuang sec 1.3.6, ch 2.5. */
-        ref item spannedSubsystems : QuantumSystem[0..*] ordered;
+        ref item spannedSubsystems : QuantumSubSystem[0..*] ordered;
         attribute entangled : Boolean;
         constraint { size(spannedSubsystems) >= 2 or entangled == false }
     }
 
 
-    item def Qubit :> QuantumSystem {
+    item def Qubit :> QuantumSubSystem {
         // dimension law: a qubit's basis is 2-dimensional; a composite
         // of n qubits inherits 2^n through the composite product law
         constraint { quantumState.basis.dimension == 2 }
     }
 
-    item def Qutrit :> QuantumSystem {
+    item def Qutrit :> QuantumSubSystem {
         // dimension law: a qutrit's basis is 3-dimensional; a composite
         // of n qutrits inherits 3^n through the composite product law
         constraint { quantumState.basis.dimension == 3 }
