@@ -6,15 +6,8 @@
 
 package CalculationLibrary {
     package ScalarCalc {
-        doc /* Layer 0: scalar and complex-pair arithmetic in the subset the
-               SysML v2 Pilot Implementation evaluates. A complex number
-               x + i y is the pair (x, y) as Real[2]: element 1 is the real
-               part x, element 2 is the imaginary part y; i is never stored,
-               it is dissolved into these operation rules. Spec-level
-               counterpart: KerML Complex (9.4.8). Full contracts and
-               conventions: CalculationLibrary.md (this folder).
-               Source: Nielsen-Chuang sec 1.2, sec 4.2; Pilot 0.63.1
-               evaluator notes, 2026-11. */
+        doc /* Layer 0: scalar and complex-pair arithmetic (C1, C5, C7).
+               Full record: CalculationLibrary.md section 3. */
         private import ScalarValues::*;
         private import TrigFunctions::*;
 
@@ -109,16 +102,8 @@ package CalculationLibrary {
     }
 
     package LinCalc {
-        doc /* Layer 1: small dense matrices over real and complex entries,
-               general-purpose: any matrix the user supplies flows through
-               these operations, standard or user-defined. Entries are
-               row-major flat sequences (convention C3); a complex entry is
-               a (real part, imaginary part) pair, entries stored pair by
-               pair. Matrix product order: Product(left, right) means
-               "apply right first, then left". Sizes are fixed at 2x2 and
-               4x4 (generic sizes need loops, which the Pilot does not
-               evaluate); further sizes follow the same recipe.
-               Full contracts: CalculationLibrary.md section 4. */
+        doc /* Layer 1: small dense matrices, fixed 2x2 and 4x4 (C3, C9).
+               Full record: CalculationLibrary.md section 4. */
         private import ScalarValues::*;
 
         // ---- identity constants -----------------------------------------
@@ -455,15 +440,8 @@ package CalculationLibrary {
     }
 
     package QuantumStateCalc {
-        doc /* Layer 2: the qubit-state shape vocabulary and the bridge
-               between the amplitude layer and the native description of
-               quantum.sysml (Born probabilities and relative phase per
-               basis member). States are Real[4] (one qubit) and Real[8]
-               (two qubits); complex values are (real part, imaginary
-               part) pairs (convention C1); constants use the nested
-               authoring style (convention C8).
-               Source: Nielsen-Chuang sec 1.2; Pilot 0.63.1 evaluator
-               notes, 2026-11. */
+        doc /* Layer 2: qubit-state vocabulary and the description views.
+               Full record: CalculationLibrary.md section 5. */
         private import ScalarValues::*;
         private import TrigFunctions::*;
 
@@ -530,18 +508,22 @@ package CalculationLibrary {
                  psi#(7)*psi#(7) + psi#(8)*psi#(8));
         }
 
-        calc def ToAmplitudes {
-            doc /* in: Born probabilities p = (P(0), P(1)) and the relative
-                   phase phi in radians (the phase of member 2 relative to
-                   member 1, as in Quantum::QuantumState); out: the state
-                   with alpha = sqrt(P(0)) and beta = sqrt(P(1)) e^{i phi}.
-                   The bridge from the native description to the amplitude
-                   layer. */
-            in p : Real[2] ordered nonunique;
-            in phi : Real;
-            return : Real[4] ordered nonunique =
-                (CalculationLibrary::ScalarCalc::Sqrt(p#(1)), 0.0,
-                 CalculationLibrary::ScalarCalc::Sqrt(p#(2))*cos(phi), CalculationLibrary::ScalarCalc::Sqrt(p#(2))*sin(phi));
+        calc def InnerProduct {
+            doc /* in: two qubit states psi, phi (Real[4]); out: the
+                   inner product <psi|phi> = sum of conj(psi_k) . phi_k
+                   as a (real part, imaginary part) pair. Real<a|b> =
+                   a1b1 + a2b2 + a3b3 + a4b4, Im<a|b> = a1b2 - a2b1 +
+                   a3b4 - a4b3. Consumer: basis orthonormality checks
+                   (each member vector of a Basis is a Real[4]); also
+                   the building block of ray-level state comparison
+                   (deferred SameState). */
+            in psi : Real[4] ordered nonunique;
+            in phi : Real[4] ordered nonunique;
+            return : Real[2] ordered nonunique =
+                (psi#(1)*phi#(1) + psi#(2)*phi#(2)
+                     + psi#(3)*phi#(3) + psi#(4)*phi#(4),
+                 psi#(1)*phi#(2) - psi#(2)*phi#(1)
+                     + psi#(3)*phi#(4) - psi#(4)*phi#(3));
         }
 
         calc def CosRelativePhase {

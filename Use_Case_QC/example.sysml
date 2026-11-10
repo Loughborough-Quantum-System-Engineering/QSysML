@@ -2,6 +2,13 @@
 // quantum.sysml (package Quantum). Usage-level examples only; the
 // general definitions live there. All references to user libraries
 // are fully qualified per the project style rule.
+//
+// States are calculation-aligned (6 Nov 2026): each quantum state
+// carries its state vector — one (real part, imaginary part) pair per
+// basis member (conventions C1/C2). Conversion from the former
+// (probability, relativePhase) values: member k amplitude pair =
+// (sqrt(p_k) cos(phi_k), sqrt(p_k) sin(phi_k)); all member phases here
+// are 0 or pi, so the pairs are purely real.
 
 package Example {
     private import ScalarValues::*;
@@ -32,8 +39,9 @@ package Example {
 
         state :>> quantumState {
             attribute :>> basis = computationalBasis4;
-            attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
-            attribute :>> relativePhase = (0.0, 0.0, 0.0);
+            attribute :>> stateVector =
+                ((CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0), (0.0, 0.0),
+                 (0.0, 0.0), (CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0));
             attribute :>> entanglement {
                 ref item bellSide1 :>> spannedSubsystems = q1;
                 ref item bellSide2 :>> spannedSubsystems = q2;
@@ -51,30 +59,33 @@ package Example {
                carries its own pure description, and the joint
                description is their product. No entanglement record
                is asserted (the rank would be 1). */
-        item q3 : Quantum::QuantumSystem subsets subsystem {
+        item q3 : Quantum::QuantumSubSystem subsets subsystem {
             state :>> quantumState {
                 attribute :>> basis {
                     attribute :>> dimension = 2;
                 }
-                attribute :>> probability = (1.0, 0.0);
-                attribute :>> relativePhase = 0.0;
+                attribute :>> stateVector =
+                    ((1.0, 0.0), (0.0, 0.0));
             }
         }
-        item q4 : Quantum::QuantumSystem subsets subsystem {
+        item q4 : Quantum::QuantumSubSystem subsets subsystem {
             state :>> quantumState {
                 attribute :>> basis {
                     attribute :>> dimension = 2;
                 }
-                attribute :>> probability = (0.5, 0.5);
-                attribute :>> relativePhase = 0.0;
+                attribute :>> stateVector =
+                    ((CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0),
+                     (CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0));
             }
         }
         state :>> quantumState {
             attribute :>> basis {
                 attribute :>> dimension = 4;
             }
-            attribute :>> probability = (0.5, 0.5, 0.0, 0.0);
-            attribute :>> relativePhase = (0.0, 0.0, 0.0);
+            attribute :>> stateVector =
+                ((CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0),
+                 (CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0),
+                 (0.0, 0.0), (0.0, 0.0));
         }
     }
 
@@ -95,7 +106,7 @@ package Example {
         attribute :>> operatorName = "Bob";
     }
 
-    part def QkdLink :> Quantum::QuantumSystem {
+    part def QkdLink :> Quantum::QuantumSubSystem {
         doc /* Entanglement-based QKD: an entangled photon pair is
                distributed, one photon to each station. The stations
                are ordinary parts with their own attributes; the pair
@@ -118,8 +129,9 @@ package Example {
                 attribute :>> basis {
                     attribute :>> dimension = 4;
                 }
-                attribute :>> probability = (0.5, 0.0, 0.0, 0.5);
-                attribute :>> relativePhase = (0.0, 0.0, 0.0);
+                attribute :>> stateVector =
+                    ((CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0), (0.0, 0.0),
+                     (0.0, 0.0), (CalculationLibrary::QuantumStateCalc::invSqrt2, 0.0));
                 attribute :>> entanglement {
                     ref item aliceSide :>> spannedSubsystems = alice.interfaceQubit;
                     ref item bobSide :>> spannedSubsystems = bob.interfaceQubit;

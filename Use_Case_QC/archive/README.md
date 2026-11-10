@@ -12,6 +12,7 @@ Folder structure mirrors the original location.
 | Other platforms | LaserTrappedIonInterface, MicrowaveTrappedIonInterface, EQCTrappedIonInterface, NeutralAtomInterface, AtomicCommon | Non-superconducting platforms |
 | Legacy | physicalBlackBox, logicalBlackBox, physicalLayerAction | QSAM-era black boxes, superseded |
 | Gate calculation rewrite | GateOperations | Parked pending a complete rewrite on a calculation-library substrate (calc defs for the gate set); TransmonGateOperations.sysml still references its BasicSetup/GateOperation packages and reports unresolved references until the rewrite lands |
+| Superseded state representation | archive_quantum.sysml | Preserved before the calculation-aligned restructure (6 Nov 2026, decision #37): states now carry stateVector (one (real part, imaginary part) pair per basis member) instead of (probability, relativePhase); Basis carries memberVector. The active quantum.sysml supersedes this copy |
 
 Archived files import shared packages that remain in Use_Case_QC/ (QuantumComputing, CommonInstruments, SuperconductingCommon, SuperconductiveQubit).
 If a tool loads only the active folders, archived files may show unresolved imports. That is expected.

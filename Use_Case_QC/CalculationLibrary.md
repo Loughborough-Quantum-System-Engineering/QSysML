@@ -18,11 +18,11 @@ Scope: this library and its reference serve the Use_Case_QC folder.
 | # | Convention |
 |---|---|
 | C1 | A complex number x + i y is the pair (x, y) as `Real[2]`: element 1 is the real part x, element 2 is the imaginary part y. i is never stored; it exists only as the operation rules (i^2 = -1 is the negative term of ComplexMultiply). |
-| C2 | A qubit state alpha|0> + beta|1> is four reals: (real part of alpha, imaginary part of alpha, real part of beta, imaginary part of beta) as `Real[4]` — two pairs, flattened. Two-qubit states: four pairs in register order (member 1 = |00> ... member 4 = |11>). |
+| C2 | A quantum state IS a state vector relative to a basis (calculation-aligned, 6 Nov 2026; quantum.sysml `QuantumState.stateVector`): one (real part, imaginary part) pair per basis member, by index — a qubit state is `Real[4]` = (real part of alpha, imaginary part of alpha, real part of beta, imaginary part of beta); two-qubit states: four pairs in register order (member 1 = |00> ... member 4 = |11>). Basis membership carries its member VECTORS (`Basis.memberVector`: d member vectors of 2d reals each in the reference z convention; in C8 spelling the groups are the members). Group meaning is shape-specific: stateVector groups = amplitude pairs, memberVector groups = members, gate-matrix groups = rows. |
 | C3 | Indexing is `#(n)`, **1-based** ("element n"). Matrix carriers are flat, **row-major**: entry (r, c) of a 2x2 is element 2(r-1)+c. |
 | C4 | **Ambiguous-literal warning**: `((1,0),(0,0))` reads as the state |0> (pair of pairs) *or* as the matrix [[1,0],[0,0]] = |0><0|. Construct and read shapes only through §2's named calcs — never raw nested literals. |
 | C5 | **Tolerance policy**: mathematical identities are asserted with `Close`/`StatesClose`, never `==`. Default eps = 1.0E-9 (rounding ~1E-16; chained arithmetic ~1E-15). `default` parameters may be overridden; bound (`=`) may not. |
-| C6 | **Global phase** is carried by the amplitude layer (and `TimesI`, L2); the (probability, relativePhase) description layer cannot see it. |
+| C6 | **Global phase** is carried inside the state vector (unobservable); `TimesI` states global-phase identities exactly. No phase ANGLE is stored anywhere (the (p, phi-angle) form is superseded): the angle needs atan2 (nonevaluable) — only the phase DIRECTION per member is computable (`CosRelativePhase` gives cos of it; `RelativePhaseDirection` deferred). |
 | C7 | **Exact expressions only**: model source never contains rounded decimals (`1.0 / Sqrt(2.0)`, `pi / 4.0` — never 0.7071...). Decimals appear only in tolerance values (exact as written) and in *displayed evaluated results*. |
 | C8 | **Nested authoring style (preferred)**: sequence constants and arguments are written with grouping parentheses exposing the intended structure — matrix rows `((a11, a12), (a21, a22))`, qubit states `((real part of alpha, imaginary part of alpha), (real part of beta, imaginary part of beta))`, two-qubit states as four amplitude groups, 4x4 matrices as four rows. Nesting flattens to the same flat carrier (validated); it is presentation only — the meaning of each group comes from the shape registry, and reading happens through the Entry accessors and shape calcs, never through the grouping. |
 | C9 | **Call results splat inside tuple literals**: a calc invocation returning a sequence may be a *direct argument* (binds to the parameter's type — validated), but nested inside a larger tuple literal its result spreads element-wise into the sequence (`((0.0, 0.0, 0.0, ComplexExpI(pi/4.0)))` produced 5 elements, not 4). Build such values with constructors taking the call as an argument, or spell exact numbers. |
@@ -39,6 +39,9 @@ Scope: this library and its reference serve the Use_Case_QC folder.
 | 2x2 real matrix | `Real[4]` | row-major operator | `Matrix2x2Real(a11, a12, a21, a22)` | `Matrix2x2RealEntry(m, row, column)` |
 | 2x2 complex matrix | `Real[8]` | pair per entry, row-major | `Matrix2x2Complex(a11, a12, a21, a22)` (pairs) | `Matrix2x2ComplexEntry(m, row, column)` |
 | 4x4 real matrix | `Real[16]` | two-qubit operators (CNOT) | `Matrix4x4Real(a11 ... a44)` | `Matrix4x4RealEntry(m, row, column)` |
+| Qubit state vector | `Real[4]` | the QuantumState carrier (groups = amplitude pairs) | `Ket0`/`Ket1`/`KetPlus`/`KetMinus`, `QubitState(alpha, beta)` | `QubitAlpha`, `QubitBeta` |
+| Two-qubit state vector | `Real[8]` | the composite carrier (groups = amplitude pairs) | `TensorProduct(a, b)` | TBD |
+| Basis member vectors | `Real[2d^2]` | d member vectors in the reference convention (groups = members) | literal (C8) | `InnerProduct` for orthonormality |
 
 ## 3. Layer 0 — `CalculationLibrary::ScalarCalc` (implemented)
 
@@ -147,15 +150,19 @@ and relative phase per basis member).
 > `QubitAlpha(psi)` / `QubitBeta(psi)` → pair `Real[2]` ·
 > constants `Ket0`, `Ket1`, `KetPlus`, `KetMinus`
 
-**Bridge to the native (probability, relativePhase) description**:
+**Measurement-description views** (computed on demand; since 6 Nov the
+quantum.sysml state IS the state vector — `ToAmplitudes` is REMOVED):
 
 > `BornProbabilities(psi)` → `(P(0), P(1))` as `Real[2]` — the Born rule,
-> matching `Quantum::QuantumState::probability` by index ·
+> the probability view of a state ·
 > `BornProbabilitiesTwoQubit(psi)` → `Real[4]`, register order \|00>..\|11> ·
-> `ToAmplitudes(p, phi)` → state `Real[4]`: alpha = sqrt(P(0)),
-> beta = sqrt(P(1))·e^{i phi} — the bridge from description to amplitudes ·
 > `CosRelativePhase(psi)` → cosine of the relative phase (no atan2 exists;
 > meaningful only when both Born probabilities are nonzero)
+
+**Inner products** (un-deferred 6 Nov: consumer = basis orthonormality):
+
+> `InnerProduct(psi, phi)` → pair `Real[2]`: <psi|phi> = sum of
+> conj(psi_k)·phi_k; zero pair = orthogonal, (1, 0) = normalized self
 
 **Global phase** (C6):
 
@@ -168,7 +175,24 @@ and relative phase per basis member).
 > `ProbabilitiesClose(p, q, eps)` → `Boolean`
 
 **Still queued**: structured `attribute def` retest (needs an
-instantiation-syntax probe first). **Deferred (designed, no current
+instantiation-syntax probe first); `RelativePhaseDirection`
+(deferred — direction pair beta/sqrt(P(1)), only when a consumer appears);
+`SameState`/ray equality (deferred, see below).
+
+## Section 8. Using with quantum.sysml (meeting-point contract, 6 Nov)
+
+`Quantum::QuantumState` is now calculation-aligned: its `stateVector`
+feature IS the Real[2d] vector the library operates on. Certified
+patterns (kernel-evaluated): read `q.quantumState.stateVector` into any
+gate/matrix calc; bind a computed view back (`attribute :>> stateVector
+= Matrix2x2ComplexTimesState(GateOperations::TMatrix,
+beforeGate.quantumState.stateVector)` across timeslices — the evaluated
+overwrite). Usage kind: quantum states are declared `state :>> quantumState`
+(QuantumState is a state def). Phase asymmetry: probabilities flow both
+ways, the phase angle never leaves the vector. Load order: CalculationLibrary.sysml
+before quantum.sysml (C10 inline references). The Pilot does not evaluate
+constraint satisfaction — the Qubit normalization constraint is
+parse-level there; evaluate normalization via `IsNormalised` when needed. **Deferred (designed, no current
 consumer)**: `SameState(psi, phi, eps)` — ray-level equality,
 `Close(|<psi|phi>|^2, 1.0, eps)`; needed only when a check must ignore
 global phase (ray equality per Nielsen-Chuang ch02; its one motivating
@@ -204,6 +228,8 @@ green. Exact values are the §3 examples.
 | Nested authoring sugar in attribute defaults and calc arguments | **validated** | `H` spelled as two rows → correct row-major `Real[4]`; nested literal as argument flattens and evaluates: `ApplyX(((0,0),(1,0)))` = X·\|1⟩ = \|0> |
 | Structured `attribute def` results, chained | **known-broken** | recorded earlier; retest queued for the L2 round |
 | `RealFunctions::sum` | **avoid** | returns wrong results (0.0 for (1,2,3)) |
+| Tool divergence #4: Aliot RES001 on `attribute :>> stateVector` inside nested `state :>> quantumState` redefinitions | **Pilot is arbiter** | the Pilot loads example.sysml clean and evaluates the bound vectors; Aliot reports "does not exist on the current scope" — trust the Pilot per the sysml2-validate triage rules |
+| quantum.sysml load order | **CalculationLibrary first** | quantum.sysml references `CalculationLibrary::ScalarCalc::Close` inline (C10); loading quantum first poisons the session |
 
 ## 7. Kernel usage notes (`%eval`)
 

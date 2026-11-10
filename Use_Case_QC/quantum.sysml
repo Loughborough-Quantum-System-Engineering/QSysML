@@ -4,6 +4,11 @@
 // to only, never re-modelled. Quantum computing specific definitions
 // (logical qubit, quantum operation, quantum gate, gate sets) stay in
 // QuantumComputing.sysml, package quantumOperationDefinitions.
+//
+// Representation: calculation-aligned (6 Nov 2026, decision #37) —
+// states are state vectors; the rationale is recorded in
+// PhD/QSysML/Model doc records 2026-11-06.md (second brain).
+// The superseded pre-restructure version: archive_quantum.sysml (archive).
 
 package Quantum {
     private import ScalarValues::*;
@@ -31,47 +36,30 @@ package Quantum {
     abstract state def BasisState;
 
     attribute def Basis {
-        doc /* A basis: the set of outcome states that defines a measurement.
-               Member i is the state of certain outcome i in this basis;
-               membership is the member's definition, so a member carries no
-               values and its own basis feature is unset by convention.
-               Indices order the outcomes; member names are optional reader
-               aid. Dimension: 2 for a single qubit, 2^n for an n-qubit
-               register, d for a qudit. Superposition is relative to a
-               basis: a state definite in one basis is a combination in
-               another.
-               Source: Quantum Conceptual Model (BS ISO/IEC 4879), basis and basis
-               states; Qiskit Textbook, ch01; MIT OCW 8.04, ch01. */
+        doc /* A basis: d ordered orthonormal member states; the math is
+               memberVector (d member vectors of 2d reals, reference z
+               convention, C8 groups = members). Record: Model doc
+               records 2026-11-06.md. Source: Nielsen-Chuang sec 1.2. */
         attribute dimension : Integer;
         ref state memberState : BasisState[0..*] ordered;
+        attribute memberVector : Real[0..*] ordered;
         constraint { size(memberState) == dimension }
+        constraint { size(memberVector) == 2 * dimension * dimension }
     }
 
     state def QuantumState {
-        doc /* The state of a quantum system, expressed relative to a basis:
-               one Born probability per basis member, by index, plus the
-               relative phases of the other members' components relative to
-               member 1, in radians: probability[i] corresponds to
-               basis.memberState[i] by index, and relativePhase[i] is the
-               phase of basis member i+1 relative to member 1 (so the
-               collection has basis.dimension - 1 entries). Probabilities with the relative phase determine a
-               pure state up to global phase; the global phase and the
-               amplitudes stay in the native model. The same state has
-               different probability descriptions in different bases. The
-               probabilities are normalized: their sum is 1 (Born rule).
-               A state that is a basis member is defined by its membership
-               and sets none of these features.
-               Source: Quantum Conceptual Model (BS ISO/IEC 4879), quantum state;
-               Qiskit Textbook, ch01. */
+        doc /* The state: a complex state vector relative to a basis —
+               one (real part, imaginary part) pair per basis member,
+               by index (C1/C2). Gate matrices act on it directly;
+               Born probabilities are a derived view (BornProbabilities);
+               no phase angle is stored (atan2 wall). Record: Model doc
+               records 2026-11-06.md. Source: Nielsen-Chuang sec 1.2. */
         attribute basis : Basis;
-        attribute probability : Real[0..*] ordered;
-        attribute relativePhase : Real[0..*] ordered;
+        attribute stateVector : Real[0..*] ordered;
         attribute entanglement : Entanglement[0..*];
-        constraint { size(probability) == basis.dimension }
-        constraint { size(relativePhase) == basis.dimension - 1 }
-        constraint { sum(probability) == 1.0 }
+        constraint { size(stateVector) == 2 * basis.dimension }
     }
- 
+
     attribute def Entanglement {
         doc /* An entanglement relation of a quantum system: names the
                subsystems that are entangled with each other
@@ -93,15 +81,26 @@ package Quantum {
 
 
     item def Qubit :> QuantumSubSystem {
-        // dimension law: a qubit's basis is 2-dimensional; a composite
-        // of n qubits inherits 2^n through the composite product law
+        // dimension law: a qubit's basis is 2-dimensional
         constraint { quantumState.basis.dimension == 2 }
+        constraint { size(quantumState.stateVector) == 4 }
+        constraint {
+            // Born normalization (C5); explicit additions: sum is broken.
+            CalculationLibrary::ScalarCalc::Close(
+                quantumState.stateVector#(1) * quantumState.stateVector#(1) +
+                quantumState.stateVector#(2) * quantumState.stateVector#(2) +
+                quantumState.stateVector#(3) * quantumState.stateVector#(3) +
+                quantumState.stateVector#(4) * quantumState.stateVector#(4),
+                1.0)
+        }
     }
 
     item def Qutrit :> QuantumSubSystem {
-        // dimension law: a qutrit's basis is 3-dimensional; a composite
-        // of n qutrits inherits 3^n through the composite product law
+        // dimension law: a qutrit's basis is 3-dimensional
         constraint { quantumState.basis.dimension == 3 }
+        constraint { size(quantumState.stateVector) == 6 }
+        // Born normalization: same recipe over the six components,
+        // to state when a qutrit calculation need exists.
     }
 
     abstract attribute def QuantumOperator {
