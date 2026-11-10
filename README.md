@@ -1,12 +1,17 @@
 # QSysML-v2 ver.0.0.0 (Still under the initial development)
 
-QSysML v2 is a SysML v2 library tailored for modelling of quantum systems (it is still under the development).
-The repository consists mainly of **.sysml** files and no tool-specific files; the quantum concept model is additionally provided as a MagicDraw/Cameo project file (.mdzip).
-To try any of the SysML v2 model on this repository, you need to first download the sysml file then load it with SysML v2 tool of your choice.
+QSysML v2 is a SysML v2 library tailored for modelling of quantum systems (it is still under development).
+The aim of this project is to develop a foundation for modelling of quantum systems which is currently considered challenging.
+Official publication on this will be published soon.
+
+The repository consists mainly of **.sysml** files and no tool-specific files. The quantum concept model is additionally provided as a MagicDraw/Cameo project file (.mdzip).
+To try any of the SysML v2 models on this repository, you need to first download the sysml file then load it with a SysML v2 tool of your choice.
 
 ## Concept paper
 
-The initial concept paper for QSysML: [A Framework for Managing the Models of Engineered Quantum Systems](https://arxiv.org/abs/2607.10347) (Ji et al., arXiv:2607.10347).
+The initial concept paper, **A Framework for Managing the Models of Engineered Quantum Systems** ([arXiv:2607.10347](https://arxiv.org/abs/2607.10347)).
+
+As quantum technologies mature into systems that classical engineering must build, verify and maintain, their quantum domain models must be synchronised with the heterogeneous models created and owned by other communities. Existing synchronisation approaches are insufficient for engineered quantum systems. A model transformation could remove superposition and entanglement undetected while every structural check passes. The paper presents the Quantum Systems Model Management (QSysMM) Framework, which guides the construction and synchronisation of the models of a quantum system into a digital single source of truth. The framework addresses four concerns, ontological, abstraction, composition and exposure, and within it proposes QSysML, a Quantum Systems Modelling Language on the SysML v2 technology stack.
 
 ## Repository structure
 
@@ -17,7 +22,7 @@ The initial concept paper for QSysML: [A Framework for Managing the Models of En
 
 ## Quantum Concept Model
 
-[`Quantum_Concept_Model.mdzip`](Quantum_Concept_Model.mdzip) defines the quantum domain concepts underlying QSysML v2. The terminology is based on ISO/IEC 4879:2024 (*Quantum computing — Terminology*). The concept model is organised into the following concept areas.
+[`Quantum_Concept_Model.mdzip`](Quantum_Concept_Model.mdzip) defines the quantum domain concepts underlying QSysML v2. Some terminology is based on ISO/IEC 4879:2024 (*Information technology-Quantum Computing-Vocabulary*). The concept model is organised into the following concept areas.
 
 ### Quantum Physics Background
 
@@ -40,7 +45,7 @@ Concepts based on ISO/IEC 4879:2024 section 3.3: quantum information, qubit, qut
 ## Use Case: Quantum Computing
 
 The quantum computing use case ([`Use_Case_QC/`](Use_Case_QC)) applies QSysML v2 to the modelling of a superconducting-circuit quantum computer. 
-It covers the physical layer — the fixed-frequency transmon qubit with its Josephson-junction/shunt-capacitor circuit, direct capacitive two-qubit coupling, and the cryogenic classical control and readout interface with laboratory instruments — and the logical layer: the universal gate set {H, T, CNOT}, transmon gate operations, and a calculation library for quantum-state computation demonstrated on worked examples. 
+It covers the physical layer — the fixed-frequency transmon qubit with its Josephson-junction/shunt-capacitor circuit, direct capacitive two-qubit coupling, and the cryogenic classical control and readout interface, and the logical layer: the universal gate set {H, T, CNOT}, transmon gate operations.
 Details are in the [Use_Case_QC README](Use_Case_QC/README.md).
 
 ## Use Case: Quantum Communication

@@ -1,1 +1,1 @@
-This directly consist files for QSysML v2 library
+This directly consists of files for the QSysML v2 library
