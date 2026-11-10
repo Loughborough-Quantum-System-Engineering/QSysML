@@ -1,1 +1,3 @@
 This is use case of QSysML on Quantum Communication.
+
+The use case models quantum key distribution (QKD) systems. Two protocols are modelled: BB84, a single-particle prepare-and-measure protocol using four non-orthogonal polarisation states (Bennett & Brassard, 1984), and E91, an entanglement-based protocol using EPR pairs (Ekert, 1991). Each protocol is modelled from logical and physical perspectives through black-box, white-box and mapping views ([General.sysml](General.sysml)). The QKD apparatus is modelled in [QKD_Kit.sysml](QKD_Kit.sysml) as transmitter, receiver and intercept (Eve) modules, and [QKD_BB84_Physical_Experiment.sysml](QKD_BB84_Physical_Experiment.sysml) describes a physical experiment of BB84.
