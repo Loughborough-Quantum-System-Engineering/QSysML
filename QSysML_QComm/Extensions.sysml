@@ -1,4 +1,5 @@
 package Extensions {
+    /* The metadata needed for adding elements with a semantic meaning */
     private import ModelingMetadata;
     /* Metadata lets you add meaning, classification, provenance and domain vocabulary without changing what the system is. It is used for TermDefinition, DomainTrace, or
      * ModellingDecision */

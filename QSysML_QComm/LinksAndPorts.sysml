@@ -1,4 +1,5 @@
 package LinksAndPorts {
+    /* Here are the connections and interfaces between the nodes */
     connection def QKDLink {
         doc
         /* ITU describes the functional elements of the QKD link including optical switching/splitting and quantum relay points.

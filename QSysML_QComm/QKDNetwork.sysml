@@ -1,4 +1,5 @@
 package QKDNetwork {
+    /* More detailed definitions, using the abstracted definitions in the packages */
     connection def BB84Link :> LinksAndPorts::QKDLink {
         end part :>> moduleA : LogicalEntities::Transmitter;
         end part :>> moduleB : LogicalEntities::Receiver;
