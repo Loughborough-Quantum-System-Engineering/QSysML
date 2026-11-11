@@ -16,8 +16,9 @@ As quantum technologies mature into systems that classical engineering must buil
 ## Repository structure
 
 - [`QSysML_Library/`](QSysML_Library) — core files of the QSysML v2 library
+- [`QSysML_QComm/`](QSysML_QComm/) — standards-based modelling of quantum communication networks, defining logical entities, functional elements, etc.
 - [`Use_Case_QC/`](Use_Case_QC) — use case of QSysML on quantum computing (superconducting transmon qubit, gate operations, calculation library)
-- [`Use_Case_QComm/`](Use_Case_QComm) — use case of QSysML on quantum communication (QKD protocols: BB84, E91)
+- [`Use_Case_QComm/`](Use_Case_QComm) — use case of QSysML on QKD protocols: (BB84, E91)
 - [`docs/images/`](docs/images) — diagrams used in the READMEs
 
 ## Quantum Concept Model
