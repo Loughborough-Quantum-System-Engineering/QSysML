@@ -142,7 +142,7 @@ package QuantumComputing {
                 physical realization layer (noisy gates) is modeled.
                  Source: Quantum Conceptual Model (BS ISO/IEC 4879);
                 Nielsen-Chuang ch 8.2. */
-            attribute : Quantum::UnitaryOperator[1] :>> representedBy;
+            attribute : Quantum::MathExpression::UnitaryMatrix[1] :>> representedBy;
         }
 
         abstract action def GateSet {
@@ -157,11 +157,38 @@ package QuantumComputing {
         action def UniversalGateSet :> GateSet {
             doc /* A universal gate set: a gate set from which any unitary
                  can be approximated to any accuracy. Universality is a
-                theorem about a set, not a structural property; the
-                members carry it.
+                 theorem about a set, not a structural property; the
+                 members carry it.
                 Source: Quantum Conceptual Model (BS ISO/IEC 4879), universal
                 gate set; Qiskit Textbook, ch02; Nielsen-Chuang, ch04. */
         }
 
+
+    }
+    // NamedGate / NamedState enums REMOVED 19 Nov (the swap, decisions
+    // #72/#80): names by fiat are superseded by value DEFINITIONS --
+    // h, t in GateOperations.sysml; zero, one in quantum.sysml;
+    // plus, minus in GateOperations.sysml (xBasis members).
+
+    // ---------- Utility (Kyon's action layer) --------------------------
+    // Moved verbatim from brain_storm.sysml 19 Nov; untyped sketches,
+    // work in progress -- the M2M does not touch this package.
+
+    package Utility {
+        action def UnitaryOperator {
+            calc UnitaryEvolution;
+            in InitialQuantumState;
+            out FinalQuantumState;
+        }
+
+        action def QuantumStatePreparation {
+
+        }
+
+        action def QuantumMeasurement {
+            calc MeasurementOperator;
+            in QuantumState;
+            out MeasurementResult;
+        }
     }
 }
